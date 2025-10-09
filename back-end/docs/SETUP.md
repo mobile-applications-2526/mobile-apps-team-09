@@ -125,12 +125,88 @@ pytest tests/test_auth.py
 
 ## 🗄️ Database Management
 
-### Using Docker
+### Using pgAdmin (Web Interface)
 
-Access pgAdmin at: http://localhost:5050
+#### Step 1: Access pgAdmin
 
-- **Email**: admin@plantsense.com (or what you set in .env)
-- **Password**: Your PGADMIN_PASSWORD from .env
+Open your browser and go to: **http://localhost:5050**
+
+Login with:
+
+- **Email**: `admin@plantsense.com` (or what you set in `PGADMIN_EMAIL` in your `.env`)
+- **Password**: Your `PGADMIN_PASSWORD` from `.env`
+
+#### Step 2: Add PostgreSQL Server
+
+Once logged in, you'll see the pgAdmin welcome screen. Now you need to register your database server:
+
+1. **Click "Add New Server"** (the blue database icon)
+
+   OR
+
+   Right-click **"Servers"** in the left panel → **"Register"** → **"Server..."**
+
+2. **Fill in the connection details:**
+
+   **General Tab:**
+
+   - **Name**: `PlantSense AI` (or any name you prefer)
+
+   **Connection Tab:**
+
+   - **Host name/address**: `db` (this is the Docker service name)
+   - **Port**: `5432`
+   - **Maintenance database**: `plantsense_db` (matches `POSTGRES_DB` in your `.env`)
+   - **Username**: `plantsense` (matches `POSTGRES_USER` in your `.env`)
+   - **Password**: Your `POSTGRES_PASSWORD` from your `.env` file
+   - ✅ **Check "Save password"** (optional, for convenience)
+
+3. **Click "Save"**
+
+#### Step 3: Explore Your Database
+
+After connecting, you should see:
+
+1. Expand **Servers** → **PlantSense AI**
+2. Expand **Databases** → **plantsense_db**
+3. Expand **Schemas** → **public** → **Tables**
+4. You should see the **`users`** table! 🎉
+
+#### Quick Reference - Connection Details
+
+```
+Host: db
+Port: 5432
+Database: plantsense_db
+Username: plantsense
+Password: (from your .env file)
+```
+
+> **💡 Tip**: If you don't remember your password, check your `.env` file:
+>
+> ```bash
+> cat .env | grep POSTGRES_PASSWORD
+> ```
+
+#### Troubleshooting pgAdmin Connection
+
+**If you get "could not connect to server":**
+
+1. Make sure all Docker containers are running:
+
+   ```bash
+   docker-compose ps
+   ```
+
+2. Try using the container name instead:
+
+   - **Host name/address**: `plantsense_postgres` (instead of `db`)
+
+3. Make sure pgAdmin and PostgreSQL are on the same network:
+   ```bash
+   docker network ls
+   docker network inspect plantsense_network
+   ```
 
 ### Using Database CLI
 
