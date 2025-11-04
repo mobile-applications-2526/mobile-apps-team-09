@@ -34,7 +34,7 @@ export default function FirstTimeInfo() {
 
     const handleArrowPress = () => {
         if (step === steps.length - 1) {
-            router.push('/explore');
+            router.push('/search');
             return;
         }
 
@@ -68,7 +68,6 @@ export default function FirstTimeInfo() {
                 translucent={false}
             />
 
-            {/* Top-aligned content with fade animation */}
             <Animated.View style={[styles.contentContainer, { opacity: fadeAnim }]}>
                 <View style={styles.barContainer}>
                     {currentStep.barStatus.map((filled, index) => (
@@ -100,7 +99,6 @@ export default function FirstTimeInfo() {
                 </ThemedText>
             </Animated.View>
 
-            {/* Bottom-right arrow */}
             <Pressable onPress={handleArrowPress} style={styles.arrowContainer}>
                 <Image
                     source={require('@/assets/images/arrow-right.png')}
