@@ -12,10 +12,28 @@ import {
     KeyboardAvoidingView,
     ScrollView,
 } from "react-native";
+import { login } from "./services/UserService";
+import { useRouter } from "expo-router";
 
 export default function Login() {
-    const [email, setEmail] = React.useState("");
+    const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const [error, setError] = React.useState("");
+    const router = useRouter();
+
+    async function handleLogin() {
+        try {
+            const response = await login(username, password); // wait for the Promise
+            if (!response) {
+                setError("Username and password do not match");
+                return;
+            }
+            router.push('/search');
+        } catch (error: any) {
+            setError(error.message || "An error occurred during login");
+        }
+    }
+
 
     return (
         <ThemedView
@@ -38,13 +56,12 @@ export default function Login() {
                     >
                         <ThemedText style={styles.welcome}>Welcome Back</ThemedText>
 
-                        <ThemedText style={styles.loginText}>Email:</ThemedText>
+                        <ThemedText style={styles.loginText}>Username:</ThemedText>
                         <TextInput
                             style={styles.input}
-                            onChangeText={setEmail}
-                            value={email}
-                            placeholder="Enter your email"
-                            keyboardType="email-address"
+                            onChangeText={setUsername}
+                            value={username}
+                            placeholder="Enter your username"
                             autoCapitalize="none"
                         />
 
@@ -62,9 +79,14 @@ export default function Login() {
                                 styles.signIn,
                                 { opacity: pressed ? 0.7 : 1 },
                             ]}
+                            onPress={handleLogin}
                         >
                             <ThemedText style={styles.signInText}>Sign In</ThemedText>
                         </Pressable>
+                        {error && <ThemedText
+                            style={styles.error}>
+                            {error}
+                        </ThemedText>}
                     </ThemedView>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -134,4 +156,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 25,
     },
+    error: {
+        color: "#ff0000ff",
+        fontWeight: "bold",
+    }
 });
