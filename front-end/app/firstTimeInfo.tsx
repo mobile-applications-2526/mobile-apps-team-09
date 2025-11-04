@@ -28,7 +28,7 @@ export default function FirstTimeInfo() {
             barStatus: [false, false, true],
             title: "Give them sunlight",
             description: "Most plants thrive with a few hours of sunlight every day. Observe your plant to find the right spot.",
-            image: require('@/assets/images/plantInfoScreen.png'),
+            image: require('@/assets/images/sunlightPlant.png'),
         },
     ];
 
