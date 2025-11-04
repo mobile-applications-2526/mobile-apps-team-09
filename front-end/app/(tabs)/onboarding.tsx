@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, ImageBackground, Dimensions } from 'react-native';
+import { Pressable, StyleSheet, ImageBackground, Dimensions, StatusBar, Platform } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
@@ -9,7 +9,7 @@ export default function OnboardingScreen() {
   const router = useRouter();
 
   const handleArrowPress = () => {
-    router.push('/explore'); // navigate to the "explore" screen
+    router.push('/firstTimeInfo');
   };
 
   return (
@@ -18,10 +18,21 @@ export default function OnboardingScreen() {
       style={styles.background}
       resizeMode="cover"
     >
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent={Platform.OS === 'android'}
+      />
+
       <ThemedView style={styles.titleContainer} lightColor="transparent" darkColor="transparent">
         <ThemedText
           type="title"
-          style={{ fontFamily: Fonts.rounded, fontSize: 32, color: 'black', textAlign: 'center' }}
+          style={{
+            fontFamily: Fonts.rounded,
+            fontSize: 32,
+            color: 'black',
+            textAlign: 'center',
+          }}
         >
           Enjoy your life{'\n'}
           with plants
@@ -43,11 +54,12 @@ const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,             
+    flex: 1,
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // push content below status bar
   },
   titleContainer: {
     flexDirection: 'column',

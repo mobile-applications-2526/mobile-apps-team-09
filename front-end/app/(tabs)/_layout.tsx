@@ -38,6 +38,14 @@ export default function TabLayout() {
           tabBarStyle: { display: 'none' },
         }}
       />
+      <Tabs.Screen
+        name="firstTimeInfo"
+        options={{
+          title: 'firt time info',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chevron.left" color={color} />,
+          tabBarStyle: { display: 'none' },
+        }}
+      />
     </Tabs>
   );
 }
