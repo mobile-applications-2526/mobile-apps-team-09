@@ -13,14 +13,43 @@ export default function TabsLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarButton: HapticTab,
+        tabBarStyle: {
+          height: 70,
+          paddingTop: 15,
+          paddingBottom: 10,
+          backgroundColor: Colors[colorScheme ?? 'light'].background,
+          borderTopWidth: 0,
+        },
       }}
     >
       <Tabs.Screen
         name="search"
         options={{
-          title: 'search',
+          title: 'Search',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="camera"
+        options={{
+          title: 'Camera',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="overview"
+        options={{
+          title: 'Overview',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="list.bullet" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
         }}
       />
     </Tabs>
