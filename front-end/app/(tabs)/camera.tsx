@@ -7,16 +7,13 @@ export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [photoUri, setPhotoUri] = useState<string | null>(null);
 
-  // The ref uses "any" for compatibility since CameraView does not provide exported type for refs
   const cameraRef = useRef<any>(null);
 
   if (!permission) {
-    // Camera permissions are still loading.
     return <View />;
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>

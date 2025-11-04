@@ -34,7 +34,7 @@ export default function FirstTimeInfo() {
 
     const handleArrowPress = () => {
         if (step === steps.length - 1) {
-            router.push('/search');
+            router.push('/login');
             return;
         }
 

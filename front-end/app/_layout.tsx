@@ -13,9 +13,8 @@ export default function RootLayout() {
         {/* All root stack screens */}
         <Stack.Screen name="index" />               {/* HomeScreen */}
         <Stack.Screen name="onboarding" />
-        <Stack.Screen name="firstTimeInfoP1" />
-        <Stack.Screen name="firstTimeInfoP2" />
-        <Stack.Screen name="firstTimeInfoP3" />
+        <Stack.Screen name="firstTimeInfo" />
+        <Stack.Screen name="Login" />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
