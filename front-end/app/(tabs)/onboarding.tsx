@@ -1,10 +1,17 @@
-import { StyleSheet, ImageBackground, Dimensions } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, StyleSheet, ImageBackground, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
 import { Image } from 'expo-image';
 
-export default function TabTwoScreen() {
+export default function OnboardingScreen() {
+  const router = useRouter();
+
+  const handleArrowPress = () => {
+    router.push('/explore'); // navigate to the "explore" screen
+  };
+
   return (
     <ImageBackground
       source={require('@/assets/images/background.png')}
@@ -19,11 +26,14 @@ export default function TabTwoScreen() {
           Enjoy your life{'\n'}
           with plants
         </ThemedText>
-        <Image
-          source={require('@/assets/images/arrow-right.png')}
-          style={styles.arrow}
-          contentFit="contain"
-        />
+
+        <Pressable onPress={handleArrowPress}>
+          <Image
+            source={require('@/assets/images/arrow-right.png')}
+            style={styles.arrow}
+            contentFit="contain"
+          />
+        </Pressable>
       </ThemedView>
     </ImageBackground>
   );
@@ -33,19 +43,19 @@ const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
-    width: width,
-    height: height,
+    flex: 1,             
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   titleContainer: {
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 80,
+    gap: 20,
   },
   arrow: {
-    width: 70,
-    height: 70,
+    width: 50,
+    height: 50,
   },
 });
