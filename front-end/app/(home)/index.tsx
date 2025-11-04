@@ -9,7 +9,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const handleArrowPress = () => {
-    router.push('/firstTimeInfoP1');
+    router.push('/firstTimeInfo');
   };
 
   return (
