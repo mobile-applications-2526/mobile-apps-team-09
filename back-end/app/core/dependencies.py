@@ -12,10 +12,14 @@ from app.core.security import decode_access_token
 from app.repositories.user_repository import UserRepository
 from app.services.user_service import UserService
 from app.models.user import User
+from app.repositories.plant_repository import PlantRepository
+from app.services.plant_service import PlantService
 
 
 # Security
 security = HTTPBearer()
+
+
 
 
 async def get_user_repository(
@@ -68,6 +72,9 @@ async def get_current_user(
     token = credentials.credentials
     payload = decode_access_token(token)
 
+
+    
+
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -92,3 +99,21 @@ async def get_current_user(
         )
 
     return user
+
+async def get_plant_repository(
+    session: AsyncSession = Depends(get_session),
+) -> PlantRepository:
+    """
+    Get plant repository instance
+    """
+    return PlantRepository(session)
+
+
+async def get_plant_service(
+    repository: PlantRepository = Depends(get_plant_repository),
+) -> PlantService:
+    """
+    Get plant service instance
+    """
+    return PlantService(repository)
+

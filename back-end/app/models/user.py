@@ -1,7 +1,7 @@
 """
 User database model
 """
-
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from app.db.database import Base
@@ -26,3 +26,5 @@ class User(Base):
 
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username}, email={self.email})>"
+    
+    plants = relationship("Plant", back_populates="owner", cascade="all, delete-orphan")
