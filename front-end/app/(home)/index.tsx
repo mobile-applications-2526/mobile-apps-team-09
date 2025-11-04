@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, ImageBackground, Dimensions, StatusBar, Platform } from 'react-native';
+import { Pressable, StyleSheet, ImageBackground, StatusBar, Platform, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
 import { Image } from 'expo-image';
 
-export default function OnboardingScreen() {
+export default function HomeScreen() {
   const router = useRouter();
 
   const handleArrowPress = () => {
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // push content below status bar
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   titleContainer: {
     flexDirection: 'column',
