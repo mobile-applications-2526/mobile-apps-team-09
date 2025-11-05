@@ -3,8 +3,9 @@ User schemas for request/response validation
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from app.schemas.plant_schema import PlantResponse
 
 
 class UserBase(BaseModel):
@@ -46,6 +47,7 @@ class UserResponse(UserBase):
     is_superuser: bool
     created_at: datetime
     updated_at: datetime
+    plants: List[PlantResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
 
