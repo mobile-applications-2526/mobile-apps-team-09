@@ -14,6 +14,8 @@ from app.services.user_service import UserService
 from app.models.user import User
 from app.repositories.plant_repository import PlantRepository
 from app.services.plant_service import PlantService
+from app.repositories.plant_species_repository import PlantSpeciesRepository
+from app.services.plant_species_service import PlantSpeciesService
 
 
 # Security
@@ -116,4 +118,21 @@ async def get_plant_service(
     Get plant service instance
     """
     return PlantService(repository)
+
+async def get_plant_species_repository(
+
+    session: AsyncSession = Depends(get_session),
+) -> PlantSpeciesRepository:
+    """
+    Get plant species repository instance
+    """
+    return PlantSpeciesRepository(session)
+
+async def get_plant_species_service(
+    repository: PlantSpeciesRepository = Depends(get_plant_species_repository),
+) -> PlantSpeciesService:
+    """
+    Get plant species service instance
+    """
+    return PlantSpeciesService(repository)
 

@@ -189,6 +189,9 @@ class UserService:
 
         logger.info(f"Deleted user with ID: {user_id}")
         return True
+    
+    async def get_user_by_id_with_plants(self, user_id: int) -> Optional[User]:
+        return await self.repository.get_by_id_with_plants(user_id)
 
     async def authenticate_user(self, username: str, password: str) -> Optional[User]:
         """
@@ -241,3 +244,5 @@ class UserService:
         logger.info(f"User logged in: {user.username} (ID: {user.id})")
 
         return access_token
+    
+

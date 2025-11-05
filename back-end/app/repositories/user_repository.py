@@ -5,7 +5,11 @@ User repository for data access
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload, joinedload
 
+
+from app.models.plant import Plant  # ensure this import exists
 from app.models.user import User
 from app.repositories.base_repository import BaseRepository
 
@@ -77,3 +81,16 @@ class UserRepository(BaseRepository[User]):
         """
         user = await self.get_by_username(username)
         return user is not None
+
+    async def get_by_id_with_plants(self, user_id: int) -> Optional[User]:
+        stmt = (
+            select(User)
+            .options(
+                selectinload(User.plants).options(
+                    joinedload(Plant.species)    # eager-load species for each plant
+                )
+            )
+            .where(User.id == user_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()

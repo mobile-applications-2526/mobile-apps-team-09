@@ -5,7 +5,7 @@ Plant repository for data access
 from typing import Optional, List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy.orm import selectinload, joinedload
 from app.models.plant import Plant
 from app.repositories.base_repository import BaseRepository
 
@@ -86,3 +86,22 @@ class PlantRepository(BaseRepository[Plant]):
         await self.session.delete(plant)
         await self.session.commit()
         return True
+    async def get_all_for_user(self, user_id: int, skip: int, limit: int) -> List[Plant]:
+        stmt = (
+            select(Plant)
+            .options(joinedload(Plant.species))    
+            .where(Plant.user_id == user_id)
+            .order_by(Plant.id.desc())
+            .offset(skip).limit(limit)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def get_by_id_for_user(self, plant_id: int, user_id: int) -> Optional[Plant]:
+        stmt = (
+            select(Plant)
+            .options(joinedload(Plant.species))
+            .where(Plant.id == plant_id, Plant.user_id == user_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()

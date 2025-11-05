@@ -27,4 +27,4 @@ class User(Base):
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username}, email={self.email})>"
     
-    plants = relationship("Plant", back_populates="owner", cascade="all, delete-orphan")
+    plants = relationship("Plant", back_populates="owner", cascade="all, delete-orphan",lazy="selectin", )
