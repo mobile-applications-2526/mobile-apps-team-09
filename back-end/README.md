@@ -464,6 +464,8 @@ gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 
 - **[Quick Start Guide](docs/QUICKSTART.md)** - Get started in 5 minutes
 - **[Architecture Guide](docs/ARCHITECTURE.md)** - Deep dive into the layered architecture
+- **[Docker Guide](docs/DOCKER.md)** - Understanding Docker commands and workflows
+- **[Seeding Guide](docs/SEEDING.md)** - Database seeding and test data
 - **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute to the project
 
 ### External Resources

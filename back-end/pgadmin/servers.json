@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "PlantSense PostgreSQL",
+      "Group": "Servers",
+      "Host": "db",
+      "Port": 5432,
+      "MaintenanceDB": "plantsense_db",
+      "Username": "plantsense",
+      "SSLMode": "prefer"
+    }
+  }
+}
