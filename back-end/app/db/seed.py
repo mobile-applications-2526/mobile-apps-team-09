@@ -1,7 +1,6 @@
 """
 Database seeding utilities
 This module provides functions to populate the database with initial/test data
-Updated with real plant photos from Pexels and other free image sources
 """
 
 from datetime import datetime, timezone, timedelta
@@ -365,7 +364,7 @@ if __name__ == "__main__":
     """
     Run this file directly to seed the database
 
-    âš ï¸  WARNING: This will drop all existing data and reseed!
+    ⚠️  WARNING: This will drop all existing data and reseed!
 
     Usage:
         python -m app.db.seed
