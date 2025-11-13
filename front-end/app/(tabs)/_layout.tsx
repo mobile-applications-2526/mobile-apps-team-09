@@ -8,8 +8,8 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#0F4336",
-        tabBarInactiveTintColor: "#D4D4D4",
+        tabBarActiveTintColor: "#2C5F2D",
+        tabBarInactiveTintColor: "#99A1AF",
         headerShown: false,
         tabBarShowLabel: true,
         tabBarButton: HapticTab,
@@ -27,7 +27,7 @@ export default function TabsLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "500",
+          fontWeight: "400",
           marginTop: 2,
         },
       }}
@@ -89,17 +89,17 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#0F4336",
+    backgroundColor: "#2D4A3E",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 10,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 15,
     elevation: 5,
   },
 });

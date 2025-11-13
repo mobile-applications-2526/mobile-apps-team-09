@@ -8,6 +8,7 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { COLORS } from "@/constants/colors";
 import { Plant, getPlantStatus } from "@/utils/plantHelpers";
@@ -23,6 +24,7 @@ interface PlantCarouselProps {
 
 export const PlantCarousel: React.FC<PlantCarouselProps> = ({ plants }) => {
   const scrollX = React.useRef(new Animated.Value(0)).current;
+  const router = useRouter();
 
   if (plants.length === 0) {
     return (
@@ -45,7 +47,10 @@ export const PlantCarousel: React.FC<PlantCarouselProps> = ({ plants }) => {
             {plants.length} {plants.length === 1 ? "plant" : "plants"} growing
           </Text>
         </View>
-        <TouchableOpacity style={styles.viewAllButton}>
+        <TouchableOpacity
+          style={styles.viewAllButton}
+          onPress={() => router.push("/(tabs)/garden")}
+        >
           <Text style={styles.viewAllText}>View All</Text>
           <IconSymbol name="chevron.right" size={16} color={COLORS.secondary} />
         </TouchableOpacity>
