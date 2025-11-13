@@ -1,159 +1,138 @@
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { Fonts } from "@/constants/theme";
 import React from "react";
 import {
   Platform,
-  StatusBar,
   StyleSheet,
-  Dimensions,
-  TextInput,
-  Pressable,
+  View,
   KeyboardAvoidingView,
   ScrollView,
+  Alert,
 } from "react-native";
 import { login } from "../services/UserService";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LoginHeader } from "@/components/auth/LoginHeader";
+import { LoginInput } from "@/components/auth/LoginInput";
+import { LoginButton } from "@/components/auth/LoginButton";
+import { SocialDivider } from "@/components/auth/SocialDivider";
+import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
+import { SignUpPrompt } from "@/components/auth/SignUpPrompt";
 
 export default function Login() {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState("");
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   async function handleLogin() {
     try {
-      const response = await login(username, password); // wait for the Promise
+      const response = await login(username, password);
       if (!response) {
-        setError("Username and password do not match");
+        Alert.alert("Error", "Username and password do not match");
         return;
       }
       router.replace("/(tabs)/overview");
     } catch (error: any) {
-      setError(error.message || "An error occurred during login");
+      Alert.alert("Error", error.message || "An error occurred during login");
     }
   }
 
+  const handleGoogleLogin = () => {
+    Alert.alert("Google Login", "Google login not implemented yet");
+  };
+
+  const handleFacebookLogin = () => {
+    Alert.alert("Facebook Login", "Facebook login not implemented yet");
+  };
+
+  const handleSignUp = () => {
+    Alert.alert("Sign Up", "Sign up not implemented yet");
+  };
+
   return (
-    <ThemedView
-      style={styles.mainContainer}
-      lightColor="#D2EFDA"
-      darkColor="#D2EFDA"
-    >
+    <View style={[styles.mainContainer, { paddingTop: insets.top }]}>
+      <View style={styles.topSection}>
+        <LoginHeader
+          title="Welcome Back"
+          subtitle="Enter your details to continue"
+        />
+      </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
         >
-          <ThemedView
-            style={styles.loginContainer}
-            lightColor="#D2EFDA"
-            darkColor="#D2EFDA"
-          >
-            <ThemedText style={styles.welcome}>Welcome Back</ThemedText>
-
-            <ThemedText style={styles.loginText}>Username:</ThemedText>
-            <TextInput
-              style={styles.input}
-              onChangeText={setUsername}
+          <View style={styles.contentContainer}>
+            <LoginInput
+              label="Username"
               value={username}
-              placeholder="Enter your username"
+              onChangeText={setUsername}
+              placeholder=""
               autoCapitalize="none"
             />
 
-            <ThemedText style={styles.loginText}>Password:</ThemedText>
-            <TextInput
-              style={styles.input}
-              onChangeText={setPassword}
+            <LoginInput
+              label="Password"
               value={password}
-              placeholder="Enter your password"
+              onChangeText={setPassword}
+              placeholder=""
               secureTextEntry
             />
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.signIn,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-              onPress={handleLogin}
-            >
-              <ThemedText style={styles.signInText}>Sign In</ThemedText>
-            </Pressable>
-            {error && <ThemedText style={styles.error}>{error}</ThemedText>}
-          </ThemedView>
+            <LoginButton title="Sign In" onPress={handleLogin} />
+
+            <SocialDivider />
+
+            <SocialLoginButtons
+              onGooglePress={handleGoogleLogin}
+              onFacebookPress={handleFacebookLogin}
+            />
+
+            <SignUpPrompt onPress={handleSignUp} />
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </ThemedView>
+    </View>
   );
 }
-
-const { height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    position: "relative",
     backgroundColor: "#D2EFDA",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    fontFamily: Fonts.rounded,
   },
-  loginContainer: {
-    position: "absolute",
-    top: height / 3,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#ffffff",
-    borderTopLeftRadius: 90,
-    borderTopRightRadius: 90,
-    borderColor: "#000000ff",
-    borderWidth: 1,
-    padding: 20,
+  topSection: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 40,
+  },
+  keyboardView: {
+    flex: 3,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 58,
+    borderTopRightRadius: 58,
+    padding: 30,
+    paddingTop: 50,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: "#000000",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
+    shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 8,
     elevation: 5,
-  },
-  input: {
-    height: 50,
-    marginVertical: 10,
-    marginHorizontal: 12,
-    borderWidth: 1,
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    fontSize: 16,
-  },
-  loginText: {
-    marginLeft: 20,
-    marginTop: 10,
-    fontSize: 16,
-  },
-  welcome: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: "#0F4336",
-    padding: 22,
-    textAlign: "center",
-  },
-  signIn: {
-    marginTop: 20,
-    paddingVertical: 15,
-    backgroundColor: "#0F4336",
-    borderRadius: 25,
-    marginHorizontal: 20,
-  },
-  signInText: {
-    color: "#FFF",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 25,
-  },
-  error: {
-    color: "#ff0000ff",
-    fontWeight: "bold",
   },
 });
