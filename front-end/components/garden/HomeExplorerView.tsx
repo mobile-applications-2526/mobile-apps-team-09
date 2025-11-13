@@ -24,7 +24,7 @@ import Animated, {
   withSpring,
   runOnJS,
 } from "react-native-reanimated";
-import apiService from "../services/apiService";
+import apiService from "@/services/apiService";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -270,7 +270,7 @@ const HomeExplorerView: React.FC = () => {
           <GestureDetector gesture={composedGesture}>
             <Animated.View style={[styles.imageContainer, animatedStyle]}>
               <ImageBackground
-                source={require("../assets/images/all-in-one-my-garden.png")}
+                source={require("@/assets/images/all-in-one-my-garden.png")}
                 style={styles.backgroundImage}
                 resizeMode="cover"
               >
