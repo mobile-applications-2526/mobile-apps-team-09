@@ -10,52 +10,7 @@ import { SettingsMenu } from "@/components/profile/SettingsMenu";
 import { COLORS } from "@/constants/colors";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-
-// TODO: Replace with real user data from API
-const mockUserData = {
-  fullName: "Bob Smith",
-  subtitle: "Plant Enthusiast",
-  isActive: true,
-  initials: "BS",
-  stats: {
-    plants: 27,
-    age: 28,
-    careRate: "94%",
-  },
-  aboutMe: {
-    livingSituation: "Apartment with Balcony",
-    experienceLevel: "Intermediate",
-    careStreak: 15,
-  },
-  plantCollection: [
-    { id: "1", name: "Monstera", emoji: "🌿", backgroundColor: "#C8E6C9" },
-    { id: "2", name: "Orchid", emoji: "🌸", backgroundColor: "#F8BBD0" },
-    { id: "3", name: "Succulent", emoji: "🌵", backgroundColor: "#B2DFDB" },
-    { id: "4", name: "Pothos", emoji: "🪴", backgroundColor: "#FFF9C4" },
-    { id: "5", name: "Hibiscus", emoji: "🌺", backgroundColor: "#FFCCBC" },
-    { id: "6", name: "Fern", emoji: "🌿", backgroundColor: "#E1BEE7" },
-  ],
-  recentActivity: [
-    {
-      id: "1",
-      type: "watered" as const,
-      title: "Watered Monstera",
-      timeAgo: "2 hours ago",
-    },
-    {
-      id: "2",
-      type: "added" as const,
-      title: "Added new plant to collection",
-      timeAgo: "Yesterday",
-    },
-    {
-      id: "3",
-      type: "moved" as const,
-      title: "Moved Orchid to sunnier spot",
-      timeAgo: "2 days ago",
-    },
-  ],
-};
+import { mockUserProfile } from "@/data/mockProfileData";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -108,10 +63,10 @@ export default function ProfileScreen() {
       >
         {/* Profile Header */}
         <ProfileHeader
-          fullName={mockUserData.fullName}
-          subtitle={mockUserData.subtitle}
-          isActive={mockUserData.isActive}
-          initials={mockUserData.initials}
+          fullName={mockUserProfile.fullName}
+          subtitle={mockUserProfile.subtitle}
+          isActive={mockUserProfile.isActive}
+          initials={mockUserProfile.initials}
           onSettingsPress={handleSettingsPress}
         />
 
@@ -119,21 +74,21 @@ export default function ProfileScreen() {
         <View style={styles.statsContainer}>
           <StatsCard
             icon="leaf-outline"
-            value={mockUserData.stats.plants}
+            value={mockUserProfile.stats.plants}
             label="Plants"
             iconColor={COLORS.secondary}
             iconBackground={COLORS.primaryPale}
           />
           <StatsCard
             icon="calendar-outline"
-            value={mockUserData.stats.age}
+            value={mockUserProfile.stats.age}
             label="Age"
             iconColor={COLORS.sunGold}
             iconBackground="#FEF3C7"
           />
           <StatsCard
             icon="water-outline"
-            value={mockUserData.stats.careRate}
+            value={mockUserProfile.stats.careRate}
             label="Care Rate"
             iconColor={COLORS.skyBlue}
             iconBackground="#E0F2FE"
@@ -142,19 +97,19 @@ export default function ProfileScreen() {
 
         {/* About Me Card */}
         <AboutMeCard
-          livingSituation={mockUserData.aboutMe.livingSituation}
-          experienceLevel={mockUserData.aboutMe.experienceLevel}
-          careStreak={mockUserData.aboutMe.careStreak}
+          livingSituation={mockUserProfile.aboutMe.livingSituation}
+          experienceLevel={mockUserProfile.aboutMe.experienceLevel}
+          careStreak={mockUserProfile.aboutMe.careStreak}
         />
 
         {/* Plant Collection */}
         <PlantCollectionCard
-          plants={mockUserData.plantCollection}
+          plants={mockUserProfile.plantCollection}
           onViewAll={handleViewAllPlants}
         />
 
         {/* Recent Activity */}
-        <RecentActivityCard activities={mockUserData.recentActivity} />
+        <RecentActivityCard activities={mockUserProfile.recentActivity} />
 
         {/* Bottom padding for safe area */}
         <View style={styles.bottomPadding} />
