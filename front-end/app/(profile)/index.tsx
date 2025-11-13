@@ -1,17 +1,20 @@
-import React, { useState } from "react";
-import { ScrollView, View, StyleSheet, Alert } from "react-native";
+import React from "react";
+import {
+  ScrollView,
+  View,
+  StyleSheet,
+  Platform,
+  StatusBar,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ThemedView } from "@/components/themed-view";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { StatsCard } from "@/components/profile/StatsCard";
 import { AboutMeCard } from "@/components/profile/AboutMeCard";
 import { PlantCollectionCard } from "@/components/profile/PlantCollectionCard";
 import { RecentActivityCard } from "@/components/profile/RecentActivityCard";
-import { SettingsMenu } from "@/components/profile/SettingsMenu";
 import { COLORS } from "@/constants/colors";
-import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 
-// TODO: Replace with real user data from API
 const mockUserData = {
   fullName: "Bob Smith",
   subtitle: "Plant Enthusiast",
@@ -59,48 +62,23 @@ const mockUserData = {
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
   const handleSettingsPress = () => {
-    setMenuPosition({ x: 0, y: insets.top + 80 });
-    setMenuVisible(true);
-  };
-
-  const handleEditProfile = () => {
-    Alert.alert("Edit Profile", "Edit profile page coming soon!");
-  };
-
-  const handleSettings = () => {
-    Alert.alert("Settings", "Settings page coming soon!");
-  };
-
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await SecureStore.deleteItemAsync("access_token");
-            router.replace("/login");
-          } catch (error) {
-            console.error("Error during logout:", error);
-            Alert.alert("Error", "Failed to logout. Please try again.");
-          }
-        },
-      },
-    ]);
+    console.log("Settings pressed");
+    // Navigate to settings screen
   };
 
   const handleViewAllPlants = () => {
-    Alert.alert("My Plants", "View all plants page coming soon!");
+    console.log("View all plants pressed");
+    // Navigate to all plants screen
   };
 
   return (
-    <View style={[styles.mainContainer, { paddingTop: insets.top }]}>
+    <ThemedView
+      style={[styles.mainContainer, { paddingTop: insets.top }]}
+      lightColor="#D2EFDA"
+      darkColor="#D2EFDA"
+    >
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -121,8 +99,8 @@ export default function ProfileScreen() {
             icon="leaf-outline"
             value={mockUserData.stats.plants}
             label="Plants"
-            iconColor={COLORS.secondary}
-            iconBackground={COLORS.primaryPale}
+            iconColor={COLORS.primaryGreen}
+            iconBackground="#D1FAE5"
           />
           <StatsCard
             icon="calendar-outline"
@@ -159,31 +137,22 @@ export default function ProfileScreen() {
         {/* Bottom padding for safe area */}
         <View style={styles.bottomPadding} />
       </ScrollView>
-
-      {/* Settings Menu Modal */}
-      <SettingsMenu
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-        onEditProfile={handleEditProfile}
-        onSettings={handleSettings}
-        onLogout={handleLogout}
-        position={menuPosition}
-      />
-    </View>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    position: "relative",
+    backgroundColor: "#D2EFDA",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingTop: 16,
-    paddingBottom: 120,
+    paddingHorizontal: 0,
   },
   statsContainer: {
     flexDirection: "row",
@@ -191,6 +160,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   bottomPadding: {
-    height: 20,
+    height: 100,
   },
 });

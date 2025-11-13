@@ -4,9 +4,27 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts } from '@/constants/theme';
 import { Image } from 'expo-image';
+import { useEffect } from 'react';
+import { login } from '@/services/UserService';
+
+const DEV_MODE = true;
 
 export default function HomeScreen() {
   const router = useRouter();
+
+  useEffect(() => {
+    if (DEV_MODE) {
+      const autoLogin = async () => {
+        try {
+          await login('bob', 'bobsmith123');
+          router.replace('/(tabs)/overview');
+        } catch (error) {
+          console.error('Dev auto-login failed:', error);
+        }
+      };
+      autoLogin();
+    }
+  }, []);
 
   const handleArrowPress = () => {
     router.push('/firstTimeInfo');

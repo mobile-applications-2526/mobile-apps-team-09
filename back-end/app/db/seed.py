@@ -47,6 +47,15 @@ async def seed_data(session: AsyncSession) -> None:
         is_superuser=False,
     )
 
+    user3 = User(
+        email="test@plantsense.com",
+        username="test",
+        full_name="test test",
+        hashed_password=get_password_hash("test"),
+        is_active=True,
+        is_superuser=False,
+    )
+
     admin_user = User(
         email="admin@plantsense.com",
         username="admin",
@@ -56,7 +65,7 @@ async def seed_data(session: AsyncSession) -> None:
         is_superuser=True,
     )
 
-    session.add_all([user1, user2, admin_user])
+    session.add_all([user1, user2, user3, admin_user])
     await session.flush()  # Flush to get IDs assigned
 
     # ==================== CREATE PLANT SPECIES ====================
