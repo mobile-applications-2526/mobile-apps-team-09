@@ -18,10 +18,10 @@ import {
   calculatePlantsNeedingAttention,
   getWeatherCondition,
 } from "@/utils/plantHelpers";
-import { UserHeader } from "@/components/UserHeader";
-import { WeatherWidget } from "@/components/WeatherWidget";
-import { AttentionCards } from "@/components/AttentionCards";
-import { PlantCarousel } from "@/components/PlantCarousel";
+import { UserHeader } from "@/components/home/UserHeader";
+import { WeatherWidget } from "@/components/home/WeatherWidget";
+import { AttentionCards } from "@/components/home/AttentionCards";
+import { PlantCarousel } from "@/components/home/PlantCarousel";
 
 interface User {
   id: number;

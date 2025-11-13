@@ -7,56 +7,54 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { login } from "../services/UserService";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LoginHeader } from "@/components/auth/LoginHeader";
+import { SignupHeader } from "@/components/auth/SignupHeader";
 import { LoginInput } from "@/components/auth/LoginInput";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { SocialDivider } from "@/components/auth/SocialDivider";
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
-import { SignUpPrompt } from "@/components/auth/SignUpPrompt";
+import { LoginPrompt } from "@/components/auth/LoginPrompt";
 
-export default function Login() {
-  const [username, setUsername] = React.useState("");
+export default function Signup() {
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [rePassword, setRePassword] = React.useState("");
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  async function handleLogin() {
-    try {
-      const response = await login(username, password);
-      if (!response) {
-        Alert.alert("Error", "Username and password do not match");
-        return;
-      }
-      router.replace("/(tabs)/overview");
-    } catch (error: any) {
-      Alert.alert("Error", error.message || "An error occurred during login");
+  async function handleSignup() {
+    if (!name || !email || !password || !rePassword) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
     }
+
+    if (password !== rePassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
+    // TODO: Implement actual signup logic
+    Alert.alert("Success", "Account created successfully!");
+    router.replace("/login");
   }
 
-  const handleGoogleLogin = () => {
-    Alert.alert("Google Login", "Google login not implemented yet");
+  const handleGoogleSignup = () => {
+    Alert.alert("Google Signup", "Google signup not implemented yet");
   };
 
-  const handleFacebookLogin = () => {
-    Alert.alert("Facebook Login", "Facebook login not implemented yet");
+  const handleFacebookSignup = () => {
+    Alert.alert("Facebook Signup", "Facebook signup not implemented yet");
   };
 
-  const handleSignUp = () => {
-    router.push("/signup");
+  const handleLogin = () => {
+    router.replace("/login");
   };
 
   return (
     <View style={[styles.mainContainer, { paddingTop: insets.top }]}>
-      <View style={styles.topSection}>
-        <LoginHeader
-          title="Welcome Back"
-          subtitle="Enter your details to continue"
-        />
-      </View>
-
+      <View style={styles.topSection} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
@@ -68,10 +66,20 @@ export default function Login() {
           bounces={false}
         >
           <View style={styles.contentContainer}>
+            <SignupHeader subtitle="Enter your details to continue" />
+
             <LoginInput
-              label="Username"
-              value={username}
-              onChangeText={setUsername}
+              label="Name"
+              value={name}
+              onChangeText={setName}
+              placeholder=""
+              autoCapitalize="words"
+            />
+
+            <LoginInput
+              label="E-mail"
+              value={email}
+              onChangeText={setEmail}
               placeholder=""
               autoCapitalize="none"
             />
@@ -84,16 +92,24 @@ export default function Login() {
               secureTextEntry
             />
 
-            <LoginButton title="Sign In" onPress={handleLogin} />
+            <LoginInput
+              label="Re-password"
+              value={rePassword}
+              onChangeText={setRePassword}
+              placeholder=""
+              secureTextEntry
+            />
+
+            <LoginButton title="Register" onPress={handleSignup} />
 
             <SocialDivider />
 
             <SocialLoginButtons
-              onGooglePress={handleGoogleLogin}
-              onFacebookPress={handleFacebookLogin}
+              onGooglePress={handleGoogleSignup}
+              onFacebookPress={handleFacebookSignup}
             />
 
-            <SignUpPrompt onPress={handleSignUp} />
+            <LoginPrompt onPress={handleLogin} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -108,12 +124,10 @@ const styles = StyleSheet.create({
   },
   topSection: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 40,
+    backgroundColor: "#D2EFDA",
   },
   keyboardView: {
-    flex: 3,
+    flex: 14,
   },
   scrollContent: {
     flexGrow: 1,
