@@ -28,7 +28,7 @@ export default function Login() {
         setError("Username and password do not match");
         return;
       }
-      router.push("/search");
+      router.replace("/(tabs)/overview");
     } catch (error: any) {
       setError(error.message || "An error occurred during login");
     }

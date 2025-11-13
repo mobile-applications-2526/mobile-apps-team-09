@@ -2,14 +2,13 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 const api = axios.create({
-  baseURL: "http://192.168.1.42:8000/api/v1",
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Add a request interceptor to include the auth token
 api.interceptors.request.use(
   async (config) => {
     try {
