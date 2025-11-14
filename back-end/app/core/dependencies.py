@@ -16,6 +16,8 @@ from app.repositories.plant_repository import PlantRepository
 from app.services.plant_service import PlantService
 from app.repositories.plant_species_repository import PlantSpeciesRepository
 from app.services.plant_species_service import PlantSpeciesService
+from app.repositories.diagnosis_repository import DiagnosisRepository
+from app.services.diagnosis_service import DiagnosisService
 
 
 # Security
@@ -135,4 +137,23 @@ async def get_plant_species_service(
     Get plant species service instance
     """
     return PlantSpeciesService(repository)
+
+
+async def get_diagnosis_repository(
+    session: AsyncSession = Depends(get_session),
+) -> DiagnosisRepository:
+    """
+    Get diagnosis repository instance
+    """
+    return DiagnosisRepository(session)
+
+
+async def get_diagnosis_service(
+    diagnosis_repository: DiagnosisRepository = Depends(get_diagnosis_repository),
+    plant_repository: PlantRepository = Depends(get_plant_repository),
+) -> DiagnosisService:
+    """
+    Get diagnosis service instance
+    """
+    return DiagnosisService(diagnosis_repository, plant_repository)
 

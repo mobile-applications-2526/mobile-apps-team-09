@@ -28,3 +28,4 @@ class Plant(Base):
     # relationships
     owner = relationship("User", back_populates="plants", lazy="selectin", )
     species = relationship("PlantSpecies", back_populates="plants", lazy="joined", uselist=False,)
+    diagnoses = relationship("Diagnosis", back_populates="plant", cascade="all, delete-orphan", lazy="selectin")
