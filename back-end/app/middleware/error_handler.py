@@ -26,12 +26,37 @@ def add_exception_handlers(app: FastAPI):
         request: Request, exc: RequestValidationError
     ):
         """
-        Handle validation errors
+        Handle validation errors with simple, readable messages
         """
-        logger.error(f"Validation error: {exc.errors()}")
+        errors = exc.errors()
+        
+        # Create simple error messages
+        simple_errors = []
+        for error in errors:
+            field = error['loc'][-1] if error['loc'] else 'field'
+            msg = error['msg']
+            
+            # Simplify common validation messages
+            if error['type'] == 'string_too_short':
+                min_length = error['ctx'].get('min_length', 0)
+                simple_errors.append(f"{field}: must be at least {min_length} characters")
+            elif error['type'] == 'string_too_long':
+                max_length = error['ctx'].get('max_length', 0)
+                simple_errors.append(f"{field}: must be at most {max_length} characters")
+            elif error['type'] == 'value_error.email':
+                simple_errors.append(f"{field}: invalid email format")
+            elif error['type'] == 'missing':
+                simple_errors.append(f"{field}: required field")
+            else:
+                simple_errors.append(f"{field}: {msg}")
+        
+        logger.error(f"Validation error: {simple_errors}")
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={"detail": exc.errors(), "message": "Validation error"},
+            content={
+                "error": "Validation failed",
+                "details": simple_errors
+            },
         )
 
     @app.exception_handler(SQLAlchemyError)

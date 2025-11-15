@@ -4,8 +4,12 @@ File upload endpoints for images
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from app.models.user import User
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_user_service, get_plant_service
 from app.services.storage_service import storage_service
+from app.services.user_service import UserService
+from app.services.plant_service import PlantService
+from app.schemas.user_schema import UserUpdate
+from app.schemas.plant_schema import PlantUpdate
 from typing import Dict
 
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
@@ -15,9 +19,10 @@ router = APIRouter(prefix="/uploads", tags=["Uploads"])
 async def upload_user_avatar(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
+    user_service: UserService = Depends(get_user_service),
 ):
     """
-    Upload user avatar image to Supabase Storage
+    Upload user avatar image to Supabase Storage and update user profile
     
     Returns URL of uploaded image
     """
@@ -42,8 +47,8 @@ async def upload_user_avatar(
         file_extension=file_extension
     )
     
-    # TODO: Update user.avatar_url in database here
-    # await user_service.update_user(current_user.id, {"avatar_url": image_url})
+    # Update user profile with avatar URL
+    await user_service.update_user(current_user.id, UserUpdate(image_url=image_url))
     
     return {"image_url": image_url}
 
@@ -53,9 +58,10 @@ async def upload_plant_image(
     plant_id: int,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
+    plant_service: PlantService = Depends(get_plant_service),
 ):
     """
-    Upload plant image to Supabase Storage
+    Upload plant image to Supabase Storage and update plant record
     
     Returns URL of uploaded image
     """
@@ -71,7 +77,14 @@ async def upload_plant_image(
     if file_extension not in ["jpg", "jpeg", "png", "webp"]:
         raise HTTPException(status_code=400, detail="Invalid file type")
     
-    # TODO: Verify plant belongs to current_user
+    # Verify plant belongs to current_user
+    plant = await plant_service.get_plant_by_id(plant_id, current_user.id)
+    
+    if not plant:
+        raise HTTPException(
+            status_code=404, 
+            detail="This plant doesn't exist in your garden. Add it to your collection first! 🌱"
+        )
     
     # Upload to Supabase
     image_url = await storage_service.upload_plant_image(
@@ -81,8 +94,8 @@ async def upload_plant_image(
         file_extension=file_extension
     )
     
-    # TODO: Update plant.image_url in database here
-    # await plant_service.update_plant(plant_id, {"image_url": image_url})
+    # Update plant with image URL
+    await plant_service.update_plant(plant_id, current_user.id, PlantUpdate(image_url=image_url))
     
     return {"image_url": image_url}
 
