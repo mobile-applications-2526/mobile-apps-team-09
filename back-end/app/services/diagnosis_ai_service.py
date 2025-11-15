@@ -78,11 +78,12 @@ REQUIRED FIELDS (ALL MUST BE PROVIDED):
 - recovery_watering: ALWAYS provide watering guidance (e.g., "Water when top inch is dry, every 5-7 days", "Keep soil consistently moist")
 - recovery_sunlight: ALWAYS provide light requirements (e.g., "Bright indirect light, 6-8 hours", "Full sun, 8+ hours daily")
 - recovery_air_circulation: ALWAYS provide air flow guidance (e.g., "Good room ventilation is sufficient", "Ensure excellent airflow")
-- recovery_temperature: ALWAYS provide temperature range (e.g., "Keep between 18-24°C", "Maintain 16-27°C")
+- recovery_temperature: ALWAYS provide temperature range in CELSIUS ONLY, NEVER Fahrenheit (e.g., "Keep between 18-24°C", "Maintain 16-27°C")
 
 CRITICAL REQUIREMENTS:
 - ALL 8 fields must be present, even for healthy plants
 - For healthy plants, provide MAINTENANCE care tips (not recovery tips)
+- recovery_temperature: MUST use Celsius (°C) ONLY, NEVER use Fahrenheit (°F)
 - Be specific about the disease/pest name if sick
 - Confidence score must be realistic (0.7-0.95 for clear issues, 0.95+ for healthy plants)
 - Severity must match the issue (healthy plants = "Healthy")

@@ -1,6 +1,6 @@
-# Plant Addition Flow - AI-Powered (Backend Focus)
+# Plant Addition & Diagnosis Flow - AI-Powered (Backend Focus)
 
-Complete guide for adding plants with AI identification using Claude Vision API.
+Complete guide for adding plants with AI identification and diagnosing plant health using Claude Vision API.
 
 ---
 
@@ -16,12 +16,13 @@ Complete guide for adding plants with AI identification using Claude Vision API.
 
 # Backend Flow Only
 
-## 🎯 Three Backend Endpoints
+## 🎯 Four Backend Endpoints
 
 ```
 1. POST /api/v1/plants/identify          → AI identifies species
 2. POST /api/v1/plants                    → Create plant record
 3. POST /api/v1/uploads/plant/{id}/image → Upload & save image to Supabase
+4. POST /api/v1/plants/diagnose          → AI diagnoses plant health
 ```
 
 ---
@@ -299,6 +300,30 @@ Request: plant_id + image file
    └─ UPDATE image_url
    ↓
 Response: image_url
+
+
+Step 4: Diagnose Plant Health
+──────────────────────────────
+Request: Image file
+   ↓
+[JWT Validation] → current_user.id
+   ↓
+[File Validation] → Valid image
+   ↓
+[Claude AI] → Health diagnosis
+   ↓
+Response: Complete diagnosis (8 fields)
+   ├─ issue_detected
+   ├─ confidence_score
+   ├─ severity
+   ├─ recommendation
+   ├─ recovery_watering
+   ├─ recovery_sunlight
+   ├─ recovery_air_circulation
+   └─ recovery_temperature
+
+NOTE: Diagnosis NOT saved to database
+      (Frontend can save if user wants)
 ```
 
 ---
@@ -314,6 +339,8 @@ Response: image_url
 - [x] Species auto-creation logic
 - [x] Plant creation endpoint (`plants.py`)
 - [x] Image upload endpoint (`uploads.py`)
+- [x] Plant diagnosis endpoint (`plant_diagnosis.py`)
+- [x] Diagnosis AI service (`diagnosis_ai_service.py`)
 - [x] Supabase Storage integration (`storage_service.py`)
 - [x] All database models and schemas
 - [x] JWT authentication
@@ -376,7 +403,7 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
   -d '{"username":"testuser","password":"password"}'
 
 # Get JWT token from response, then:
-curl -X POST http://localhost:8000/api/v1/plants/identify/plant \
+curl -X POST http://localhost:8000/api/v1/plants/identify \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -F "file=@/path/to/plant_photo.jpg"
 ```
@@ -385,12 +412,9 @@ Expected response:
 
 ```json
 {
-  "common_name": "Snake Plant",
-  "scientific_name": "Sansevieria trifasciata",
-  "care_level": "Easy",
-  "description": "...",
-  "species_id": 5,
-  "species_exists": false
+  "scientific_name": "Rudbeckia hirta",
+  "common_name": "Black-eyed Susan",
+  "species_id": 13
 }
 ```
 
@@ -401,9 +425,9 @@ curl -X POST http://localhost:8000/api/v1/plants \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "species_id": 5,
-    "plant_name": "Snake Plant",
-    "location": "Bedroom",
+    "species_id": 13,
+    "plant_name": "Sunny",
+    "location": "Garden",
     "acquired_date": "2024-01-15T00:00:00Z",
     "last_watered": "2024-01-20T10:00:00Z"
   }'
@@ -413,9 +437,10 @@ Expected response:
 
 ```json
 {
-  "id": 10,
-  "user_id": 1,
-  "species_id": 5,
+  "id": 16,
+  "user_id": 5,
+  "species_id": 13,
+  "plant_name": "Sunny",
   "image_url": null,
   ...
 }
@@ -424,7 +449,7 @@ Expected response:
 **Test 3: Upload Image**
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/uploads/plant/10/image \
+curl -X POST http://localhost:8000/api/v1/uploads/plant/16/image \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -F "file=@/path/to/plant_photo.jpg"
 ```
@@ -433,14 +458,52 @@ Expected response:
 
 ```json
 {
-  "image_url": "https://lzallbdxznmiaubdirsv.supabase.co/storage/v1/object/public/plant-images/1/plant_10_xyz.jpg"
+  "image_url": "https://lzallbdxznmiaubdirsv.supabase.co/storage/v1/object/public/plant-images/5/plant_16_xyz.jpg"
 }
 ```
 
-**Test 4: Verify Complete Plant**
+**Test 4: Diagnose Plant Health**
 
 ```bash
-curl -X GET http://localhost:8000/api/v1/plants/10 \
+curl -X POST http://localhost:8000/api/v1/plants/diagnose \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "file=@/path/to/plant_photo.jpg"
+```
+
+Expected response (sick plant):
+
+```json
+{
+  "issue_detected": "Leaf Spot Disease",
+  "confidence_score": 0.87,
+  "severity": "Medium Severity",
+  "recommendation": "Remove affected leaves immediately to prevent spread. Reduce watering frequency and ensure proper air circulation. Apply a fungicide spray every 7-10 days for 3 weeks. Keep the plant in a well-ventilated area and avoid getting water on the leaves.",
+  "recovery_watering": "Reduce to once every 5-7 days",
+  "recovery_sunlight": "Indirect bright light, 4-6 hours",
+  "recovery_air_circulation": "Ensure good ventilation",
+  "recovery_temperature": "Keep between 18-24°C"
+}
+```
+
+Expected response (healthy plant):
+
+```json
+{
+  "issue_detected": "No Issues Detected",
+  "confidence_score": 0.96,
+  "severity": "Healthy",
+  "recommendation": "Excellent! Your plant is in outstanding health with vibrant foliage and strong growth. The leaves show no signs of disease, pest damage, or stress. Continue your current care routine including regular watering and proper light exposure to maintain this excellent condition.",
+  "recovery_watering": "Water when top inch is dry",
+  "recovery_sunlight": "Bright indirect light, 6-8 hours",
+  "recovery_air_circulation": "Good room ventilation",
+  "recovery_temperature": "Keep between 18-24°C"
+}
+```
+
+**Test 5: Verify Complete Plant**
+
+```bash
+curl -X GET http://localhost:8000/api/v1/plants/16 \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -448,11 +511,11 @@ Expected response:
 
 ```json
 {
-  "id": 10,
+  "id": 16,
   "image_url": "https://...",  ← Should be populated now
   "species": {
-    "common_name": "Snake Plant",
-    "scientific_name": "Sansevieria trifasciata"
+    "common_name": "Black-eyed Susan",
+    "scientific_name": "Rudbeckia hirta"
   },
   ...
 }
@@ -796,6 +859,99 @@ Public URL: https://lzallbdxznmiaubdirsv.supabase.co/storage/v1/object/public/pl
 
 ---
 
+## Endpoint 4: AI Plant Health Diagnosis
+
+**Endpoint:** `POST /api/v1/plants/diagnose`
+
+**Authentication:** JWT Bearer token required
+
+**Request:**
+
+```http
+POST /api/v1/plants/diagnose
+Authorization: Bearer eyJhbGc...
+Content-Type: multipart/form-data
+
+file: [image file]
+```
+
+**Backend Process:**
+
+```python
+1. Validate JWT token → Get current_user
+2. Validate file:
+   - Must be image/* content type
+   - Max size 10MB
+3. Read file content → Convert to base64
+4. Call Claude AI Vision API:
+   - Model: claude-sonnet-4-5-20250929 (Claude 4.5 Sonnet)
+   - Temperature: 0 (deterministic responses)
+   - Prompt: Acts as "expert plant pathologist and botanist"
+5. AI returns complete diagnosis (8 fields):
+   - issue_detected (e.g., "Leaf Spot Disease" or "No Issues Detected")
+   - confidence_score (0.0-1.0, e.g., 0.87 = 87%)
+   - severity ("Healthy", "Low Severity", "Medium Severity", "High Severity")
+   - recommendation (detailed 3-5 sentence explanation)
+   - recovery_watering (short tip, max 8-10 words)
+   - recovery_sunlight (short tip, max 8-10 words)
+   - recovery_air_circulation (short tip, max 8-10 words)
+  - recovery_temperature (short tip, max 8-10 words, MUST use degrees Celsius)
+6. Return diagnosis (does NOT save to database automatically)
+```
+
+**Response (Sick Plant):**
+
+```json
+{
+  "issue_detected": "Leaf Spot Disease",
+  "confidence_score": 0.87,
+  "severity": "Medium Severity",
+  "recommendation": "Remove affected leaves immediately to prevent spread. Reduce watering frequency and ensure proper air circulation. Apply a fungicide spray every 7-10 days for 3 weeks. Keep the plant in a well-ventilated area and avoid getting water on the leaves.",
+  "recovery_watering": "Reduce to once every 5-7 days",
+  "recovery_sunlight": "Indirect bright light, 4-6 hours",
+  "recovery_air_circulation": "Ensure good ventilation",
+  "recovery_temperature": "Keep between 18-24°C"
+}
+```
+
+**Response (Healthy Plant):**
+
+```json
+{
+  "issue_detected": "No Issues Detected",
+  "confidence_score": 0.96,
+  "severity": "Healthy",
+  "recommendation": "Excellent! Your plant is in outstanding health with vibrant foliage and strong growth. The leaves show no signs of disease, pest damage, or stress. Continue your current care routine including regular watering and proper light exposure to maintain this excellent condition.",
+  "recovery_watering": "Water when top inch is dry",
+  "recovery_sunlight": "Bright indirect light, 6-8 hours",
+  "recovery_air_circulation": "Good room ventilation",
+  "recovery_temperature": "Keep between 18-24°C"
+}
+```
+
+**Files Involved:**
+
+- `/app/api/v1/endpoints/plant_diagnosis.py` - Endpoint handler
+- `/app/services/diagnosis_ai_service.py` - Claude AI integration for diagnosis
+- `/app/schemas/plant_schema.py` - PlantDiagnosisResponse validation
+
+**Database Changes:**
+
+- **NONE** - Diagnosis is returned to user but NOT saved automatically
+- Frontend can optionally save diagnosis results if user wants history
+
+**Key Differences from Identification:**
+
+| Feature | Identification | Diagnosis |
+|---------|---------------|-----------|
+| Purpose | Determine species | Analyze plant health |
+| Auto-saves to DB | ✅ Yes (creates species) | ❌ No (just returns diagnosis) |
+| AI Role | Professional botanist | Plant pathologist |
+| Returns | species_id + basic info | 8 diagnostic fields |
+| Use Case | Adding new plant | Checking existing plant |
+
+---
+
 ## Flow Diagram: Frontend ↔ Backend
 
 ```
@@ -877,7 +1033,7 @@ Plant in collection              All data saved             All records updated
 ## Endpoint 1: Identify Plant
 
 ```http
-POST /api/v1/plants/identify/plant
+POST /api/v1/plants/identify
 Authorization: Bearer {jwt_token}
 Content-Type: multipart/form-data
 
@@ -888,12 +1044,9 @@ file: [binary image data]
 
 ```json
 {
-  "common_name": "Monstera Deliciosa",
-  "scientific_name": "Monstera deliciosa",
-  "care_level": "Easy",
-  "description": "A popular tropical houseplant...",
-  "species_id": 123,
-  "species_exists": true
+  "scientific_name": "Rudbeckia hirta",
+  "common_name": "Black-eyed Susan",
+  "species_id": 13
 }
 ```
 
@@ -976,6 +1129,56 @@ file: [binary image data]
 - `400` - Invalid file format or file too large
 - `401` - Unauthorized (invalid/missing JWT)
 - `404` - Plant not found or not owned by user
+
+---
+
+## Endpoint 4: Diagnose Plant Health
+
+```http
+POST /api/v1/plants/diagnose
+Authorization: Bearer {jwt_token}
+Content-Type: multipart/form-data
+
+file: [binary image data]
+```
+
+**Success Response (200) - Sick Plant:**
+
+```json
+{
+  "issue_detected": "Leaf Spot Disease",
+  "confidence_score": 0.87,
+  "severity": "Medium Severity",
+  "recommendation": "Remove affected leaves immediately to prevent spread. Reduce watering frequency and ensure proper air circulation. Apply a fungicide spray every 7-10 days for 3 weeks. Keep the plant in a well-ventilated area and avoid getting water on the leaves.",
+  "recovery_watering": "Reduce to once every 5-7 days",
+  "recovery_sunlight": "Indirect bright light, 4-6 hours",
+  "recovery_air_circulation": "Ensure good ventilation",
+  "recovery_temperature": "Keep between 18-24°C"
+}
+```
+
+**Success Response (200) - Healthy Plant:**
+
+```json
+{
+  "issue_detected": "No Issues Detected",
+  "confidence_score": 0.96,
+  "severity": "Healthy",
+  "recommendation": "Excellent! Your plant is in outstanding health with vibrant foliage and strong growth. The leaves show no signs of disease, pest damage, or stress. Continue your current care routine including regular watering and proper light exposure to maintain this excellent condition.",
+  "recovery_watering": "Water when top inch is dry",
+  "recovery_sunlight": "Bright indirect light, 6-8 hours",
+  "recovery_air_circulation": "Good room ventilation",
+  "recovery_temperature": "Keep between 18-24°C"
+}
+```
+
+**Error Responses:
+
+- `400` - Invalid file format or file too large
+- `401` - Unauthorized (invalid/missing JWT)
+- `500` - AI service error
+
+**Note:** Diagnosis results are NOT saved to database automatically. Frontend can save if user wants history.
 
 ---
 
@@ -1141,7 +1344,7 @@ TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
 echo "Token: $TOKEN"
 
 # 2. Identify plant
-SPECIES_ID=$(curl -s -X POST http://localhost:8000/api/v1/plants/identify/plant \
+SPECIES_ID=$(curl -s -X POST http://localhost:8000/api/v1/plants/identify \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@/path/to/plant_photo.jpg" \
   | jq -r '.species_id')
@@ -1154,8 +1357,8 @@ PLANT_ID=$(curl -s -X POST http://localhost:8000/api/v1/plants \
   -H "Content-Type: application/json" \
   -d "{
     \"species_id\": $SPECIES_ID,
-    \"plant_name\": \"Snake Plant\",
-    \"location\": \"Office\",
+    \"plant_name\": \"Sunny\",
+    \"location\": \"Garden\",
     \"acquired_date\": \"2024-01-15T00:00:00Z\",
     \"last_watered\": \"2024-01-20T10:00:00Z\"
   }" \
@@ -1168,7 +1371,13 @@ curl -X POST http://localhost:8000/api/v1/uploads/plant/$PLANT_ID/image \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@/path/to/plant_photo.jpg"
 
-# 5. Verify
+# 5. Diagnose plant health
+curl -X POST http://localhost:8000/api/v1/plants/diagnose \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@/path/to/plant_photo.jpg" \
+  | jq
+
+# 6. Verify
 curl -X GET http://localhost:8000/api/v1/plants/$PLANT_ID \
   -H "Authorization: Bearer $TOKEN" \
   | jq
@@ -1224,6 +1433,7 @@ docker-compose up -d --build
 - ✅ AI identification endpoint (Claude Vision API)
 - ✅ Plant creation endpoint
 - ✅ Image upload endpoint (Supabase Storage)
+- ✅ Plant diagnosis endpoint (Claude Vision API)
 - ✅ Species auto-creation
 - ✅ JWT authentication
 - ✅ Error handling
@@ -1234,31 +1444,42 @@ docker-compose up -d --build
 1. Add `ANTHROPIC_API_KEY` to `.env`
 2. Install `anthropic` package
 3. Restart backend container
-4. Test all 3 endpoints with Postman
+4. Test all 4 endpoints with Postman
 
 ### Frontend: What Needs to Be Built 📱
 
 1. Camera/photo picker UI
-2. API calls to 3 endpoints
+2. API calls to 4 endpoints:
+   - Identify plant → get species_id
+   - Create plant → get plant_id
+   - Upload image → link image to plant
+   - Diagnose plant → get health analysis
 3. Form for user input:
-   - Plant name (editable, from AI)
+   - Plant name (user's personal nickname, required)
    - Location (dropdown, required)
    - Acquired date (date picker, required)
    - Last watered (date picker, required)
-4. Loading states
-5. Error handling
-6. Success navigation
+4. Diagnosis results UI:
+   - Severity badge at top
+   - Issue name as title
+   - Confidence score with progress bar
+   - Recommendation text (long)
+   - 4 recovery tips with icons (short, 8-10 words each)
+5. Loading states
+6. Error handling
+7. Success navigation
 
 ### Key Points 🎯
 
-- **3 API calls:** Identify → Create → Upload
-- **Photo uploaded twice:** Once for AI, once for storage
-- **AI provides:** Species + Plant name (both can be used/edited)
-- **User fills:** Location, acquired date, last watered (all required)
-- **No nickname field:** Plant name is editable by default
+- **4 AI-powered endpoints:** Identify, Create, Upload, Diagnose
+- **2 photos uploaded:** Once for AI identification, once for storage (can be same photo)
+- **AI identification:** Provides species_id + care info, auto-creates species if needed
+- **AI diagnosis:** Provides health analysis, does NOT save to database (frontend can save if user wants)
+- **User fills:** Plant name (personal nickname), location, acquired date, last watered (all required)
+- **Recovery tips:** SHORT (8-10 words), recommendation is LONG (3-5 sentences)
 - **Separation of concerns:** AI first, user input second, image upload last
 - **Error resilience:** Plant can exist without image
-- **User control:** Can edit plant name before creating
+- **User control:** Can see species info before creating plant
   type: 'image/jpeg',
   name: 'plant.jpg'
   });
@@ -1817,15 +2038,14 @@ Response: {"access_token": "eyJ...", "user_id": 1, "username": "testuser"}
 **2. Identify Plant:**
 
 ```
-POST http://localhost:8000/api/v1/plants/identify/plant
+POST http://localhost:8000/api/v1/plants/identify
 Headers: Authorization: Bearer eyJ...
 Body: form-data
   file: [Select plant photo]
 Response: {
-  "common_name": "Snake Plant",
-  "scientific_name": "Sansevieria trifasciata",
-  "species_id": 5,
-  "species_exists": false  // Was just created!
+  "scientific_name": "Rudbeckia hirta",
+  "common_name": "Black-eyed Susan",
+  "species_id": 13
 }
 ```
 
