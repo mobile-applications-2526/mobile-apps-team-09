@@ -13,10 +13,11 @@ class PlantBase(BaseModel):
     Base plant schema with common attributes
     """
     species_id: int 
-    plant_name: str = Field(..., max_length=100)
+    plant_name: str = Field(..., max_length=100)  # From AI, editable by user
     location: Optional[str] = Field(None, max_length=255)
     last_watered: Optional[datetime] = None
-    image_url: Optional[str] = None  # make this AnyUrl if you want strict URLs
+    image_url: Optional[str] = None
+    acquired_date: Optional[datetime] = None  # When they got the plant
 
 class PlantCreate(PlantBase):
     pass
@@ -31,13 +32,19 @@ class PlantUpdate(BaseModel):
     location: Optional[str] = Field(None, max_length=255)
     last_watered: Optional[datetime] = None
     image_url: Optional[str] = None
+    acquired_date: Optional[datetime] = None
 
-class PlantResponse(PlantBase):
+class PlantResponse(BaseModel):
     """
     Schema for plant response
     """
-
     id: int
     user_id: int
+    species_id: int 
+    plant_name: str = Field(..., max_length=100)
+    location: Optional[str] = Field(None, max_length=255)
+    last_watered: Optional[datetime] = None
+    acquired_date: Optional[datetime] = None
+    image_url: Optional[str] = None
     species: Optional[PlantSpeciesResponse] = None
     model_config = ConfigDict(from_attributes=True)
