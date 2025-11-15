@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
 
+    # AI/ML
+    ANTHROPIC_API_KEY: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env", case_sensitive=True, extra="allow"
     )
