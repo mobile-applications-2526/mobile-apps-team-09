@@ -28,6 +28,16 @@ class PlantSpeciesService:
     async def get_by_id(self, species_id: int) -> Optional[PlantSpecies]:
         return await self.repository.get_by_id(species_id)
 
+    async def get_species_by_name(self, scientific_name: str) -> Optional[PlantSpecies]:
+        """Get species by scientific name (for AI identification)"""
+        return await self.repository.get_by_scientific_name(scientific_name)
+
+    async def create_species(self, data: PlantSpeciesCreate) -> PlantSpecies:
+        """Create species without enforcing unique constraint (for AI auto-creation)"""
+        obj = await self.repository.create(**data.model_dump(exclude_unset=True))
+        logger.info(f"Auto-created species '{obj.scientific_name}' from AI identification")
+        return obj
+
     async def list(self, skip: int = 0, limit: int = 100) -> List[PlantSpecies]:
         return await self.repository.get_all(skip, limit)
 
