@@ -942,13 +942,13 @@ file: [image file]
 
 **Key Differences from Identification:**
 
-| Feature | Identification | Diagnosis |
-|---------|---------------|-----------|
-| Purpose | Determine species | Analyze plant health |
+| Feature          | Identification           | Diagnosis                      |
+| ---------------- | ------------------------ | ------------------------------ |
+| Purpose          | Determine species        | Analyze plant health           |
 | Auto-saves to DB | ✅ Yes (creates species) | ❌ No (just returns diagnosis) |
-| AI Role | Professional botanist | Plant pathologist |
-| Returns | species_id + basic info | 8 diagnostic fields |
-| Use Case | Adding new plant | Checking existing plant |
+| AI Role          | Professional botanist    | Plant pathologist              |
+| Returns          | species_id + basic info  | 8 diagnostic fields            |
+| Use Case         | Adding new plant         | Checking existing plant        |
 
 ---
 
@@ -1172,7 +1172,7 @@ file: [binary image data]
 }
 ```
 
-**Error Responses:
+\*\*Error Responses:
 
 - `400` - Invalid file format or file too large
 - `401` - Unauthorized (invalid/missing JWT)
