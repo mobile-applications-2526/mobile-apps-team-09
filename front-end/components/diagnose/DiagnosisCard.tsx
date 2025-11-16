@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 interface DiagnosisCardProps {
   plantName: string;
   disease: string;
-  severity: "High" | "Medium" | "Low";
+  severity: "High" | "Medium" | "Low" | "Healthy";
   severityColor: string;
   confidence: string;
   confidenceColor: string;

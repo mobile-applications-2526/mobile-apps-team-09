@@ -1,63 +1,119 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
-import { mockDiagnosisHistory } from "@/data/mockDiagnosisData";
 import { DiagnosisDetailHeader } from "@/components/diagnose/DiagnosisDetailHeader";
 import { DiagnosisImageCard } from "@/components/diagnose/DiagnosisImageCard";
 import { IssueDetectionCard } from "@/components/diagnose/IssueDetectionCard";
 import { RecommendationCard } from "@/components/diagnose/RecommendationCard";
 import { RecoveryTipsCard } from "@/components/diagnose/RecoveryTipsCard";
-
-const recoveryTips = [
-  {
-    icon: "water" as const,
-    iconColor: "#00BCD4",
-    backgroundColor: "rgba(0, 188, 212, 0.1)",
-    label: "Watering",
-    value: "Reduce to once every 5-7 days",
-  },
-  {
-    icon: "sunny" as const,
-    iconColor: "#FFC107",
-    backgroundColor: "rgba(255, 193, 7, 0.1)",
-    label: "Sunlight",
-    value: "Indirect bright light, 4-6 hours",
-  },
-  {
-    icon: "leaf" as const,
-    iconColor: "#03A9F4",
-    backgroundColor: "rgba(3, 169, 244, 0.1)",
-    label: "Air Circulation",
-    value: "Ensure good ventilation",
-  },
-  {
-    icon: "thermometer" as const,
-    iconColor: "#FF5722",
-    backgroundColor: "rgba(255, 87, 34, 0.1)",
-    label: "Temperature",
-    value: "Keep between 65-75°F",
-  },
-];
-
-const recommendationText =
-  "Remove affected leaves immediately to prevent spread. Reduce watering frequency and ensure proper air circulation. Apply a fungicide spray every 7-10 days for 3 weeks. Keep the plant in a well-ventilated area and avoid getting water on the leaves.";
+import DiagnosisService, {
+  DiagnosisHistoryItem,
+} from "@/services/DiagnosisService";
+import { convertToDiagnosisItem } from "@/types/diagnosis";
 
 export default function DiagnosisDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const diagnosis = mockDiagnosisHistory.find((item) => item.id === id);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisHistoryItem | null>(null);
 
-  if (!diagnosis) {
+  useEffect(() => {
+    const fetchDiagnosis = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await DiagnosisService.getDiagnosisById(parseInt(id));
+        setDiagnosis(data);
+      } catch (err: any) {
+        console.error("Error fetching diagnosis:", err);
+        setError(err.response?.data?.detail || "Failed to load diagnosis");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDiagnosis();
+  }, [id]);
+
+  if (loading) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <Text style={styles.errorText}>Diagnosis not found</Text>
+      <View
+        style={[
+          styles.container,
+          styles.centerContainer,
+          { paddingTop: insets.top },
+        ]}
+      >
+        <ActivityIndicator size="large" color={COLORS.primaryGreen} />
+        <Text style={styles.loadingText}>Loading diagnosis...</Text>
       </View>
     );
   }
+
+  if (error || !diagnosis) {
+    return (
+      <View
+        style={[
+          styles.container,
+          styles.centerContainer,
+          { paddingTop: insets.top },
+        ]}
+      >
+        <Text style={styles.errorText}>{error || "Diagnosis not found"}</Text>
+        <Text style={styles.retryText} onPress={() => router.back()}>
+          Go back
+        </Text>
+      </View>
+    );
+  }
+
+  // Convert to UI format for display
+  const uiDiagnosis = convertToDiagnosisItem(diagnosis);
+
+  // Prepare recovery tips from backend data
+  const recoveryTips = [
+    {
+      icon: "water" as const,
+      iconColor: "#00BCD4",
+      backgroundColor: "rgba(0, 188, 212, 0.1)",
+      label: "Watering",
+      value: diagnosis.recovery_watering,
+    },
+    {
+      icon: "sunny" as const,
+      iconColor: "#FFC107",
+      backgroundColor: "rgba(255, 193, 7, 0.1)",
+      label: "Sunlight",
+      value: diagnosis.recovery_sunlight,
+    },
+    {
+      icon: "leaf" as const,
+      iconColor: "#03A9F4",
+      backgroundColor: "rgba(3, 169, 244, 0.1)",
+      label: "Air Circulation",
+      value: diagnosis.recovery_air_circulation,
+    },
+    {
+      icon: "thermometer" as const,
+      iconColor: "#FF5722",
+      backgroundColor: "rgba(255, 87, 34, 0.1)",
+      label: "Temperature",
+      value: diagnosis.recovery_temperature,
+    },
+  ];
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -67,24 +123,26 @@ export default function DiagnosisDetailScreen() {
         showsVerticalScrollIndicator={false}
       >
         <DiagnosisDetailHeader
-          plantName={diagnosis.plantName}
-          date={diagnosis.date}
+          plantName={diagnosis.plant_name || "Unknown Plant"}
+          date={uiDiagnosis.date}
           onBackPress={() => router.back()}
         />
 
         <DiagnosisImageCard
-          imageUri={diagnosis.imageUri}
-          severity={diagnosis.severity}
-          severityColor={diagnosis.severityColor}
+          imageUri={diagnosis.image_url || ""}
+          severity={uiDiagnosis.severity}
+          severityColor={uiDiagnosis.severityColor}
         />
 
         <IssueDetectionCard
-          disease={diagnosis.disease}
-          confidence={diagnosis.confidence}
-          confidenceColor={diagnosis.confidenceColor}
+          disease={diagnosis.issue_detected}
+          confidence={uiDiagnosis.confidence}
+          confidenceColor={uiDiagnosis.confidenceColor}
         />
 
-        <RecommendationCard text={recommendationText} />
+        <RecommendationCard
+          text={diagnosis.recommendation || "No recommendation available"}
+        />
 
         <RecoveryTipsCard tips={recoveryTips} />
 
@@ -105,11 +163,26 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 40,
   },
+  centerContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: COLORS.textSecondary,
+  },
   errorText: {
     fontSize: 18,
     color: COLORS.textPrimary,
     textAlign: "center",
-    marginTop: 40,
+    marginBottom: 16,
+  },
+  retryText: {
+    fontSize: 14,
+    color: COLORS.primaryGreen,
+    textDecorationLine: "underline",
   },
   bottomPadding: {
     height: 20,
