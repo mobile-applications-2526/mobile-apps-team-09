@@ -46,16 +46,33 @@ async def identify_plant(
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="File too large (max 10MB)")
     
+    # Validate file type
+    file_extension = file.filename.split(".")[-1].lower()
+    if file_extension not in ["jpg", "jpeg", "png", "webp"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PNG, JPEG, and WebP images are allowed."
+        )
+    
     # Convert image to base64 for Claude
     image_base64 = base64.b64encode(content).decode('utf-8')
     
-    # Identify plant using AI
-    plant_info = await ai_service.identify_plant(image_base64)
+    # Identify plant using AI (this can raise ValueError)
+    try:
+        plant_info = await ai_service.identify_plant(image_base64)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     
-    # Check if species exists in database (by scientific name)
+    # Check if species exists in database (by scientific name OR common name)
     existing_species = await plant_species_service.get_species_by_name(
         plant_info['scientific_name']
     )
+    
+    # If not found by scientific name, try by common name
+    if not existing_species:
+        existing_species = await plant_species_service.get_species_by_common_name(
+            plant_info['common_name']
+        )
     
     if existing_species:
         species_id = existing_species.id

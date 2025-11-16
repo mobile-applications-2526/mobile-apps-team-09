@@ -50,6 +50,14 @@ async def diagnose_plant(
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="File too large (max 10MB)")
     
+    # Validate file type
+    file_extension = file.filename.split(".")[-1].lower()
+    if file_extension not in ["jpg", "jpeg", "png", "webp"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PNG, JPEG, and WebP images are allowed."
+        )
+    
     # Convert image to base64 for Claude
     image_base64 = base64.b64encode(content).decode('utf-8')
     

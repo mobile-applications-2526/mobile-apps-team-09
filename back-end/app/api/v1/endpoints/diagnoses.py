@@ -24,9 +24,19 @@ async def get_all_diagnoses(
     Get all diagnoses for the current authenticated user
     Returns diagnoses for all plants owned by the user
     """
-    return await diagnosis_service.get_diagnoses_by_user(
+    diagnoses = await diagnosis_service.get_diagnoses_by_user(
         user_id=current_user.id, skip=skip, limit=limit
     )
+    
+    # Add plant_name to each diagnosis
+    result = []
+    for diagnosis in diagnoses:
+        diag_dict = diagnosis.__dict__.copy()
+        if diagnosis.plant:
+            diag_dict['plant_name'] = diagnosis.plant.plant_name
+        result.append(diag_dict)
+    
+    return result
 
 
 @router.get("/plant/{plant_id}", response_model=List[DiagnosisResponse])
@@ -100,7 +110,13 @@ async def get_diagnosis(
     )
     if not diagnosis:
         raise HTTPException(status_code=404, detail="Diagnosis not found")
-    return diagnosis
+    
+    # Add plant_name
+    diag_dict = diagnosis.__dict__.copy()
+    if diagnosis.plant:
+        diag_dict['plant_name'] = diagnosis.plant.plant_name
+    
+    return diag_dict
 
 
 @router.put("/{diagnosis_id}", response_model=DiagnosisResponse)

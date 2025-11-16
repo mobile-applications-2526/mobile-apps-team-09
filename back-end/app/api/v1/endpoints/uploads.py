@@ -38,7 +38,10 @@ async def upload_user_avatar(
     # Extract file extension
     file_extension = file.filename.split(".")[-1].lower()
     if file_extension not in ["jpg", "jpeg", "png", "webp"]:
-        raise HTTPException(status_code=400, detail="Invalid file type")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PNG, JPEG, and WebP images are allowed."
+        )
     
     # Upload to Supabase
     image_url = await storage_service.upload_user_avatar(
@@ -75,7 +78,10 @@ async def upload_plant_image(
     
     file_extension = file.filename.split(".")[-1].lower()
     if file_extension not in ["jpg", "jpeg", "png", "webp"]:
-        raise HTTPException(status_code=400, detail="Invalid file type")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PNG, JPEG, and WebP images are allowed."
+        )
     
     # Verify plant belongs to current_user
     plant = await plant_service.get_plant_by_id(plant_id, current_user.id)
@@ -121,7 +127,10 @@ async def upload_diagnosis_image(
     
     file_extension = file.filename.split(".")[-1].lower()
     if file_extension not in ["jpg", "jpeg", "png", "webp"]:
-        raise HTTPException(status_code=400, detail="Invalid file type")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PNG, JPEG, and WebP images are allowed."
+        )
     
     # Upload to Supabase
     image_url = await storage_service.upload_diagnosis_image(

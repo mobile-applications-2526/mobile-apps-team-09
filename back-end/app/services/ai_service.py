@@ -47,6 +47,33 @@ class AIService:
             raise ValueError("AI service not configured. Please add ANTHROPIC_API_KEY to .env")
         
         try:
+            # Detect image format from base64 data
+            import base64
+            image_data = base64.b64decode(image_base64)
+            
+            # Check image signature (magic bytes)
+            if image_data.startswith(b'\xff\xd8\xff'):
+                media_type = "image/jpeg"
+            elif image_data.startswith(b'\x89PNG'):
+                media_type = "image/png"
+            elif image_data.startswith(b'RIFF') and image_data[8:12] == b'WEBP':
+                media_type = "image/webp"
+            elif image_data.startswith(b'GIF87a') or image_data.startswith(b'GIF89a'):
+                media_type = "image/gif"
+            else:
+                # Check if it's a video file
+                if (image_data.startswith(b'\x00\x00\x00') or  # MP4, MOV
+                    image_data.startswith(b'ftyp') or 
+                    image_data[4:8] == b'ftyp' or
+                    image_data.startswith(b'\x1a\x45\xdf\xa3')):  # MKV
+                    raise ValueError("Video files are not supported. Please upload an image (JPG, PNG, WEBP, or GIF).")
+                
+                # Unknown format
+                logger.error(f"Unsupported file format detected")
+                raise ValueError("Unsupported file format. Please upload an image (JPG, PNG, WEBP, or GIF).")
+            
+            logger.info(f"Detected image format: {media_type}")
+            
             # Call Claude with vision to identify the plant
             message = self.client.messages.create(
                 model="claude-sonnet-4-5-20250929",
@@ -60,7 +87,7 @@ class AIService:
                                 "type": "image",
                                 "source": {
                                     "type": "base64",
-                                    "media_type": "image/jpeg",
+                                    "media_type": media_type,
                                     "data": image_base64,
                                 },
                             },
@@ -150,17 +177,8 @@ If you cannot identify the plant:
             
         except Exception as e:
             logger.error(f"Failed to identify plant: {e}")
-            # Return unknown plant with default values matching database schema
-            return {
-                "scientific_name": "Unknown species",
-                "common_name": "Unknown Plant",
-                "watering_frequency_days": 7,
-                "sunlight_hours_needed": 6,
-                "sunlight_type": "bright indirect",
-                "humidity_preference": "medium",
-                "temperature_min": 15,
-                "care_difficulty": "medium"
-            }
+            # Re-raise the exception instead of returning unknown plant
+            raise ValueError(f"Failed to identify plant: {str(e)}")
 
 
 # Singleton instance

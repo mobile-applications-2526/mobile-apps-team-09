@@ -70,5 +70,8 @@ class DiagnosisResponse(BaseModel):
     recovery_sunlight: Optional[str] = Field(None, max_length=255)
     recovery_air_circulation: Optional[str] = Field(None, max_length=255)
     recovery_temperature: Optional[str] = Field(None, max_length=255)
+    
+    # Plant info (populated from relationship)
+    plant_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

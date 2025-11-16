@@ -31,6 +31,10 @@ class PlantSpeciesService:
     async def get_species_by_name(self, scientific_name: str) -> Optional[PlantSpecies]:
         """Get species by scientific name (for AI identification)"""
         return await self.repository.get_by_scientific_name(scientific_name)
+    
+    async def get_species_by_common_name(self, common_name: str) -> Optional[PlantSpecies]:
+        """Get species by common name (for AI identification fallback)"""
+        return await self.repository.get_by_common_name(common_name)
 
     async def create_species(self, data: PlantSpeciesCreate) -> PlantSpecies:
         """Create species without enforcing unique constraint (for AI auto-creation)"""
