@@ -1,64 +1,91 @@
-import React, { useRef, useState } from 'react';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { COLORS } from "@/constants/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
-export default function CameraScreen() {
-  const [facing, setFacing] = useState<CameraType>('back');
-  const [permission, requestPermission] = useCameraPermissions();
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
+export default function CameraEntryScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
-  const cameraRef = useRef<any>(null);
+  const handleAddPlant = () => {
+    // @ts-ignore - Expo Router dynamic route
+    router.push("/add-plant/choose-photo");
+  };
 
-  if (!permission) {
-    return <View />;
-  }
-
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Grant Permission" />
-      </View>
-    );
-  }
-
-  function toggleCameraFacing() {
-    setFacing((current) => (current === 'back' ? 'front' : 'back'));
-  }
-
-  // Take picture function using the ref
-  async function takePicture() {
-    if (cameraRef.current) {
-      try {
-        const photo = await cameraRef.current.takePictureAsync();
-        setPhotoUri(photo.uri);
-      } catch (e) {
-        console.log('Failed to take picture:', e);
-      }
-    }
-  }
+  const handleDiagnosePlant = () => {
+    // TODO: Navigate to diagnose plant flow
+    console.log("Diagnose plant feature coming soon");
+  };
 
   return (
-    <View style={styles.container}>
-      <CameraView
-        ref={cameraRef}
-        style={styles.camera}
-        facing={facing}
-        enableTorch={false}
-      />
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-          <Text style={styles.text}>Flip Camera</Text>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header Card */}
+      <View style={styles.headerCard}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={24} color={COLORS.cardWhite} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={takePicture}>
-          <Text style={styles.text}>Snap</Text>
-        </TouchableOpacity>
-      </View>
-      {photoUri && (
-        <View style={styles.previewContainer}>
-          <Image source={{ uri: photoUri }} style={styles.previewImage} />
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Choose Action</Text>
+          <Text style={styles.headerSubtitle}>What would you like to do?</Text>
         </View>
-      )}
+      </View>
+
+      {/* Scrollable Content */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Add Plant Card */}
+        <TouchableOpacity
+          style={styles.optionCard}
+          onPress={handleAddPlant}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={["#4CAF50", "#2E7D32"]}
+            style={styles.iconGradient}
+          >
+            <Ionicons name="leaf" size={40} color={COLORS.cardWhite} />
+          </LinearGradient>
+          <Text style={styles.cardTitle}>Add Plant to Garden</Text>
+          <Text style={styles.cardDescription}>
+            Identify and add a new plant to your collection
+          </Text>
+        </TouchableOpacity>
+
+        {/* Diagnose Plant Card */}
+        <TouchableOpacity
+          style={styles.optionCard}
+          onPress={handleDiagnosePlant}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={["#FF9800", "#F57C00"]}
+            style={styles.iconGradient}
+          >
+            <Ionicons name="scan" size={40} color={COLORS.cardWhite} />
+          </LinearGradient>
+          <Text style={styles.cardTitle}>Diagnose Plant</Text>
+          <Text style={styles.cardDescription}>
+            Check your plant&apos;s health and get care tips
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
@@ -66,54 +93,91 @@ export default function CameraScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#222',
+    backgroundColor: "#D2EFDA", // Light green background from Figma
   },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
-    color: "#fff",
+  headerCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.cardWhite,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 24,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 30,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  camera: {
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#558B2F",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  headerContent: {
+    flex: 1,
+    justifyContent: "center",
+    paddingLeft: 52,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#1B5E20",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: "#558B2F",
+    opacity: 0.6,
+    marginLeft: -15,
+  },
+  scrollView: {
     flex: 1,
   },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 64,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    backgroundColor: 'transparent',
-    paddingHorizontal: 64,
-    zIndex: 2,
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 100,
+    paddingBottom: 40,
+    gap: 24,
   },
-  button: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#00000080',
-    padding: 15,
-    borderRadius: 50,
-    marginHorizontal: 8,
+  optionCard: {
+    backgroundColor: COLORS.cardWhite,
+    borderRadius: 14,
+    padding: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    elevation: 5,
   },
-  text: {
+  iconGradient: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  cardTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "600",
+    color: "#1B5E20",
+    marginBottom: 8,
+    textAlign: "center",
   },
-  previewContainer: {
-    position: 'absolute',
-    top: 48,
-    right: 24,
-    width: 100,
-    height: 150,
-    borderColor: 'white',
-    borderWidth: 2,
-    backgroundColor: '#222',
-    zIndex: 5,
-  },
-  previewImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
+  cardDescription: {
+    fontSize: 16,
+    color: "#558B2F",
+    opacity: 0.6,
+    textAlign: "center",
+    lineHeight: 24,
+    maxWidth: 280,
   },
 });

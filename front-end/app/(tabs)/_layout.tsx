@@ -60,6 +60,7 @@ export default function TabsLayout() {
             </View>
           ),
           tabBarLabel: () => null,
+          tabBarStyle: { display: "none" },
         }}
       />
       <Tabs.Screen
