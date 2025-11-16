@@ -93,7 +93,7 @@ export default function CameraEntryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#D2EFDA", // Light green background from Figma
+    backgroundColor: "#D2EFDA",
   },
   headerCard: {
     flexDirection: "row",

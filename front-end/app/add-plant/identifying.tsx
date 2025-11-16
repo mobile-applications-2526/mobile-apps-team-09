@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { COLORS } from "@/constants/colors";
 import { LoadingScreen } from "@/components/add-plant/LoadingScreen";
 import { ErrorScreen } from "@/components/add-plant/ErrorScreen";
 import PlantService from "@/services/PlantService";
@@ -95,11 +94,11 @@ export default function IdentifyingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#D2EFDA", // Light green background to match Figma
+    backgroundColor: "#D2EFDA",
   },
   errorContainer: {
     flex: 1,
-    backgroundColor: "#FFEBEE", // Light red background for error state
+    backgroundColor: "#FFEBEE",
   },
   buttonContainer: {
     position: "absolute",
