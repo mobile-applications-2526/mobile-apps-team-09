@@ -1,21 +1,53 @@
-import React, { useCallback, useState, useMemo } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import React, { useCallback, useState, useMemo, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
 import { DiagnosisHeader } from "@/components/diagnose/DiagnosisHeader";
 import { DiagnosisCard } from "@/components/diagnose/DiagnosisCard";
 import { SortModal, SortOption } from "@/components/diagnose/SortModal";
-import { mockDiagnosisHistory } from "@/data/mockDiagnosisData";
+import { convertToDiagnosisItem } from "@/types/diagnosis";
+import DiagnosisService from "@/services/DiagnosisService";
 
 export default function DiagnoseScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [sortModalVisible, setSortModalVisible] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("date");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [diagnoses, setDiagnoses] = useState<
+    ReturnType<typeof convertToDiagnosisItem>[]
+  >([]);
+
+  // Fetch diagnoses from backend
+  const fetchDiagnoses = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await DiagnosisService.getDiagnosisHistory();
+      const converted = data.map(convertToDiagnosisItem);
+      setDiagnoses(converted);
+    } catch (err: any) {
+      console.error("Error fetching diagnoses:", err);
+      setError(err.response?.data?.detail || "Failed to load diagnoses");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDiagnoses();
+  }, [fetchDiagnoses]);
 
   const sortedDiagnoses = useMemo(() => {
-    const sorted = [...mockDiagnosisHistory];
+    const sorted = [...diagnoses];
 
     switch (sortBy) {
       case "date":
@@ -26,7 +58,7 @@ export default function DiagnoseScreen() {
       case "name":
         return sorted.sort((a, b) => a.plantName.localeCompare(b.plantName));
       case "severity":
-        const severityOrder = { High: 3, Medium: 2, Low: 1 };
+        const severityOrder = { High: 3, Medium: 2, Low: 1, Healthy: 0 };
         return sorted.sort(
           (a, b) =>
             severityOrder[b.severity as keyof typeof severityOrder] -
@@ -35,7 +67,7 @@ export default function DiagnoseScreen() {
       default:
         return sorted;
     }
-  }, [sortBy]);
+  }, [diagnoses, sortBy]);
 
   const handleDiagnosisPress = useCallback(
     (id: string) => {
@@ -52,26 +84,47 @@ export default function DiagnoseScreen() {
         showsVerticalScrollIndicator={false}
       >
         <DiagnosisHeader
-          totalScans={mockDiagnosisHistory.length}
+          totalScans={diagnoses.length}
           onSortPress={() => setSortModalVisible(true)}
         />
 
-        <View style={styles.cardsContainer}>
-          {sortedDiagnoses.map((item) => (
-            <DiagnosisCard
-              key={item.id}
-              plantName={item.plantName}
-              disease={item.disease}
-              severity={item.severity}
-              severityColor={item.severityColor}
-              confidence={item.confidence}
-              confidenceColor={item.confidenceColor}
-              date={item.date}
-              imageUri={item.imageUri}
-              onPress={() => handleDiagnosisPress(item.id)}
-            />
-          ))}
-        </View>
+        {loading ? (
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color={COLORS.primaryGreen} />
+            <Text style={styles.loadingText}>Loading diagnoses...</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.centerContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.retryText} onPress={fetchDiagnoses}>
+              Tap to retry
+            </Text>
+          </View>
+        ) : diagnoses.length === 0 ? (
+          <View style={styles.centerContainer}>
+            <Text style={styles.emptyText}>No diagnoses yet</Text>
+            <Text style={styles.emptySubText}>
+              Scan a plant to get started!
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.cardsContainer}>
+            {sortedDiagnoses.map((item) => (
+              <DiagnosisCard
+                key={item.id}
+                plantName={item.plantName}
+                disease={item.disease}
+                severity={item.severity}
+                severityColor={item.severityColor}
+                confidence={item.confidence}
+                confidenceColor={item.confidenceColor}
+                date={item.date}
+                imageUri={item.imageUri}
+                onPress={() => handleDiagnosisPress(item.id)}
+              />
+            ))}
+          </View>
+        )}
 
         <View style={styles.bottomPadding} />
       </ScrollView>
@@ -103,5 +156,38 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 20,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+    paddingTop: 60,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: COLORS.textSecondary,
+  },
+  errorText: {
+    fontSize: 18,
+    color: COLORS.textPrimary,
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  retryText: {
+    fontSize: 14,
+    color: COLORS.primaryGreen,
+    textDecorationLine: "underline",
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  emptySubText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
   },
 });

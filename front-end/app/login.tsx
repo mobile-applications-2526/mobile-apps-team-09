@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   Platform,
   StyleSheet,
@@ -22,6 +22,7 @@ export default function Login() {
   const [password, setPassword] = React.useState("");
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
 
   async function handleLogin() {
     try {
@@ -60,12 +61,15 @@ export default function Login() {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? -60 : 0}
       >
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          bounces={false}
+          scrollEventThrottle={16}
+          keyboardDismissMode="on-drag"
         >
           <View style={styles.contentContainer}>
             <LoginInput
@@ -119,7 +123,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   contentContainer: {
-    flex: 1,
+    minHeight: "100%",
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 58,
     borderTopRightRadius: 58,
