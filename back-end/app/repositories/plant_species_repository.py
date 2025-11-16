@@ -18,6 +18,12 @@ class PlantSpeciesRepository(BaseRepository[PlantSpecies]):
         )
         return result.scalar_one_or_none()
 
+    async def get_by_scientific_name(self, name: str) -> Optional[PlantSpecies]:
+        result = await self.session.execute(
+            select(PlantSpecies).where(PlantSpecies.scientific_name == name)
+        )
+        return result.scalar_one_or_none()
+
     async def get_all(self, skip: int = 0, limit: int = 100) -> List[PlantSpecies]:
         result = await self.session.execute(
             select(PlantSpecies)

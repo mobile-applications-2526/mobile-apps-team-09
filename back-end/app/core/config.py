@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
     # CORS
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
@@ -36,6 +36,14 @@ class Settings(BaseSettings):
 
     # Logging
     LOG_LEVEL: str = "INFO"
+
+    # Supabase Storage
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+
+    # AI/ML
+    ANTHROPIC_API_KEY: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env", case_sensitive=True, extra="allow"

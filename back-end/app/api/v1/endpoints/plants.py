@@ -13,7 +13,7 @@ from app.models.user import User
 router = APIRouter()
 
 
-@router.get("/", response_model=List[PlantResponse])
+@router.get("", response_model=List[PlantResponse])
 async def list_my_plants(
     skip: int = 0,
     limit: int = 100,
@@ -26,7 +26,7 @@ async def list_my_plants(
     return await plant_service.get_user_plants(user_id=current_user.id, skip=skip, limit=limit)
 
 
-@router.post("/", response_model=PlantResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PlantResponse, status_code=status.HTTP_201_CREATED)
 async def create_plant(
     plant_data: PlantCreate,
     plant_service: PlantService = Depends(get_plant_service),

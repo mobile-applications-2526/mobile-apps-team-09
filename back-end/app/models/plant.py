@@ -24,7 +24,9 @@ class Plant(Base):
     location = Column(String(255), nullable=True)
     last_watered = Column(DateTime(timezone=True), nullable=True)
     image_url = Column(String(500), nullable=True)
+    acquired_date = Column(DateTime(timezone=True), nullable=True)
 
     # relationships
     owner = relationship("User", back_populates="plants", lazy="selectin", )
     species = relationship("PlantSpecies", back_populates="plants", lazy="joined", uselist=False,)
+    diagnoses = relationship("Diagnosis", back_populates="plant", cascade="all, delete-orphan", lazy="selectin")

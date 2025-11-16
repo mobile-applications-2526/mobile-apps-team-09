@@ -24,7 +24,7 @@ import Animated, {
   withSpring,
   runOnJS,
 } from "react-native-reanimated";
-import apiService from "@/services/apiService";
+import PlantService from "@/services/PlantService";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -167,8 +167,8 @@ const HomeExplorerView: React.FC = () => {
   const fetchPlants = async () => {
     try {
       setLoading(true);
-      const response = await apiService.get("/plants/");
-      const plantsData = response.data.map((plant: Plant, index: number) => ({
+      const plantsData = await PlantService.getMyPlants();
+      const plantsWithStatus = plantsData.map((plant: any, index: number) => ({
         ...plant,
         status: calculatePlantStatus(
           plant.last_watered,
@@ -176,7 +176,7 @@ const HomeExplorerView: React.FC = () => {
         ),
         position: generateRandomPosition(index),
       }));
-      setPlants(plantsData);
+      setPlants(plantsWithStatus);
     } catch (error) {
       console.error("Failed to fetch plants:", error);
     } finally {
@@ -192,7 +192,7 @@ const HomeExplorerView: React.FC = () => {
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
       const newScale = savedScale.value * e.scale;
-      scale.value = Math.min(Math.max(newScale, 0.5), 4);
+      scale.value = Math.min(Math.max(newScale, 0.5), 3);
     })
     .onEnd(() => {
       savedScale.value = scale.value;
