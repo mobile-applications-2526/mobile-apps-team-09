@@ -51,8 +51,8 @@ async def seed_data(session: AsyncSession) -> None:
     user3 = User(
         email="test@plantsense.com",
         username="test",
-        full_name="test test",
-        hashed_password=get_password_hash("test"),
+        full_name="Test User",
+        hashed_password=get_password_hash("test1234"),
         is_active=True,
         is_superuser=False,
     )
@@ -335,6 +335,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 1: Leaf Spot Disease for Charlie (Pothos)
     diagnosis_1 = Diagnosis(
+        user_id=user1.id,
         plant_id=plant_alice_1.id,
         issue_detected="Leaf Spot Disease",
         confidence_score=0.87,
@@ -350,6 +351,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 2: Root Rot for Sammy (Snake Plant)
     diagnosis_2 = Diagnosis(
+        user_id=user1.id,
         plant_id=plant_alice_2.id,
         issue_detected="Root Rot",
         confidence_score=0.92,
@@ -365,6 +367,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 3: Powdery Mildew for Monty (Monstera)
     diagnosis_3 = Diagnosis(
+        user_id=user1.id,
         plant_id=plant_alice_3.id,
         issue_detected="Powdery Mildew",
         confidence_score=0.78,
@@ -376,6 +379,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 4: Spider Mites for Spidey (Spider Plant) - BOB
     diagnosis_4 = Diagnosis(
+        user_id=user2.id,
         plant_id=plant_bob_1.id,
         issue_detected="Spider Mites Infestation",
         confidence_score=0.95,
@@ -391,6 +395,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 5: Nutrient Deficiency for Peace (Peace Lily) - BOB
     diagnosis_5 = Diagnosis(
+        user_id=user2.id,
         plant_id=plant_bob_2.id,
         issue_detected="Nitrogen Deficiency",
         confidence_score=0.81,
@@ -406,6 +411,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 6: Sunburn for Ruby (Rubber Plant) - BOB
     diagnosis_6 = Diagnosis(
+        user_id=user2.id,
         plant_id=plant_bob_3.id,
         issue_detected="Sunburn / Leaf Scorch",
         confidence_score=0.89,
@@ -421,6 +427,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 7: Overwatering for Jade (Succulent) - BOB
     diagnosis_7 = Diagnosis(
+        user_id=user2.id,
         plant_id=plant_bob_4.id,
         issue_detected="Overwatering Damage",
         confidence_score=0.84,
@@ -436,6 +443,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 8: Bacterial Leaf Spot for Fiddles (Fiddle Leaf Fig) - BOB
     diagnosis_8 = Diagnosis(
+        user_id=user2.id,
         plant_id=plant_bob_5.id,
         issue_detected="Bacterial Leaf Spot",
         confidence_score=0.91,
@@ -451,6 +459,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 8b: HEALTHY Spidey (Spider Plant) - BOB's HEALTHY PLANT
     diagnosis_8b = Diagnosis(
+        user_id=user2.id,
         plant_id=plant_bob_1.id,
         issue_detected="No Issues Detected",
         confidence_score=0.94,
@@ -466,6 +475,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 9: Scale Insects for Orchie (Orchid)
     diagnosis_9 = Diagnosis(
+        user_id=admin_user.id,
         plant_id=plant_admin_1.id,
         issue_detected="Scale Insect Infestation",
         confidence_score=0.86,
@@ -477,6 +487,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Diagnosis 10: Healthy check for Allie (Aloe) - HEALTHY PLANT EXAMPLE
     diagnosis_10 = Diagnosis(
+        user_id=user1.id,
         plant_id=plant_alice_4.id,
         issue_detected="No Issues Detected",
         confidence_score=0.96,
@@ -492,6 +503,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Multiple diagnoses for same plant (Charlie) to show history
     diagnosis_11 = Diagnosis(
+        user_id=user1.id,
         plant_id=plant_alice_1.id,
         issue_detected="Aphid Infestation",
         confidence_score=0.79,

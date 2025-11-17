@@ -15,13 +15,14 @@ export interface DiagnosisAIResponse {
 // Backend response from /api/v1/diagnoses endpoints
 export interface DiagnosisHistoryItem {
   id: number;
-  plant_id: number;
+  user_id: number;
+  plant_id: number | null; // Optional for standalone diagnoses
   plant_name?: string;
   issue_detected: string;
   confidence_score: number; // 0.0 to 1.0
   severity: "Healthy" | "Low Severity" | "Medium Severity" | "High Severity";
   recommendation: string;
-  image_url?: string;
+  image_url?: string | null;
   recovery_watering: string;
   recovery_sunlight: string;
   recovery_air_circulation: string;
@@ -59,7 +60,7 @@ class DiagnosisService {
     });
 
     const response = await api.post<DiagnosisAIResponse>(
-      "/api/v1/plants/diagnose",
+      "/plants/diagnose",
       formData,
       {
         headers: {
@@ -78,7 +79,7 @@ class DiagnosisService {
     data: CreateDiagnosisRequest
   ): Promise<DiagnosisHistoryItem> {
     const response = await api.post<DiagnosisHistoryItem>(
-      "/api/v1/diagnoses",
+      "/diagnoses",
       data
     );
     return response.data;
@@ -92,7 +93,7 @@ class DiagnosisService {
     limit: number = 100
   ): Promise<DiagnosisHistoryItem[]> {
     const response = await api.get<DiagnosisHistoryItem[]>(
-      `/api/v1/diagnoses?skip=${skip}&limit=${limit}`
+      `/diagnoses/?skip=${skip}&limit=${limit}`
     );
     return response.data;
   }
@@ -102,7 +103,7 @@ class DiagnosisService {
    */
   async getDiagnosisById(id: number): Promise<DiagnosisHistoryItem> {
     const response = await api.get<DiagnosisHistoryItem>(
-      `/api/v1/diagnoses/${id}`
+      `/diagnoses/${id}`
     );
     return response.data;
   }
@@ -116,7 +117,7 @@ class DiagnosisService {
     limit: number = 100
   ): Promise<DiagnosisHistoryItem[]> {
     const response = await api.get<DiagnosisHistoryItem[]>(
-      `/api/v1/diagnoses/plant/${plantId}?skip=${skip}&limit=${limit}`
+      `/diagnoses/plant/${plantId}?skip=${skip}&limit=${limit}`
     );
     return response.data;
   }
@@ -125,7 +126,7 @@ class DiagnosisService {
    * Delete a diagnosis from history
    */
   async deleteDiagnosis(id: number): Promise<void> {
-    await api.delete(`/api/v1/diagnoses/${id}`);
+    await api.delete(`/diagnoses/${id}`);
   }
 }
 

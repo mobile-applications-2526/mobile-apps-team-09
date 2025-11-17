@@ -16,12 +16,19 @@ class Diagnosis(Base):
     __tablename__ = "diagnoses"
 
     id = Column(Integer, primary_key=True, index=True)
-    plant_id = Column(
-        Integer, 
-        ForeignKey("plants.id", ondelete="CASCADE"), 
-        nullable=False, 
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,  # Required - tracks who created the diagnosis
         index=True
     )
+    plant_id = Column(
+        Integer,
+        ForeignKey("plants.id", ondelete="CASCADE"),
+        nullable=True,  # Allow standalone diagnoses without a plant
+        index=True
+    )
+    plant_common_name = Column(String(255), nullable=True)
     issue_detected = Column(String(255), nullable=False)
     confidence_score = Column(Float, nullable=False)
     severity = Column(String(50), nullable=False)

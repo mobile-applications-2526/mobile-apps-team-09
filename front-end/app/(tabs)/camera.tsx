@@ -22,8 +22,8 @@ export default function CameraEntryScreen() {
   };
 
   const handleDiagnosePlant = () => {
-    // TODO: Navigate to diagnose plant flow
-    console.log("Diagnose plant feature coming soon");
+    // @ts-ignore - Expo Router dynamic route
+    router.push("/diagnose-plant/choose-photo");
   };
 
   return (

@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     left: 20,
     width: 40,
     height: 40,
-    top: 25,
+    top: 30,
     borderRadius: 20,
     backgroundColor: "#558B2F",
     justifyContent: "center",
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     color: "#1B5E20",
     marginBottom: 2,
     textAlign: "center",
+    marginLeft: 5,
   },
   headerSubtitle: {
     fontSize: 14,

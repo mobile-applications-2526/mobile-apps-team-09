@@ -33,7 +33,14 @@ async def get_all_diagnoses(
     for diagnosis in diagnoses:
         diag_dict = diagnosis.__dict__.copy()
         if diagnosis.plant:
+            # Plant-linked diagnosis: use plant nickname from user's garden
             diag_dict['plant_name'] = diagnosis.plant.plant_name
+        elif diagnosis.plant_common_name:
+            # Standalone diagnosis: use AI-identified common name
+            diag_dict['plant_name'] = diagnosis.plant_common_name
+        else:
+            # Fallback for old diagnoses without plant_common_name
+            diag_dict['plant_name'] = "Standalone Diagnosis"
         result.append(diag_dict)
     
     return result
@@ -114,7 +121,14 @@ async def get_diagnosis(
     # Add plant_name
     diag_dict = diagnosis.__dict__.copy()
     if diagnosis.plant:
+        # Plant-linked diagnosis: use plant nickname from user's garden
         diag_dict['plant_name'] = diagnosis.plant.plant_name
+    elif diagnosis.plant_common_name:
+        # Standalone diagnosis: use AI-identified common name
+        diag_dict['plant_name'] = diagnosis.plant_common_name
+    else:
+        # Fallback for old diagnoses without plant_common_name
+        diag_dict['plant_name'] = "Standalone Diagnosis"
     
     return diag_dict
 

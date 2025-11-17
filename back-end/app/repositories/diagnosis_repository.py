@@ -59,15 +59,13 @@ class DiagnosisRepository(BaseRepository[Diagnosis]):
         self, user_id: int, skip: int = 0, limit: int = 100
     ) -> List[Diagnosis]:
         """
-        Get all diagnoses for plants belonging to a specific user
+        Get all diagnoses for a specific user
+        Includes both plant-linked diagnoses and standalone diagnoses
         """
-        from app.models.plant import Plant
-
         stmt = (
             select(Diagnosis)
             .options(joinedload(Diagnosis.plant))
-            .join(Plant, Diagnosis.plant_id == Plant.id)
-            .where(Plant.user_id == user_id)
+            .where(Diagnosis.user_id == user_id)
             .order_by(Diagnosis.created_at.desc())
             .offset(skip)
             .limit(limit)

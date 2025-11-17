@@ -10,14 +10,17 @@ from pydantic import BaseModel, Field, ConfigDict
 class DiagnosisBase(BaseModel):
     """
     Base diagnosis schema with common attributes
-    
-    Note: 
+
+    Note:
     - issue_detected can be "Healthy" or "No Issues Detected" for healthy plants
     - confidence_score represents AI's confidence (0.0-1.0) that the diagnosis is correct
     - severity can be "No Issues", "Low Severity", "Medium Severity", "High Severity"
+    - plant_id is optional for standalone diagnoses
+    - user_id is set automatically from current_user, not provided in request
     """
 
-    plant_id: int
+    plant_id: Optional[int] = None
+    plant_common_name: Optional[str] = Field(None, max_length=255)
     issue_detected: str = Field(..., max_length=255)
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     severity: str = Field(..., max_length=50)
@@ -42,6 +45,7 @@ class DiagnosisUpdate(BaseModel):
     Schema for updating diagnosis information
     """
 
+    plant_common_name: Optional[str] = Field(None, max_length=255)
     issue_detected: Optional[str] = Field(None, max_length=255)
     confidence_score: Optional[float] = Field(None, ge=0.0, le=1.0)
     severity: Optional[str] = Field(None, max_length=50)
@@ -59,8 +63,10 @@ class DiagnosisResponse(BaseModel):
     """
 
     id: int
-    plant_id: int
+    user_id: int  # ID of user who created the diagnosis
+    plant_id: Optional[int] = None  # Optional for standalone diagnoses
     created_at: datetime
+    plant_common_name: Optional[str] = Field(None, max_length=255)  # AI-identified plant name
     issue_detected: str = Field(..., max_length=255)
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     severity: str = Field(..., max_length=50)
@@ -70,7 +76,7 @@ class DiagnosisResponse(BaseModel):
     recovery_sunlight: Optional[str] = Field(None, max_length=255)
     recovery_air_circulation: Optional[str] = Field(None, max_length=255)
     recovery_temperature: Optional[str] = Field(None, max_length=255)
-    
+
     # Plant info (populated from relationship)
     plant_name: Optional[str] = None
 

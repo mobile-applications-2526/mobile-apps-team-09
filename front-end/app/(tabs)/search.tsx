@@ -5,15 +5,18 @@ import {
   ScrollView,
   ActivityIndicator,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/colors";
 import { DiagnosisHeader } from "@/components/diagnose/DiagnosisHeader";
 import { DiagnosisCard } from "@/components/diagnose/DiagnosisCard";
 import { SortModal, SortOption } from "@/components/diagnose/SortModal";
 import { convertToDiagnosisItem } from "@/types/diagnosis";
 import DiagnosisService from "@/services/DiagnosisService";
+import * as SecureStore from "expo-secure-store";
 
 export default function DiagnoseScreen() {
   const insets = useSafeAreaInsets();
@@ -22,25 +25,55 @@ export default function DiagnoseScreen() {
   const [sortBy, setSortBy] = useState<SortOption>("date");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [diagnoses, setDiagnoses] = useState<
     ReturnType<typeof convertToDiagnosisItem>[]
   >([]);
+
+  // Check if user is authenticated
+  const checkAuth = useCallback(async () => {
+    try {
+      const token = await SecureStore.getItemAsync("access_token");
+      setIsAuthenticated(!!token);
+      return !!token;
+    } catch (err) {
+      console.error("Error checking auth:", err);
+      setIsAuthenticated(false);
+      return false;
+    }
+  }, []);
 
   // Fetch diagnoses from backend
   const fetchDiagnoses = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Check authentication first
+      const isAuth = await checkAuth();
+      if (!isAuth) {
+        setError("Please log in to view your diagnoses");
+        setLoading(false);
+        return;
+      }
+
       const data = await DiagnosisService.getDiagnosisHistory();
       const converted = data.map(convertToDiagnosisItem);
       setDiagnoses(converted);
     } catch (err: any) {
       console.error("Error fetching diagnoses:", err);
-      setError(err.response?.data?.detail || "Failed to load diagnoses");
+
+      // Handle specific error cases
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setError("Session expired. Please log in again");
+        setIsAuthenticated(false);
+      } else {
+        setError(err.response?.data?.detail || "Failed to load diagnoses");
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [checkAuth]);
 
   useEffect(() => {
     fetchDiagnoses();
@@ -96,16 +129,40 @@ export default function DiagnoseScreen() {
         ) : error ? (
           <View style={styles.centerContainer}>
             <Text style={styles.errorText}>{error}</Text>
-            <Text style={styles.retryText} onPress={fetchDiagnoses}>
-              Tap to retry
-            </Text>
+            {isAuthenticated === false ? (
+              <TouchableOpacity
+                style={styles.loginButton}
+                onPress={() => router.push("/login")}
+              >
+                <Text style={styles.loginButtonText}>Go to Login</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={fetchDiagnoses}>
+                <Text style={styles.retryText}>Tap to retry</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : diagnoses.length === 0 ? (
-          <View style={styles.centerContainer}>
-            <Text style={styles.emptyText}>No diagnoses yet</Text>
-            <Text style={styles.emptySubText}>
-              Scan a plant to get started!
+          <View style={styles.emptyStateContainer}>
+            <View style={styles.emptyStateIconContainer}>
+              <Ionicons
+                name="leaf-outline"
+                size={80}
+                color={COLORS.primaryGreen}
+              />
+            </View>
+            <Text style={styles.emptyStateTitle}>No Diagnoses Yet</Text>
+            <Text style={styles.emptyStateDescription}>
+              Start scanning your plants to track their health and get
+              personalized care recommendations
             </Text>
+            <TouchableOpacity
+              style={styles.scanButton}
+              onPress={() => router.push("/(tabs)/camera")}
+            >
+              <Ionicons name="camera" size={24} color="#FFFFFF" />
+              <Text style={styles.scanButtonText}>Scan a Plant</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.cardsContainer}>
@@ -179,6 +236,72 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primaryGreen,
     textDecorationLine: "underline",
+  },
+  loginButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    backgroundColor: COLORS.primaryGreen,
+    borderRadius: 8,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+    paddingTop: 120,
+    paddingBottom: 100,
+  },
+  emptyStateIconContainer: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "rgba(76, 175, 80, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  emptyStateTitle: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  emptyStateDescription: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 40,
+  },
+  scanButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.primaryGreen,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    gap: 12,
+    shadowColor: COLORS.primaryGreen,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  scanButtonText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
   emptyText: {
     fontSize: 18,

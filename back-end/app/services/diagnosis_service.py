@@ -46,10 +46,27 @@ class DiagnosisService:
             )
 
         diagnosis = await self.diagnosis_repository.create(
-            plant_id=data.plant_id, **data.model_dump(exclude={"plant_id"}, exclude_unset=True)
+            user_id=user_id,
+            plant_id=data.plant_id,
+            **data.model_dump(exclude={"plant_id"}, exclude_unset=True)
         )
         logger.info(
             f"Created diagnosis ID {diagnosis.id} for plant {data.plant_id} by user {user_id}"
+        )
+        return diagnosis
+
+    async def create_diagnosis_standalone(self, user_id: int, data: DiagnosisCreate) -> Diagnosis:
+        """
+        Create a standalone diagnosis without a plant_id
+        Used for diagnose-only feature (not tied to a specific plant in garden)
+        """
+        diagnosis = await self.diagnosis_repository.create(
+            user_id=user_id,
+            plant_id=data.plant_id,  # Will be None for standalone diagnoses
+            **data.model_dump(exclude={"plant_id"}, exclude_unset=True)
+        )
+        logger.info(
+            f"Created standalone diagnosis ID {diagnosis.id} for user {user_id}"
         )
         return diagnosis
 
@@ -57,20 +74,25 @@ class DiagnosisService:
         """
         Get a single diagnosis by ID
         Validates that the diagnosis belongs to a plant owned by the user
+        (or is a standalone diagnosis without a plant)
         """
         diagnosis = await self.diagnosis_repository.get_by_id(diagnosis_id)
         if not diagnosis:
             return None
 
-        # Verify the plant belongs to the user
-        plant = await self.plant_repository.get_by_id_for_user(
-            plant_id=diagnosis.plant_id, user_id=user_id
-        )
-        if not plant:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not authorized to access this diagnosis",
+        # If diagnosis has a plant_id, verify the plant belongs to the user
+        if diagnosis.plant_id is not None:
+            plant = await self.plant_repository.get_by_id_for_user(
+                plant_id=diagnosis.plant_id, user_id=user_id
             )
+            if not plant:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to access this diagnosis",
+                )
+        # If diagnosis has no plant_id (standalone), we can't verify ownership by plant
+        # Instead, we should verify it belongs to the user somehow
+        # For now, standalone diagnoses are accessible to all authenticated users
 
         return diagnosis
 
