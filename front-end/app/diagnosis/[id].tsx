@@ -87,8 +87,8 @@ export default function DiagnosisDetailScreen() {
   const recoveryTips = [
     {
       icon: "water" as const,
-      iconColor: "#00BCD4",
-      backgroundColor: "rgba(0, 188, 212, 0.1)",
+      iconColor: "#2196F3",
+      backgroundColor: "rgba(33, 150, 243, 0.1)",
       label: "Watering",
       value: diagnosis.recovery_watering,
     },
@@ -101,8 +101,8 @@ export default function DiagnosisDetailScreen() {
     },
     {
       icon: "leaf" as const,
-      iconColor: "#03A9F4",
-      backgroundColor: "rgba(3, 169, 244, 0.1)",
+      iconColor: "#4CAF50",
+      backgroundColor: "rgba(76, 175, 80, 0.1)",
       label: "Air Circulation",
       value: diagnosis.recovery_air_circulation,
     },

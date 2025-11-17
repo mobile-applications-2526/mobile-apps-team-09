@@ -5,6 +5,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,6 +15,7 @@ import { DiagnosisCard } from "@/components/diagnose/DiagnosisCard";
 import { SortModal, SortOption } from "@/components/diagnose/SortModal";
 import { convertToDiagnosisItem } from "@/types/diagnosis";
 import DiagnosisService from "@/services/DiagnosisService";
+import * as SecureStore from "expo-secure-store";
 
 export default function DiagnoseScreen() {
   const insets = useSafeAreaInsets();
@@ -22,25 +24,55 @@ export default function DiagnoseScreen() {
   const [sortBy, setSortBy] = useState<SortOption>("date");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [diagnoses, setDiagnoses] = useState<
     ReturnType<typeof convertToDiagnosisItem>[]
   >([]);
+
+  // Check if user is authenticated
+  const checkAuth = useCallback(async () => {
+    try {
+      const token = await SecureStore.getItemAsync("access_token");
+      setIsAuthenticated(!!token);
+      return !!token;
+    } catch (err) {
+      console.error("Error checking auth:", err);
+      setIsAuthenticated(false);
+      return false;
+    }
+  }, []);
 
   // Fetch diagnoses from backend
   const fetchDiagnoses = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Check authentication first
+      const isAuth = await checkAuth();
+      if (!isAuth) {
+        setError("Please log in to view your diagnoses");
+        setLoading(false);
+        return;
+      }
+
       const data = await DiagnosisService.getDiagnosisHistory();
       const converted = data.map(convertToDiagnosisItem);
       setDiagnoses(converted);
     } catch (err: any) {
       console.error("Error fetching diagnoses:", err);
-      setError(err.response?.data?.detail || "Failed to load diagnoses");
+
+      // Handle specific error cases
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setError("Session expired. Please log in again");
+        setIsAuthenticated(false);
+      } else {
+        setError(err.response?.data?.detail || "Failed to load diagnoses");
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [checkAuth]);
 
   useEffect(() => {
     fetchDiagnoses();
@@ -96,9 +128,18 @@ export default function DiagnoseScreen() {
         ) : error ? (
           <View style={styles.centerContainer}>
             <Text style={styles.errorText}>{error}</Text>
-            <Text style={styles.retryText} onPress={fetchDiagnoses}>
-              Tap to retry
-            </Text>
+            {isAuthenticated === false ? (
+              <TouchableOpacity
+                style={styles.loginButton}
+                onPress={() => router.push("/login")}
+              >
+                <Text style={styles.loginButtonText}>Go to Login</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={fetchDiagnoses}>
+                <Text style={styles.retryText}>Tap to retry</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : diagnoses.length === 0 ? (
           <View style={styles.centerContainer}>
@@ -179,6 +220,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primaryGreen,
     textDecorationLine: "underline",
+  },
+  loginButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    backgroundColor: COLORS.primaryGreen,
+    borderRadius: 8,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
   emptyText: {
     fontSize: 18,
