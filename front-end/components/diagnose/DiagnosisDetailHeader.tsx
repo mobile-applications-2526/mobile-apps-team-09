@@ -63,7 +63,6 @@ const styles = StyleSheet.create({
     color: "#558B2F",
     opacity: 0.7,
     marginBottom: 4,
-    marginBottom: 4,
     textAlign: "center",
     textTransform: "uppercase",
     letterSpacing: 0.5,
