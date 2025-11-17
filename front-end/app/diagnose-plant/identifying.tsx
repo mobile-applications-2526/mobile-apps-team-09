@@ -40,10 +40,10 @@ export default function IdentifyingScreen() {
           confidenceScore: result.confidence_score.toString(),
           severity: result.severity,
           recommendation: result.recommendation,
-          recoveryWatering: result.recovery_watering,
-          recoverySunlight: result.recovery_sunlight,
-          recoveryAirCirculation: result.recovery_air_circulation,
-          recoveryTemperature: result.recovery_temperature,
+          recoveryWatering: result.recovery_watering || "",
+          recoverySunlight: result.recovery_sunlight || "",
+          recoveryAirCirculation: result.recovery_air_circulation || "",
+          recoveryTemperature: result.recovery_temperature || "",
         },
       });
     } catch (error: any) {

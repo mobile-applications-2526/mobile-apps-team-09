@@ -22,10 +22,10 @@ export default function DiagnosisResultsScreen() {
     confidenceScore: params.confidenceScore as string,
     severity: params.severity as string,
     recommendation: params.recommendation as string,
-    wateringSchedule: params.wateringSchedule as string,
-    sunlightRequirement: params.sunlightRequirement as string,
-    temperatureRange: params.temperatureRange as string,
-    airCirculationTip: params.airCirculationTip as string,
+    recoveryWatering: params.recoveryWatering as string,
+    recoverySunlight: params.recoverySunlight as string,
+    recoveryTemperature: params.recoveryTemperature as string,
+    recoveryAirCirculation: params.recoveryAirCirculation as string,
   };
 
   // Parse confidence score
@@ -73,28 +73,28 @@ export default function DiagnosisResultsScreen() {
       iconColor: "#2196F3",
       backgroundColor: "rgba(33, 150, 243, 0.1)",
       label: "Watering",
-      value: diagnosisParams.wateringSchedule,
+      value: diagnosisParams.recoveryWatering || "Not specified",
     },
     {
       icon: "sunny" as const,
       iconColor: "#FFC107",
       backgroundColor: "rgba(255, 193, 7, 0.1)",
       label: "Sunlight",
-      value: diagnosisParams.sunlightRequirement,
+      value: diagnosisParams.recoverySunlight || "Not specified",
     },
     {
       icon: "leaf" as const,
       iconColor: "#4CAF50",
       backgroundColor: "rgba(76, 175, 80, 0.1)",
       label: "Air Circulation",
-      value: diagnosisParams.airCirculationTip,
+      value: diagnosisParams.recoveryAirCirculation || "Not specified",
     },
     {
       icon: "thermometer" as const,
       iconColor: "#FF5722",
       backgroundColor: "rgba(255, 87, 34, 0.1)",
       label: "Temperature",
-      value: diagnosisParams.temperatureRange,
+      value: diagnosisParams.recoveryTemperature || "Not specified",
     },
   ];
 

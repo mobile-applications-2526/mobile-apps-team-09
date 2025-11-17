@@ -90,28 +90,28 @@ export default function DiagnosisDetailScreen() {
       iconColor: "#2196F3",
       backgroundColor: "rgba(33, 150, 243, 0.1)",
       label: "Watering",
-      value: diagnosis.recovery_watering,
+      value: diagnosis.recovery_watering || "Not specified",
     },
     {
       icon: "sunny" as const,
       iconColor: "#FFC107",
       backgroundColor: "rgba(255, 193, 7, 0.1)",
       label: "Sunlight",
-      value: diagnosis.recovery_sunlight,
+      value: diagnosis.recovery_sunlight || "Not specified",
     },
     {
       icon: "leaf" as const,
       iconColor: "#4CAF50",
       backgroundColor: "rgba(76, 175, 80, 0.1)",
       label: "Air Circulation",
-      value: diagnosis.recovery_air_circulation,
+      value: diagnosis.recovery_air_circulation || "Not specified",
     },
     {
       icon: "thermometer" as const,
       iconColor: "#FF5722",
       backgroundColor: "rgba(255, 87, 34, 0.1)",
       label: "Temperature",
-      value: diagnosis.recovery_temperature,
+      value: diagnosis.recovery_temperature || "Not specified",
     },
   ];
 
