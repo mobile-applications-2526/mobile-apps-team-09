@@ -51,7 +51,7 @@ class DiagnosisAIService:
             message = self.client.messages.create(
                 model="claude-sonnet-4-5-20250929",
                 max_tokens=2048,
-                temperature=0,  # Deterministic for consistency
+                temperature=0,
                 messages=[
                     {
                         "role": "user",
@@ -71,49 +71,53 @@ class DiagnosisAIService:
 Analyze this plant image and provide a complete health diagnosis in JSON format:
 
 REQUIRED FIELDS (ALL MUST BE PROVIDED):
+- plant_common_name: The SHORT common name of the plant (1-2 words ONLY, e.g., "Snake Plant", "Monstera", "Peace Lily", "Tomato Plant"). NEVER include scientific names in parentheses.
 - issue_detected: The name of the disease/issue OR "No Issues Detected" if healthy (e.g., "Leaf Spot Disease", "Root Rot", "Spider Mites Infestation", "No Issues Detected")
 - confidence_score: Your confidence as a decimal 0.0-1.0 (e.g., 0.87 for 87%)
 - severity: MUST be one of: "Healthy", "Low Severity", "Medium Severity", "High Severity"
-- recommendation: Comprehensive recommendation (2-4 sentences explaining what to do or continue doing)
-- recovery_watering: ALWAYS provide watering guidance (e.g., "Water when top inch is dry, every 5-7 days", "Keep soil consistently moist")
-- recovery_sunlight: ALWAYS provide light requirements (e.g., "Bright indirect light, 6-8 hours", "Full sun, 8+ hours daily")
-- recovery_air_circulation: ALWAYS provide air flow guidance (e.g., "Good room ventilation is sufficient", "Ensure excellent airflow")
-- recovery_temperature: ALWAYS provide temperature range in CELSIUS ONLY, NEVER Fahrenheit (e.g., "Keep between 18-24°C", "Maintain 16-27°C")
+- recommendation: DETAILED recommendation (5-7 sentences). Include specific action steps, timeline for recovery/maintenance, what to watch for, and preventive measures. Be thorough and educational.
+- recovery_watering: BRIEF watering guidance (1-2 sentences) (e.g., "Water every 5-7 days", "Keep soil moist")
+- recovery_sunlight: BRIEF light requirements (1-2 sentences) (e.g., "Bright indirect light", "Full sun 8+ hours")
+- recovery_air_circulation: BRIEF air flow guidance (1-2 sentences) (e.g., "Good ventilation", "Improve airflow")
+- recovery_temperature: BRIEF temperature range in CELSIUS ONLY (1-2 sentences) (e.g., "18-24°C", "16-27°C")
 
 CRITICAL REQUIREMENTS:
-- ALL 8 fields must be present, even for healthy plants
+- ALL 9 fields must be present, even for healthy plants
+- plant_common_name: Use SHORT common name (1-2 words max). Examples: "Ice Plant" NOT "Ice Plant (Carpobrotus)", "Snake Plant" NOT "Snake Plant (Sansevieria)"
 - For healthy plants, provide MAINTENANCE care tips (not recovery tips)
 - recovery_temperature: MUST use Celsius (°C) ONLY, NEVER use Fahrenheit (°F)
 - Be specific about the disease/pest name if sick
 - Confidence score must be realistic (0.7-0.95 for clear issues, 0.95+ for healthy plants)
 - Severity must match the issue (healthy plants = "Healthy")
-- Recommendations must be actionable and detailed
+- Recommendations should be detailed and informative (5-7 sentences with specific action steps)
 - NEVER leave recovery fields empty or null
 
 Return ONLY valid JSON, no markdown formatting.
 
 Example for sick plant:
 {
+  "plant_common_name": "Tomato Plant",
   "issue_detected": "Leaf Spot Disease",
   "confidence_score": 0.87,
   "severity": "Medium Severity",
-  "recommendation": "Remove affected leaves immediately to prevent spread. Reduce watering frequency and ensure proper air circulation. Apply a fungicide spray every 7-10 days for 3 weeks. Keep the plant in a well-ventilated area and avoid getting water on the leaves.",
-  "recovery_watering": "Reduce to once every 5-7 days",
-  "recovery_sunlight": "Indirect bright light, 4-6 hours",
-  "recovery_air_circulation": "Ensure good ventilation",
-  "recovery_temperature": "Keep between 18-24°C"
+  "recommendation": "Remove all affected leaves immediately to prevent the fungal infection from spreading to healthy foliage. Apply a copper-based or neem oil fungicide spray every 7-10 days for the next 3-4 weeks, following product instructions carefully. Water only at the soil level to avoid splashing water on leaves, as moisture on foliage promotes fungal growth. Improve air circulation around the plant by spacing it away from other plants and ensuring good ventilation in the room. Monitor new growth closely for any signs of spots appearing and remove them promptly if detected. As a preventive measure going forward, maintain consistent but not excessive watering and ensure adequate spacing between plants.",
+  "recovery_watering": "Every 5-7 days at soil level",
+  "recovery_sunlight": "Bright indirect light, 4-6 hours",
+  "recovery_air_circulation": "Excellent ventilation, space from other plants",
+  "recovery_temperature": "18-24°C"
 }
 
 Example for healthy plant:
 {
+  "plant_common_name": "Monstera Deliciosa",
   "issue_detected": "No Issues Detected",
   "confidence_score": 0.96,
   "severity": "Healthy",
-  "recommendation": "Great news! Your plant is thriving! Continue your excellent care routine. The leaves look strong and healthy with good color. Keep up the consistent watering and light conditions.",
-  "recovery_watering": "Continue current schedule, water when top inch of soil is dry",
-  "recovery_sunlight": "Maintain bright indirect light, 6-8 hours daily",
-  "recovery_air_circulation": "Good room ventilation is sufficient",
-  "recovery_temperature": "Keep between 18-24°C for optimal growth"
+  "recommendation": "Your plant is in excellent health with vibrant, well-formed foliage and no signs of disease or pest damage. Continue your current care routine as it's clearly working well for this plant. The coloration indicates proper nutrient levels and adequate light exposure, so maintain the consistent watering schedule and lighting conditions. Consider fertilizing every 4-6 weeks during the growing season with a balanced fertilizer to support continued healthy growth. Watch for any changes in leaf color or texture which could indicate the need for care adjustments.",
+  "recovery_watering": "When top 2-3 cm is dry",
+  "recovery_sunlight": "Bright indirect light, 6-8 hours",
+  "recovery_air_circulation": "Good room ventilation",
+  "recovery_temperature": "18-24°C"
 }"""
                             }
                         ],
@@ -134,7 +138,7 @@ Example for healthy plant:
             diagnosis_info = json.loads(response_text)
             
             # Validate required fields
-            required_fields = ["issue_detected", "confidence_score", "severity", "recommendation", 
+            required_fields = ["plant_common_name", "issue_detected", "confidence_score", "severity", "recommendation", 
                              "recovery_watering", "recovery_sunlight", "recovery_air_circulation", "recovery_temperature"]
             missing_fields = [field for field in required_fields if field not in diagnosis_info]
             if missing_fields:
@@ -153,6 +157,7 @@ Example for healthy plant:
             logger.error(f"Failed to diagnose plant: {e}")
             # Return unknown diagnosis with default care tips
             return {
+                "plant_common_name": "Unknown Plant",
                 "issue_detected": "Unable to Diagnose",
                 "confidence_score": 0.0,
                 "severity": "Unknown",
