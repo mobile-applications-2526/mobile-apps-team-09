@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/colors";
 import { DiagnosisHeader } from "@/components/diagnose/DiagnosisHeader";
 import { DiagnosisCard } from "@/components/diagnose/DiagnosisCard";
@@ -142,11 +143,26 @@ export default function DiagnoseScreen() {
             )}
           </View>
         ) : diagnoses.length === 0 ? (
-          <View style={styles.centerContainer}>
-            <Text style={styles.emptyText}>No diagnoses yet</Text>
-            <Text style={styles.emptySubText}>
-              Scan a plant to get started!
+          <View style={styles.emptyStateContainer}>
+            <View style={styles.emptyStateIconContainer}>
+              <Ionicons
+                name="leaf-outline"
+                size={80}
+                color={COLORS.primaryGreen}
+              />
+            </View>
+            <Text style={styles.emptyStateTitle}>No Diagnoses Yet</Text>
+            <Text style={styles.emptyStateDescription}>
+              Start scanning your plants to track their health and get
+              personalized care recommendations
             </Text>
+            <TouchableOpacity
+              style={styles.scanButton}
+              onPress={() => router.push("/(tabs)/camera")}
+            >
+              <Ionicons name="camera" size={24} color="#FFFFFF" />
+              <Text style={styles.scanButtonText}>Scan a Plant</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.cardsContainer}>
@@ -230,6 +246,60 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+    paddingTop: 120,
+    paddingBottom: 100,
+  },
+  emptyStateIconContainer: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "rgba(76, 175, 80, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  emptyStateTitle: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  emptyStateDescription: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 40,
+  },
+  scanButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.primaryGreen,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    gap: 12,
+    shadowColor: COLORS.primaryGreen,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  scanButtonText: {
+    fontSize: 18,
     fontWeight: "600",
     color: "#FFFFFF",
   },
