@@ -24,6 +24,7 @@ export default function HomeScreen() {
       const autoLogin = async () => {
         try {
           await login("bob", "bobsmith123");
+          // await login("mannysingh", "manny123");
           router.replace("/(tabs)/overview");
         } catch (error) {
           console.error("Dev auto-login failed:", error);
