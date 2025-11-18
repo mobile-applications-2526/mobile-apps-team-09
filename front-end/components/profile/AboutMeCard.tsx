@@ -32,13 +32,11 @@ const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value, badge }) => {
 interface AboutMeCardProps {
   livingSituation: string;
   experienceLevel: string;
-  careStreak: number;
 }
 
 export const AboutMeCard: React.FC<AboutMeCardProps> = ({
   livingSituation,
   experienceLevel,
-  careStreak,
 }) => {
   return (
     <View style={styles.container}>
@@ -69,15 +67,7 @@ export const AboutMeCard: React.FC<AboutMeCardProps> = ({
         badge="2 years"
       />
 
-      <InfoItem
-        icon={
-          <View style={[styles.iconCircle, { backgroundColor: "#FEF3C7" }]}>
-            <Ionicons name="sunny-outline" size={20} color={COLORS.sunGold} />
-          </View>
-        }
-        label="Care Streak"
-        value={`${careStreak} days 🔥`}
-      />
+      {/* Care Streak removed */}
     </View>
   );
 };

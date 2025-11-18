@@ -14,7 +14,6 @@ export const mockUserProfile: UserProfileData = {
   aboutMe: {
     livingSituation: "Apartment with Balcony",
     experienceLevel: "Intermediate",
-    careStreak: 15,
   },
   plantCollection: [
     { id: "1", name: "Monstera", emoji: "🌿", backgroundColor: "#C8E6C9" },

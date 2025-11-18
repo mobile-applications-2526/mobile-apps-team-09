@@ -28,7 +28,6 @@ const mockUserData = {
   aboutMe: {
     livingSituation: "Apartment with Balcony",
     experienceLevel: "Intermediate",
-    careStreak: 15,
   },
   plantCollection: [
     { id: "1", name: "Monstera", emoji: "🌿", backgroundColor: "#C8E6C9" },
@@ -122,7 +121,6 @@ export default function ProfileScreen() {
         <AboutMeCard
           livingSituation={mockUserData.aboutMe.livingSituation}
           experienceLevel={mockUserData.aboutMe.experienceLevel}
-          careStreak={mockUserData.aboutMe.careStreak}
         />
 
         {/* Plant Collection */}

@@ -25,7 +25,6 @@ export interface UserProfileData {
   aboutMe: {
     livingSituation: string;
     experienceLevel: string;
-    careStreak: number;
   };
   plantCollection: PlantCollectionItem[];
   recentActivity: ActivityItem[];

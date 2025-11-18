@@ -99,7 +99,6 @@ export default function ProfileScreen() {
         <AboutMeCard
           livingSituation={mockUserProfile.aboutMe.livingSituation}
           experienceLevel={mockUserProfile.aboutMe.experienceLevel}
-          careStreak={mockUserProfile.aboutMe.careStreak}
         />
 
         {/* Plant Collection */}
