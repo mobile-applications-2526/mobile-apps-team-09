@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.plant_species import PlantSpecies
 from app.models.plant import Plant
 from app.models.diagnosis import Diagnosis
+from app.models.profile import Profile
 from app.core.security import get_password_hash
 from app.core.logging import get_logger
 
@@ -21,9 +22,11 @@ async def seed_data(session: AsyncSession) -> None:
     Seed the database with initial test data
 
     This function creates:
-    - 3 test users (including 1 admin)
+    - 4 test users (including 1 admin)
+    - User profiles for all users
     - Multiple plant species with care information
     - Sample plants assigned to users
+    - Sample diagnoses for plants
 
     Args:
         session: AsyncSession instance for database operations
@@ -68,6 +71,55 @@ async def seed_data(session: AsyncSession) -> None:
 
     session.add_all([user1, user2, user3, admin_user])
     await session.flush()  # Flush to get IDs assigned
+
+    # ==================== CREATE PROFILES ====================
+
+    profile_alice = Profile(
+        user_id=user1.id,
+        full_name="Alice Johnson",
+        tagline="Plant Enthusiast",
+        age=28,
+        living_situation="Apartment",
+        experience_level="Intermediate",
+        experience_years=3,
+        plant_count=0,
+    )
+
+    profile_bob = Profile(
+        user_id=user2.id,
+        full_name="Bob Smith",
+        tagline="Urban Gardener",
+        age=35,
+        living_situation="House",
+        experience_level="Advanced",
+        experience_years=7,
+        plant_count=0,
+    )
+
+    profile_test = Profile(
+        user_id=user3.id,
+        full_name="Test User",
+        tagline="Learning to Care for Plants",
+        age=25,
+        living_situation="Studio",
+        experience_level="Beginner",
+        experience_years=1,
+        plant_count=0,
+    )
+
+    profile_admin = Profile(
+        user_id=admin_user.id,
+        full_name="Admin User",
+        tagline="Master Gardener",
+        age=40,
+        living_situation="House with Garden",
+        experience_level="Expert",
+        experience_years=15,
+        plant_count=0,
+    )
+
+    session.add_all([profile_alice, profile_bob, profile_test, profile_admin])
+    await session.flush()
 
     # ==================== CREATE PLANT SPECIES ====================
 
@@ -532,7 +584,7 @@ async def seed_data(session: AsyncSession) -> None:
 
     # Commit all changes
     await session.commit()
-    logger.info("Database seeded successfully with users, plant species, plants, and diagnoses")
+    logger.info("Database seeded successfully with users, profiles, plant species, plants, and diagnoses")
 
 
 async def init_db() -> None:

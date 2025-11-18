@@ -4,7 +4,7 @@ Main API router aggregating all endpoint routers
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import users, plants, plants_spieces, auth, diagnoses, uploads, plant_identification, plant_diagnosis
+from app.api.v1.endpoints import users, plants, plants_spieces, auth, diagnoses, uploads, plant_identification, plant_diagnosis, profiles
 
 
 api_router = APIRouter()
@@ -17,6 +17,7 @@ api_router.include_router(diagnoses.router, prefix="/diagnoses", tags=["diagnose
 api_router.include_router(uploads.router, tags=["uploads"])
 api_router.include_router(plant_identification.router, prefix="/plants", tags=["AI"])
 api_router.include_router(plant_diagnosis.router, prefix="/plants", tags=["AI"])
+api_router.include_router(profiles.router, prefix="/profiles", tags=["profiles"])
 
 # Add more routers here as the application grows
 # api_router.include_router(items.router, prefix="/items", tags=["Items"])
