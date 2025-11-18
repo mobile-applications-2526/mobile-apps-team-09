@@ -93,7 +93,7 @@ class ProfileService:
             user_id: User ID
 
         Returns:
-            Profile dict with computed fields (care_rate, care_streak)
+            Profile dict with computed fields (care_rate)
 
         Raises:
             HTTPException: If profile not found
@@ -118,15 +118,13 @@ class ProfileService:
         profile_dict = {
             "id": profile.id,
             "user_id": profile.user_id,
-            "full_name": profile.full_name,
             "tagline": profile.tagline,
             "age": profile.age,
             "experience_level": profile.experience_level,
-            "experience_years": profile.experience_years,
+            "experience_start_date": profile.experience_start_date,
             "living_situation": profile.living_situation,
             "plant_count": profile.plant_count,
             "care_rate": care_rate,
-            "care_streak": 0,  # TODO: Requires watering history table
             "created_at": profile.created_at,
             "updated_at": profile.updated_at,
         }

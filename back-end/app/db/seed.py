@@ -22,36 +22,54 @@ async def seed_data(session: AsyncSession) -> None:
     Seed the database with initial test data
 
     This function creates:
-    - 4 test users (including 1 admin)
+    - 4 users (3 personas + 1 test user + 1 admin)
     - User profiles for all users
     - Multiple plant species with care information
     - Sample plants assigned to users
     - Sample diagnoses for plants
+
+    Personas:
+    - Emma: 17-year-old student with bedroom plant sanctuary
+    - David: 37-year-old AI engineer with office plants
+    - Margaret: 70-year-old experienced gardener with large collection
 
     Args:
         session: AsyncSession instance for database operations
     """
     # ==================== CREATE USERS ====================
 
-    user1 = User(
-        email="alice@plantsense.com",
-        username="alice",
-        full_name="alice johnson",
-        hashed_password=get_password_hash("alicejohnson123"),
+    # Persona 1: Emma - The Plant Enthusiast Student
+    emma = User(
+        email="emma@plantsense.com",
+        username="emma",
+        full_name="Emma Thompson",
+        hashed_password=get_password_hash("emma1234"),
         is_active=True,
         is_superuser=False,
     )
 
-    user2 = User(
-        email="bob@plantsense.com",
-        username="bob",
-        full_name="bob smith",
-        hashed_password=get_password_hash("bobsmith123"),
+    # Persona 2: David - The Busy Professional
+    david = User(
+        email="david@plantsense.com",
+        username="david",
+        full_name="David Chen",
+        hashed_password=get_password_hash("david123"),
         is_active=True,
         is_superuser=False,
     )
 
-    user3 = User(
+    # Persona 3: Margaret - The Experienced Gardener
+    margaret = User(
+        email="margaret@plantsense.com",
+        username="margaret",
+        full_name="Margaret Williams",
+        hashed_password=get_password_hash("margaret123"),
+        is_active=True,
+        is_superuser=False,
+    )
+
+    # Test User
+    test = User(
         email="test@plantsense.com",
         username="test",
         full_name="Test User",
@@ -60,65 +78,79 @@ async def seed_data(session: AsyncSession) -> None:
         is_superuser=False,
     )
 
+    # Admin User
     admin_user = User(
         email="admin@plantsense.com",
         username="admin",
-        full_name="admin user",
-        hashed_password=get_password_hash("adminuser123"),
+        full_name="Admin User",
+        hashed_password=get_password_hash("admin123"),
         is_active=True,
         is_superuser=True,
     )
 
-    session.add_all([user1, user2, user3, admin_user])
-    await session.flush()  # Flush to get IDs assigned
+    session.add_all([emma, david, margaret, test, admin_user])
+    await session.flush()
 
     # ==================== CREATE PROFILES ====================
 
-    profile_alice = Profile(
-        user_id=user1.id,
-        full_name="Alice Johnson",
-        tagline="Plant Enthusiast",
-        age=28,
-        living_situation="Apartment",
-        experience_level="Intermediate",
-        experience_years=3,
-        plant_count=0,
-    )
+    # Calculate experience start dates
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
 
-    profile_bob = Profile(
-        user_id=user2.id,
-        full_name="Bob Smith",
-        tagline="Urban Gardener",
-        age=35,
-        living_situation="House",
-        experience_level="Advanced",
-        experience_years=7,
-        plant_count=0,
-    )
+    today = date.today()
 
-    profile_test = Profile(
-        user_id=user3.id,
-        full_name="Test User",
-        tagline="Learning to Care for Plants",
-        age=25,
-        living_situation="Studio",
+    # Emma's Profile - 17-year-old student (started 6 months ago)
+    profile_emma = Profile(
+        user_id=emma.id,
+        tagline="Student in Training 🌱",
+        age=17,
+        living_situation="Bedroom in Parents' House",
         experience_level="Beginner",
-        experience_years=1,
-        plant_count=0,
+        experience_start_date=today - relativedelta(months=6),  # 6 months ago
     )
 
+    # David's Profile - 37-year-old AI engineer (started 3 months ago)
+    profile_david = Profile(
+        user_id=david.id,
+        tagline="Busy Professional",
+        age=37,
+        living_situation="Apartment",
+        experience_level="Beginner",
+        experience_start_date=today - relativedelta(months=3),  # 3 months ago
+    )
+
+    # Margaret's Profile - 70-year-old experienced gardener (started 40 years ago)
+    profile_margaret = Profile(
+        user_id=margaret.id,
+        tagline="Master Gardener & Plant Seller",
+        age=70,
+        living_situation="House with Large Garden",
+        experience_level="Expert",
+        experience_start_date=today - relativedelta(years=40),  # 40 years ago
+    )
+
+    # Test Profile (started 1 year 2 months ago)
+    # profile_test = Profile(
+    #     user_id=test.id,
+    #     tagline="Plant Enthusiast 🌱",
+    #     age=25,
+    #     living_situation="Apartment",
+    #     experience_level="Intermediate",
+    #     experience_start_date=today - relativedelta(years=1, months=2),  # 1 year 2 months ago
+    # )
+
+    # Admin Profile (started 10 years ago)
     profile_admin = Profile(
         user_id=admin_user.id,
-        full_name="Admin User",
-        tagline="Master Gardener",
-        age=40,
-        living_situation="House with Garden",
+        tagline="System Administrator",
+        age=30,
+        living_situation="Office",
         experience_level="Expert",
-        experience_years=15,
-        plant_count=0,
+        experience_start_date=today - relativedelta(years=10),  # 10 years ago
+        
     )
 
-    session.add_all([profile_alice, profile_bob, profile_test, profile_admin])
+    session.add_all([profile_emma, profile_david, profile_margaret, profile_admin])
     await session.flush()
 
     # ==================== CREATE PLANT SPECIES ====================
@@ -272,95 +304,223 @@ async def seed_data(session: AsyncSession) -> None:
     three_days_ago = now - timedelta(days=3)
     five_days_ago = now - timedelta(days=5)
     ten_days_ago = now - timedelta(days=10)
+    two_weeks_ago = now - timedelta(days=14)
 
-    # Alice's plants
-    plant_alice_1 = Plant(
-        user_id=user1.id,
+    # Emma's plants - 8 plants (bedroom sanctuary, social media worthy)
+    plant_emma_1 = Plant(
+        user_id=emma.id,
         species_id=species_pothos.id,
-        plant_name="Charlie",
-        location="Living Room Window",
+        plant_name="Bella",
+        location="Bedroom Window",
         last_watered=three_days_ago,
         image_url="https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
     )
 
-    plant_alice_2 = Plant(
-        user_id=user1.id,
-        species_id=species_snake.id,
-        plant_name="Sammy",
-        location="Bedroom Corner",
-        last_watered=ten_days_ago,
-        image_url="https://images.pexels.com/photos/2123482/pexels-photo-2123482.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-    )
-
-    plant_alice_3 = Plant(
-        user_id=user1.id,
+    plant_emma_2 = Plant(
+        user_id=emma.id,
         species_id=species_monstera.id,
         plant_name="Monty",
-        location="Living Room",
-        last_watered=five_days_ago,
+        location="Bedroom Corner",
+        last_watered=now - timedelta(days=8),  # Forgot during exams
         image_url="https://images.pexels.com/photos/3125195/pexels-photo-3125195.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
     )
 
-    plant_alice_4 = Plant(
-        user_id=user1.id,
-        species_id=species_aloe.id,
-        plant_name="Allie",
-        location="Kitchen Window",
-        last_watered=now - timedelta(days=15),
-        image_url="https://images.pexels.com/photos/3577378/pexels-photo-3577378.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-    )
-
-    # Bob's plants
-    plant_bob_1 = Plant(
-        user_id=user2.id,
+    plant_emma_3 = Plant(
+        user_id=emma.id,
         species_id=species_spider.id,
         plant_name="Spidey",
-        location="Office Desk",
+        location="Bedroom Shelf",
         last_watered=five_days_ago,
         image_url="https://images.pexels.com/photos/4505166/pexels-photo-4505166.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
     )
 
-    plant_bob_2 = Plant(
-        user_id=user2.id,
-        species_id=species_peace_lily.id,
-        plant_name="Peace",
-        location="Bathroom",
-        last_watered=three_days_ago,
-        image_url="https://images.pexels.com/photos/4751268/pexels-photo-4751268.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-    )
-
-    plant_bob_3 = Plant(
-        user_id=user2.id,
-        species_id=species_rubber.id,
-        plant_name="Ruby",
-        location="Hallway",
-        last_watered=five_days_ago,
-        image_url="https://images.pexels.com/photos/6208087/pexels-photo-6208087.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-    )
-
-    plant_bob_4 = Plant(
-        user_id=user2.id,
+    plant_emma_4 = Plant(
+        user_id=emma.id,
         species_id=species_succulent.id,
-        plant_name="Jade",
-        location="Office Window",
+        plant_name="Tiny",
+        location="Bedroom Desk",
         last_watered=ten_days_ago,
         image_url="https://images.pexels.com/photos/2132240/pexels-photo-2132240.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
     )
 
-    plant_bob_5 = Plant(
-        user_id=user2.id,
+    plant_emma_5 = Plant(
+        user_id=emma.id,
+        species_id=species_aloe.id,
+        plant_name="Aloe There",
+        location="Bedroom Windowsill",
+        last_watered=two_weeks_ago,
+        image_url="https://images.pexels.com/photos/3577378/pexels-photo-3577378.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_emma_6 = Plant(
+        user_id=emma.id,
+        species_id=species_snake.id,
+        plant_name="Snakey",
+        location="Bedroom Nightstand",
+        last_watered=now - timedelta(days=12),
+        image_url="https://images.pexels.com/photos/2123482/pexels-photo-2123482.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_emma_7 = Plant(
+        user_id=emma.id,
+        species_id=species_peace_lily.id,
+        plant_name="Lily",
+        location="Bedroom Dresser",
+        last_watered=three_days_ago,
+        image_url="https://images.pexels.com/photos/4751268/pexels-photo-4751268.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_emma_8 = Plant(
+        user_id=emma.id,
+        species_id=species_calathea.id,
+        plant_name="Cali",
+        location="Bedroom Hanging Planter",
+        last_watered=now - timedelta(days=6),
+        image_url="https://images.pexels.com/photos/6492398/pexels-photo-6492398.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    # David's plants - 3 low-maintenance office plants
+    plant_david_1 = Plant(
+        user_id=david.id,
+        species_id=species_snake.id,
+        plant_name="Office Snake",
+        location="Office Desk",
+        last_watered=now - timedelta(days=16),  # Forgot due to work
+        image_url="https://images.pexels.com/photos/2123482/pexels-photo-2123482.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_david_2 = Plant(
+        user_id=david.id,
+        species_id=species_pothos.id,
+        plant_name="Desk Buddy",
+        location="Office Shelf",
+        last_watered=now - timedelta(days=9),  # Busy deadline week
+        image_url="https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_david_3 = Plant(
+        user_id=david.id,
+        species_id=species_succulent.id,
+        plant_name="Little Guy",
+        location="Office Window",
+        last_watered=now - timedelta(days=18),  # Travel for work
+        image_url="https://images.pexels.com/photos/2132240/pexels-photo-2132240.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    # Margaret's plants - 12 plants (representing her extensive 50+ collection)
+    plant_margaret_1 = Plant(
+        user_id=margaret.id,
+        species_id=species_orchid.id,
+        plant_name="Purple Orchid",
+        location="Garden Greenhouse",
+        last_watered=five_days_ago,
+        image_url="https://images.pexels.com/photos/4750274/pexels-photo-4750274.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_2 = Plant(
+        user_id=margaret.id,
         species_id=species_fiddle.id,
-        plant_name="Fiddles",
+        plant_name="Fig Tree",
         location="Living Room",
         last_watered=five_days_ago,
         image_url="https://images.pexels.com/photos/6208086/pexels-photo-6208086.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
     )
 
-    # Admin's plant (for testing)
+    plant_margaret_3 = Plant(
+        user_id=margaret.id,
+        species_id=species_rubber.id,
+        plant_name="Rubber Beauty",
+        location="Sunroom",
+        last_watered=five_days_ago,
+        image_url="https://images.pexels.com/photos/6208087/pexels-photo-6208087.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_4 = Plant(
+        user_id=margaret.id,
+        species_id=species_monstera.id,
+        plant_name="Monstera Mama",
+        location="Garden Entrance",
+        last_watered=five_days_ago,
+        image_url="https://images.pexels.com/photos/3125195/pexels-photo-3125195.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_5 = Plant(
+        user_id=margaret.id,
+        species_id=species_peace_lily.id,
+        plant_name="Peace Lily #1",
+        location="Front Garden",
+        last_watered=three_days_ago,
+        image_url="https://images.pexels.com/photos/4751268/pexels-photo-4751268.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_6 = Plant(
+        user_id=margaret.id,
+        species_id=species_peace_lily.id,
+        plant_name="Peace Lily #2",
+        location="Back Garden",
+        last_watered=three_days_ago,
+        image_url="https://images.pexels.com/photos/4751268/pexels-photo-4751268.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_7 = Plant(
+        user_id=margaret.id,
+        species_id=species_calathea.id,
+        plant_name="Calathea Collection",
+        location="Indoor Display",
+        last_watered=three_days_ago,
+        image_url="https://images.pexels.com/photos/6492398/pexels-photo-6492398.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_8 = Plant(
+        user_id=margaret.id,
+        species_id=species_spider.id,
+        plant_name="Spider Mama",
+        location="Kitchen Window",
+        last_watered=five_days_ago,
+        image_url="https://images.pexels.com/photos/4505166/pexels-photo-4505166.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_9 = Plant(
+        user_id=margaret.id,
+        species_id=species_aloe.id,
+        plant_name="Aloe Vera Garden",
+        location="Outdoor Herb Garden",
+        last_watered=now - timedelta(days=20),
+        image_url="https://images.pexels.com/photos/3577378/pexels-photo-3577378.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_10 = Plant(
+        user_id=margaret.id,
+        species_id=species_succulent.id,
+        plant_name="Jade Collection",
+        location="Greenhouse Shelf",
+        last_watered=ten_days_ago,
+        image_url="https://images.pexels.com/photos/2132240/pexels-photo-2132240.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_11 = Plant(
+        user_id=margaret.id,
+        species_id=species_pothos.id,
+        plant_name="Golden Pothos",
+        location="Hanging Basket - Porch",
+        last_watered=five_days_ago,
+        image_url="https://images.pexels.com/photos/1084199/pexels-photo-1084199.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    plant_margaret_12 = Plant(
+        user_id=margaret.id,
+        species_id=species_snake.id,
+        plant_name="Snake Plant Collection",
+        location="Indoor Garden Room",
+        last_watered=ten_days_ago,
+        image_url="https://images.pexels.com/photos/2123482/pexels-photo-2123482.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
+    )
+
+    # Admin's test plant
     plant_admin_1 = Plant(
         user_id=admin_user.id,
         species_id=species_orchid.id,
-        plant_name="Orchie",
+        plant_name="Test Orchid",
         location="Office",
         last_watered=five_days_ago,
         image_url="https://images.pexels.com/photos/4750274/pexels-photo-4750274.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
@@ -368,223 +528,21 @@ async def seed_data(session: AsyncSession) -> None:
 
     session.add_all(
         [
-            plant_alice_1,
-            plant_alice_2,
-            plant_alice_3,
-            plant_alice_4,
-            plant_bob_1,
-            plant_bob_2,
-            plant_bob_3,
-            plant_bob_4,
-            plant_bob_5,
+            # Emma's 8 plants
+            plant_emma_1, plant_emma_2, plant_emma_3, plant_emma_4,
+            plant_emma_5, plant_emma_6, plant_emma_7, plant_emma_8,
+            # David's 3 plants
+            plant_david_1, plant_david_2, plant_david_3,
+            # Margaret's 12 plants
+            plant_margaret_1, plant_margaret_2, plant_margaret_3, plant_margaret_4,
+            plant_margaret_5, plant_margaret_6, plant_margaret_7, plant_margaret_8,
+            plant_margaret_9, plant_margaret_10, plant_margaret_11, plant_margaret_12,
+            # Admin's 1 plant
             plant_admin_1,
         ]
     )
 
     await session.flush()
-
-    # ==================== CREATE DIAGNOSES ====================
-
-    # Diagnosis 1: Leaf Spot Disease for Charlie (Pothos)
-    diagnosis_1 = Diagnosis(
-        user_id=user1.id,
-        plant_id=plant_alice_1.id,
-        issue_detected="Leaf Spot Disease",
-        confidence_score=0.87,
-        severity="Medium Severity",
-        recommendation="Remove affected leaves immediately to prevent spread. Reduce watering frequency and ensure proper air circulation. Apply a fungicide spray every 7-10 days for 3 weeks. Keep the plant in a well-ventilated area and avoid getting water on the leaves.",
-        image_url="https://images.pexels.com/photos/4751978/pexels-photo-4751978.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Reduce to once every 5-7 days",
-        recovery_sunlight="Indirect bright light, 4-6 hours",
-        recovery_air_circulation="Ensure good ventilation",
-        recovery_temperature="Keep between 65-75°F",
-        created_at=now_naive - timedelta(hours=2),
-    )
-
-    # Diagnosis 2: Root Rot for Sammy (Snake Plant)
-    diagnosis_2 = Diagnosis(
-        user_id=user1.id,
-        plant_id=plant_alice_2.id,
-        issue_detected="Root Rot",
-        confidence_score=0.92,
-        severity="High Severity",
-        recommendation="Immediately remove plant from soil and trim all black/mushy roots with sterile scissors. Repot in fresh, well-draining soil mix. Reduce watering to once every 3-4 weeks. Ensure pot has drainage holes. Place in bright indirect light to help recovery.",
-        image_url="https://images.pexels.com/photos/7728080/pexels-photo-7728080.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Once every 3-4 weeks only",
-        recovery_sunlight="Bright indirect light, 6-8 hours",
-        recovery_air_circulation="Good airflow around pot",
-        recovery_temperature="Maintain 60-85°F",
-        created_at=now_naive - timedelta(days=1),
-    )
-
-    # Diagnosis 3: Powdery Mildew for Monty (Monstera)
-    diagnosis_3 = Diagnosis(
-        user_id=user1.id,
-        plant_id=plant_alice_3.id,
-        issue_detected="Powdery Mildew",
-        confidence_score=0.78,
-        severity="Low Severity",
-        recommendation="Improve air circulation around the plant. Remove affected leaves. Spray with a mixture of 1 tablespoon baking soda and 1 teaspoon dish soap in 1 gallon of water. Apply weekly for 3 weeks. Reduce humidity if possible and avoid overhead watering.",
-        image_url="https://images.pexels.com/photos/6492398/pexels-photo-6492398.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        created_at=now_naive - timedelta(days=2),
-    )
-
-    # Diagnosis 4: Spider Mites for Spidey (Spider Plant) - BOB
-    diagnosis_4 = Diagnosis(
-        user_id=user2.id,
-        plant_id=plant_bob_1.id,
-        issue_detected="Spider Mites Infestation",
-        confidence_score=0.95,
-        severity="High Severity",
-        recommendation="Isolate plant immediately from other plants. Spray entire plant with insecticidal soap or neem oil solution. Pay special attention to undersides of leaves. Repeat treatment every 3 days for 2 weeks. Increase humidity around plant. Check other nearby plants for infestation.",
-        image_url="https://images.pexels.com/photos/7084309/pexels-photo-7084309.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Normal schedule after treatment",
-        recovery_sunlight="Bright indirect light, 6 hours",
-        recovery_air_circulation="Good ventilation essential",
-        recovery_temperature="Keep between 60-75°F",
-        created_at=now_naive - timedelta(hours=5),
-    )
-
-    # Diagnosis 5: Nutrient Deficiency for Peace (Peace Lily) - BOB
-    diagnosis_5 = Diagnosis(
-        user_id=user2.id,
-        plant_id=plant_bob_2.id,
-        issue_detected="Nitrogen Deficiency",
-        confidence_score=0.81,
-        severity="Medium Severity",
-        recommendation="Apply balanced liquid fertilizer (10-10-10 NPK) at half strength every 2 weeks during growing season. Yellowing should improve within 3-4 weeks. Ensure proper watering schedule. Consider repotting in fresh potting mix if plant hasn't been repotted in over a year.",
-        image_url="https://images.pexels.com/photos/6208511/pexels-photo-6208511.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Consistent moisture, check daily",
-        recovery_sunlight="Medium indirect light, 4-6 hours",
-        recovery_air_circulation="Moderate ventilation",
-        recovery_temperature="Keep between 65-80°F",
-        created_at=now_naive - timedelta(hours=8),
-    )
-
-    # Diagnosis 6: Sunburn for Ruby (Rubber Plant) - BOB
-    diagnosis_6 = Diagnosis(
-        user_id=user2.id,
-        plant_id=plant_bob_3.id,
-        issue_detected="Sunburn / Leaf Scorch",
-        confidence_score=0.89,
-        severity="Low Severity",
-        recommendation="Move plant away from direct sunlight to bright indirect light location. Remove severely damaged leaves. Monitor new growth for proper coloring. Water consistently to help plant recover. New growth should return to normal color within 2-3 weeks.",
-        image_url="https://images.pexels.com/photos/7084301/pexels-photo-7084301.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Regular watering, weekly",
-        recovery_sunlight="Bright indirect only, 6 hours",
-        recovery_air_circulation="Normal room ventilation",
-        recovery_temperature="Keep between 60-75°F",
-        created_at=now_naive - timedelta(days=3),
-    )
-
-    # Diagnosis 7: Overwatering for Jade (Succulent) - BOB
-    diagnosis_7 = Diagnosis(
-        user_id=user2.id,
-        plant_id=plant_bob_4.id,
-        issue_detected="Overwatering Damage",
-        confidence_score=0.84,
-        severity="Medium Severity",
-        recommendation="Stop watering immediately. Allow soil to dry out completely. Check for root rot by gently removing plant from pot. If roots are mushy, trim them and repot in fresh cactus/succulent soil mix. Water only when soil is completely dry, approximately every 2-3 weeks.",
-        image_url="https://images.pexels.com/photos/5699665/pexels-photo-5699665.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Every 2-3 weeks when dry",
-        recovery_sunlight="Bright direct light, 6-8 hours",
-        recovery_air_circulation="Good airflow to dry soil",
-        recovery_temperature="Keep above 55°F",
-        created_at=now_naive - timedelta(hours=12),
-    )
-
-    # Diagnosis 8: Bacterial Leaf Spot for Fiddles (Fiddle Leaf Fig) - BOB
-    diagnosis_8 = Diagnosis(
-        user_id=user2.id,
-        plant_id=plant_bob_5.id,
-        issue_detected="Bacterial Leaf Spot",
-        confidence_score=0.91,
-        severity="High Severity",
-        recommendation="Remove all affected leaves immediately using sterile pruning shears. Improve air circulation and reduce humidity. Avoid misting leaves. Water only at soil level, never on leaves. Apply copper-based bactericide as directed. Isolate from other plants. Monitor closely for 2-3 weeks.",
-        image_url="https://images.pexels.com/photos/6208345/pexels-photo-6208345.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Bottom watering only, weekly",
-        recovery_sunlight="Bright indirect light, 8 hours",
-        recovery_air_circulation="Excellent airflow required",
-        recovery_temperature="Keep between 65-75°F",
-        created_at=now_naive - timedelta(days=1, hours=6),
-    )
-
-    # Diagnosis 8b: HEALTHY Spidey (Spider Plant) - BOB's HEALTHY PLANT
-    diagnosis_8b = Diagnosis(
-        user_id=user2.id,
-        plant_id=plant_bob_1.id,
-        issue_detected="No Issues Detected",
-        confidence_score=0.94,
-        severity="Healthy",
-        recommendation="Great news! Your Spider Plant is thriving! Continue your excellent care routine. Spider plants are resilient and yours is showing strong, healthy growth. Keep up the consistent watering and light conditions.",
-        image_url="https://images.pexels.com/photos/4505166/pexels-photo-4505166.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Every 5-7 days, keep moist",
-        recovery_sunlight="Bright indirect light, 6 hours",
-        recovery_air_circulation="Normal room ventilation",
-        recovery_temperature="Keep between 60-75°F",
-        created_at=now_naive - timedelta(days=5),
-    )
-
-    # Diagnosis 9: Scale Insects for Orchie (Orchid)
-    diagnosis_9 = Diagnosis(
-        user_id=admin_user.id,
-        plant_id=plant_admin_1.id,
-        issue_detected="Scale Insect Infestation",
-        confidence_score=0.86,
-        severity="Medium Severity",
-        recommendation="Remove visible scale insects with cotton swab dipped in rubbing alcohol. Spray entire plant with horticultural oil or insecticidal soap. Repeat treatment weekly for 3-4 weeks. Check all nearby plants. Ensure proper air circulation to prevent future infestations.",
-        image_url="https://images.pexels.com/photos/6157049/pexels-photo-6157049.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        created_at=now_naive - timedelta(hours=18),
-    )
-
-    # Diagnosis 10: Healthy check for Allie (Aloe) - HEALTHY PLANT EXAMPLE
-    diagnosis_10 = Diagnosis(
-        user_id=user1.id,
-        plant_id=plant_alice_4.id,
-        issue_detected="No Issues Detected",
-        confidence_score=0.96,
-        severity="Healthy",
-        recommendation="Plant is healthy! Continue current care routine. Water every 3 weeks when soil is completely dry. Provide bright indirect to direct sunlight for 6-8 hours daily. Fertilize once in spring and once in summer with diluted succulent fertilizer.",
-        image_url="https://images.pexels.com/photos/3577378/pexels-photo-3577378.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        recovery_watering="Every 3 weeks when dry",
-        recovery_sunlight="Bright direct light, 6-8 hours",
-        recovery_air_circulation="Normal room ventilation",
-        recovery_temperature="Keep above 50°F",
-        created_at=now_naive - timedelta(days=4),
-    )
-
-    # Multiple diagnoses for same plant (Charlie) to show history
-    diagnosis_11 = Diagnosis(
-        user_id=user1.id,
-        plant_id=plant_alice_1.id,
-        issue_detected="Aphid Infestation",
-        confidence_score=0.79,
-        severity="Low Severity",
-        recommendation="Spray plant with strong stream of water to dislodge aphids. Apply neem oil solution weekly for 3 weeks. Introduce beneficial insects like ladybugs if infestation persists. Monitor new growth regularly.",
-        image_url="https://images.pexels.com/photos/4622986/pexels-photo-4622986.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&dpr=1",
-        created_at=now_naive - timedelta(days=7),
-    )
-
-    session.add_all(
-        [
-            diagnosis_1,
-            diagnosis_2,
-            diagnosis_3,
-            diagnosis_4,
-            diagnosis_5,
-            diagnosis_6,
-            diagnosis_7,
-            diagnosis_8,
-            diagnosis_8b,  # Bob's healthy plant
-            diagnosis_9,
-            diagnosis_10,
-            diagnosis_11,
-        ]
-    )
-
-    # Commit all changes
-    await session.commit()
-    logger.info("Database seeded successfully with users, profiles, plant species, plants, and diagnoses")
 
 
 async def init_db() -> None:
@@ -614,6 +572,8 @@ async def init_db() -> None:
     async with AsyncSessionLocal() as session:
         try:
             await seed_data(session)
+            await session.commit()
+            logger.info("Database seeded successfully")
         except Exception as e:
             logger.error(f"Error during seeding: {e}")
             await session.rollback()
