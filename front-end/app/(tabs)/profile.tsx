@@ -210,11 +210,12 @@ export default function ProfileScreen() {
     );
   }
 
+  const fullName = profileData.full_name || "Anonymous User";
   const displayData = {
-    fullName: profileData.full_name || "Anonymous User",
+    fullName: fullName,
     subtitle: profileData.tagline || "Plant Enthusiast",
     isActive: true,
-    initials: getInitials(profileData.full_name),
+    initials: getInitials(fullName),
     stats: {
       plants: profileData.plant_count,
       age: profileData.age || 0,

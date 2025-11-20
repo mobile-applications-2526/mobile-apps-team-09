@@ -28,9 +28,9 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
 }) => {
   const router = useRouter();
 
-  // Show max 6 plants
-  const displayPlants = plants.slice(0, 6);
+  // Show max 6 plants in 2 rows of 3, but only 5 if there are more than 6
   const hasMorePlants = plants.length > 6;
+  const displayPlants = hasMorePlants ? plants.slice(0, 5) : plants.slice(0, 6);
 
   if (plants.length === 0) {
     return (
@@ -40,7 +40,7 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
         </View>
         <View style={styles.emptyStateContainer}>
           <View style={styles.emptyStateIconContainer}>
-            <Ionicons name="leaf" size={64} color={COLORS.primaryGreen} />
+            <Ionicons name="leaf" size={32} color={COLORS.primaryGreen} />
           </View>
           <Text style={styles.emptyStateTitle}>No Plants Yet</Text>
           <Text style={styles.emptyStateDescription}>
@@ -48,9 +48,9 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
           </Text>
           <TouchableOpacity
             style={styles.addPlantButton}
-            onPress={() => router.push("/(tabs)/garden")}
+            onPress={() => router.push("/add-plant/choose-photo")}
           >
-            <Ionicons name="add-circle" size={24} color="#FFFFFF" />
+            <Ionicons name="add-circle" size={20} color="#FFFFFF" />
             <Text style={styles.addPlantButtonText}>Add a Plant</Text>
           </TouchableOpacity>
         </View>
@@ -69,11 +69,7 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <View style={styles.gridContainer}>
         {displayPlants.map((plant) => (
           <TouchableOpacity key={plant.id} style={styles.plantCard}>
             <View style={styles.plantImageContainer}>
@@ -87,7 +83,7 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
                 <View style={styles.placeholderImage}>
                   <Ionicons
                     name="leaf-outline"
-                    size={32}
+                    size={28}
                     color={COLORS.secondary}
                   />
                 </View>
@@ -99,16 +95,14 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
           </TouchableOpacity>
         ))}
         {hasMorePlants && (
-          <TouchableOpacity onPress={onViewAll} style={styles.moreCard}>
-            <View style={styles.moreIconContainer}>
-              <Ionicons name="add" size={32} color={COLORS.primaryGreen} />
-              <Text style={styles.moreText}>
-                +{plants.length - 6} more
-              </Text>
+          <TouchableOpacity onPress={onViewAll} style={styles.plantCard}>
+            <View style={styles.moreCard}>
+              <Text style={styles.moreText}>+{plants.length - 5}</Text>
+              <Text style={styles.moreSubText}>more plants</Text>
             </View>
           </TouchableOpacity>
         )}
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -117,7 +111,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.cardWhite,
     borderRadius: 16,
-    padding: 16,
+    padding: 12,
     marginHorizontal: 16,
     marginVertical: 8,
   },
@@ -125,10 +119,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 10,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: COLORS.textPrimary,
   },
@@ -137,19 +131,24 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1B5E20",
   },
-  scrollContent: {
-    paddingRight: 16,
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    height: 230,
+    paddingVertical: 8,
   },
   plantCard: {
-    width: 100,
-    marginRight: 12,
+    width: "31%",
+    marginBottom: 12,
   },
   plantImageContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 16,
+    width: "81%",
+    aspectRatio: 1,
+    borderRadius: 10,
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: 4,
+    marginLeft: 11,
   },
   plantImage: {
     width: "100%",
@@ -163,68 +162,73 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   plantName: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
     color: COLORS.textPrimary,
     textAlign: "center",
   },
   moreCard: {
-    width: 100,
-    height: 100,
-    borderRadius: 16,
+    width: "81%",
+    aspectRatio: 1,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 11,
+    backgroundColor: "rgba(16, 185, 129, 0.05)",
     borderWidth: 2,
     borderColor: COLORS.primaryGreen,
     borderStyle: "dashed",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  moreIconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
   },
   moreText: {
-    fontSize: 12,
+    fontSize: 24,
+    fontWeight: "700",
+    color: COLORS.primaryGreen,
+  },
+  moreSubText: {
+    fontSize: 11,
     fontWeight: "600",
     color: COLORS.primaryGreen,
     marginTop: 4,
   },
   emptyStateContainer: {
     alignItems: "center",
-    paddingVertical: 40,
-    paddingHorizontal: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    height: 230,
+    justifyContent: "center",
   },
   emptyStateIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 70,
+    height: 70,
+    borderRadius: 70,
     backgroundColor: "rgba(16, 185, 129, 0.1)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 12,
   },
   emptyStateTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "700",
     color: COLORS.textPrimary,
-    marginBottom: 12,
+    marginBottom: 6,
     textAlign: "center",
   },
   emptyStateDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.textSecondary,
     textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 28,
+    lineHeight: 18,
+    marginBottom: 16,
   },
   addPlantButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: COLORS.primaryGreen,
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
-    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    gap: 8,
     shadowColor: COLORS.primaryGreen,
     shadowOffset: {
       width: 0,
@@ -235,7 +239,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   addPlantButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
     color: "#FFFFFF",
   },

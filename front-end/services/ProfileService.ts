@@ -16,13 +16,14 @@ export class ProfileNotFoundError extends Error {
 export interface ProfileBackendResponse {
   id: number;
   user_id: number;
+  full_name: string | null;
   tagline: string | null;
   age: number | null;
   experience_level: string | null;
   experience_start_date: string | null;
   living_situation: string | null;
   plant_count: number;
-  care_rate: number; // Percentage (0-100)
+  care_rate: number;
   created_at: string;
   updated_at: string;
 }
@@ -82,6 +83,10 @@ export const createProfile = async (
       }
       if (status === 403) {
         throw new Error("You don't have permission to create this profile");
+      }
+      if (status === 422) {
+        const detail = data?.detail || "Validation error";
+        throw new Error(`Validation failed: ${JSON.stringify(detail)}`);
       }
       throw new Error(`Failed to create profile: ${status}`);
     }

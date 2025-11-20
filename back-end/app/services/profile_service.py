@@ -93,7 +93,7 @@ class ProfileService:
             user_id: User ID
 
         Returns:
-            Profile dict with computed fields (care_rate)
+            Profile dict with computed fields (care_rate, full_name)
 
         Raises:
             HTTPException: If profile not found
@@ -104,6 +104,9 @@ class ProfileService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Profile not found for user ID {user_id}",
             )
+
+        # Get user to fetch full_name
+        user = await self.user_repository.get_by_id(user_id)
 
         # Auto-update plant_count from actual plant count
         actual_plant_count = await self.plant_repository.count_plants_for_user(user_id)
@@ -118,6 +121,7 @@ class ProfileService:
         profile_dict = {
             "id": profile.id,
             "user_id": profile.user_id,
+            "full_name": user.full_name if user else None,
             "tagline": profile.tagline,
             "age": profile.age,
             "experience_level": profile.experience_level,

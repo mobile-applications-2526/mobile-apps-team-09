@@ -18,6 +18,7 @@ import { COLORS } from "@/constants/colors";
 import { createProfile } from "@/services/ProfileService";
 import { getCurrentUserId } from "@/services/UserService";
 import { LinearGradient } from "expo-linear-gradient";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function CreateProfile() {
   const router = useRouter();
@@ -29,9 +30,32 @@ export default function CreateProfile() {
   const [age, setAge] = useState("");
   const [livingSituation, setLivingSituation] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
-  const [experienceStartDate, setExperienceStartDate] = useState("");
+  const [experienceStartDate, setExperienceStartDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempDate, setTempDate] = useState(new Date());
 
   const handleSubmit = async () => {
+    // Validation
+    if (!tagline.trim()) {
+      Alert.alert("Required Field", "Please enter a tagline");
+      return;
+    }
+
+    if (!age.trim()) {
+      Alert.alert("Required Field", "Please enter your age");
+      return;
+    }
+
+    if (!livingSituation.trim()) {
+      Alert.alert("Required Field", "Please enter your living situation");
+      return;
+    }
+
+    if (!experienceLevel.trim()) {
+      Alert.alert("Required Field", "Please select your experience level");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -41,11 +65,11 @@ export default function CreateProfile() {
       }
 
       const profileData = {
-        tagline: tagline.trim() || undefined,
-        age: age ? parseInt(age, 10) : undefined,
-        living_situation: livingSituation.trim() || undefined,
-        experience_level: experienceLevel.trim() || undefined,
-        experience_start_date: experienceStartDate || undefined,
+        tagline: tagline.trim(),
+        age: parseInt(age, 10),
+        living_situation: livingSituation.trim(),
+        experience_level: experienceLevel.trim(),
+        experience_start_date: experienceStartDate.toISOString().split('T')[0], // Send only date part YYYY-MM-DD
       };
 
       await createProfile(userId, profileData);
@@ -123,7 +147,7 @@ export default function CreateProfile() {
                   color="#1B5E20"
                   style={{ opacity: 0.6 }}
                 />
-                <Text style={styles.label}>Tagline</Text>
+                <Text style={styles.label}>Tagline <Text style={styles.required}>*</Text></Text>
               </View>
               <TextInput
                 style={styles.input}
@@ -142,7 +166,7 @@ export default function CreateProfile() {
                   color="#1B5E20"
                   style={{ opacity: 0.6 }}
                 />
-                <Text style={styles.label}>Age</Text>
+                <Text style={styles.label}>Age <Text style={styles.required}>*</Text></Text>
               </View>
               <TextInput
                 style={styles.input}
@@ -167,7 +191,7 @@ export default function CreateProfile() {
                   color="#1B5E20"
                   style={{ opacity: 0.6 }}
                 />
-                <Text style={styles.label}>Where do you live?</Text>
+                <Text style={styles.label}>Where do you live? <Text style={styles.required}>*</Text></Text>
               </View>
               <TextInput
                 style={styles.input}
@@ -191,7 +215,7 @@ export default function CreateProfile() {
                   color="#1B5E20"
                   style={{ opacity: 0.6 }}
                 />
-                <Text style={styles.label}>Experience Level</Text>
+                <Text style={styles.label}>Experience Level <Text style={styles.required}>*</Text></Text>
               </View>
               <View style={styles.chipContainer}>
                 {["Beginner", "Intermediate", "Expert"].map((level) => (
@@ -224,17 +248,22 @@ export default function CreateProfile() {
                   color="#1B5E20"
                   style={{ opacity: 0.6 }}
                 />
-                <Text style={styles.label}>When did you start?</Text>
+                <Text style={styles.label}>When did you start? <Text style={styles.required}>*</Text></Text>
               </View>
-              <TextInput
-                style={styles.input}
-                value={experienceStartDate}
-                onChangeText={setExperienceStartDate}
-                placeholder="YYYY-MM-DD (e.g., 2023-06-15)"
-                placeholderTextColor="#717182"
-              />
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => {
+                  setTempDate(experienceStartDate);
+                  setShowDatePicker(true);
+                }}
+              >
+                <Text style={styles.datePickerText}>
+                  {experienceStartDate.toLocaleDateString()}
+                </Text>
+                <Ionicons name="calendar-outline" size={20} color="#1B5E20" />
+              </TouchableOpacity>
               <Text style={styles.helperText}>
-                Enter when you started your plant journey
+                Select when you started your plant journey
               </Text>
             </View>
           </View>
@@ -266,6 +295,43 @@ export default function CreateProfile() {
             )}
           </TouchableOpacity>
         </View>
+
+        {/* Date Picker */}
+        {showDatePicker && (
+          <View style={styles.datePickerContainer}>
+            <View style={styles.datePickerHeader}>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowDatePicker(false);
+                }}
+              >
+                <Text style={styles.cancelButton}>Cancel</Text>
+              </TouchableOpacity>
+              <Text style={styles.pickerTitle}>Experience Start Date</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setExperienceStartDate(tempDate);
+                  setShowDatePicker(false);
+                }}
+              >
+                <Text style={styles.doneButton}>Done</Text>
+              </TouchableOpacity>
+            </View>
+            <DateTimePicker
+              value={tempDate}
+              mode="date"
+              display="spinner"
+              onChange={(event, selectedDate) => {
+                if (selectedDate) {
+                  setTempDate(selectedDate);
+                }
+              }}
+              maximumDate={new Date()}
+              themeVariant="light"
+              style={styles.datePicker}
+            />
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -469,5 +535,66 @@ const styles = StyleSheet.create({
     color: COLORS.cardWhite,
     flex: 1,
     textAlign: "center",
+  },
+  datePickerButton: {
+    backgroundColor: COLORS.cardWhite,
+    borderWidth: 0.5,
+    borderColor: "#E5E7EB",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    height: 36,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: "#1B5E20",
+  },
+  datePickerContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  datePickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#E5E5E5",
+  },
+  pickerTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000000",
+  },
+  cancelButton: {
+    fontSize: 16,
+    color: "#007AFF",
+  },
+  doneButton: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007AFF",
+  },
+  datePicker: {
+    width: "100%",
+    backgroundColor: "#FFFFFF",
   },
 });
