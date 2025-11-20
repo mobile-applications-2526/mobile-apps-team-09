@@ -46,6 +46,7 @@ class ProfileResponse(BaseModel):
 
     id: int
     user_id: int
+    full_name: Optional[str] = None
     tagline: Optional[str] = None
     age: Optional[int] = None
     experience_level: Optional[str] = None
