@@ -32,12 +32,44 @@ const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value, badge }) => {
 interface AboutMeCardProps {
   livingSituation: string;
   experienceLevel: string;
+  experienceStartDate?: string | null; // ISO date string
 }
+
+// Helper function to calculate years and months from start date
+const calculateExperienceDuration = (startDate: string | null | undefined): string | null => {
+  if (!startDate) return null;
+
+  const start = new Date(startDate);
+  const now = new Date();
+
+  const yearsDiff = now.getFullYear() - start.getFullYear();
+  const monthsDiff = now.getMonth() - start.getMonth();
+
+  let totalYears = yearsDiff;
+  let totalMonths = monthsDiff;
+
+  if (monthsDiff < 0) {
+    totalYears -= 1;
+    totalMonths += 12;
+  }
+
+  if (totalYears === 0 && totalMonths === 0) {
+    return "Just started";
+  } else if (totalYears === 0) {
+    return `${totalMonths} ${totalMonths === 1 ? 'month' : 'months'}`;
+  } else if (totalMonths === 0) {
+    return `${totalYears} ${totalYears === 1 ? 'year' : 'years'}`;
+  } else {
+    return `${totalYears} ${totalYears === 1 ? 'year' : 'years'} ${totalMonths} ${totalMonths === 1 ? 'month' : 'months'}`;
+  }
+};
 
 export const AboutMeCard: React.FC<AboutMeCardProps> = ({
   livingSituation,
   experienceLevel,
+  experienceStartDate,
 }) => {
+  const experienceDuration = calculateExperienceDuration(experienceStartDate);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>About Me</Text>
@@ -64,10 +96,8 @@ export const AboutMeCard: React.FC<AboutMeCardProps> = ({
         }
         label="Experience Level"
         value={experienceLevel}
-        badge="2 years"
+        badge={experienceDuration || undefined}
       />
-
-      {/* Care Streak removed */}
     </View>
   );
 };
