@@ -4,11 +4,14 @@ Diagnosis service containing business logic
 
 from typing import Optional, List
 from fastapi import HTTPException, status
+from datetime import datetime, timezone
 
 from app.models.diagnosis import Diagnosis
+from app.models.activity import Activity, ActivityType
 from app.repositories.diagnosis_repository import DiagnosisRepository
 from app.repositories.plant_repository import PlantRepository
 from app.schemas.diagnosis_schema import DiagnosisCreate, DiagnosisUpdate
+from app.services.activity_service import get_activity_title
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -50,6 +53,18 @@ class DiagnosisService:
             plant_id=data.plant_id,
             **data.model_dump(exclude={"plant_id"}, exclude_unset=True)
         )
+
+        activity = Activity(
+            user_id=user_id,
+            plant_id=data.plant_id,
+            diagnosis_id=diagnosis.id,
+            activity_type=ActivityType.DIAGNOSIS,
+            title=get_activity_title(ActivityType.DIAGNOSIS),
+            created_at=datetime.now(timezone.utc)
+        )
+        self.diagnosis_repository.session.add(activity)
+        await self.diagnosis_repository.session.commit()
+
         logger.info(
             f"Created diagnosis ID {diagnosis.id} for plant {data.plant_id} by user {user_id}"
         )
@@ -65,6 +80,18 @@ class DiagnosisService:
             plant_id=data.plant_id,  # Will be None for standalone diagnoses
             **data.model_dump(exclude={"plant_id"}, exclude_unset=True)
         )
+
+        activity = Activity(
+            user_id=user_id,
+            plant_id=None,
+            diagnosis_id=diagnosis.id,
+            activity_type=ActivityType.DIAGNOSIS,
+            title=get_activity_title(ActivityType.DIAGNOSIS),
+            created_at=datetime.now(timezone.utc)
+        )
+        self.diagnosis_repository.session.add(activity)
+        await self.diagnosis_repository.session.commit()
+
         logger.info(
             f"Created standalone diagnosis ID {diagnosis.id} for user {user_id}"
         )

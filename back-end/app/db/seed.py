@@ -11,6 +11,7 @@ from app.models.plant_species import PlantSpecies
 from app.models.plant import Plant
 from app.models.diagnosis import Diagnosis
 from app.models.profile import Profile
+from app.models.activity import Activity, ActivityType
 from app.core.security import get_password_hash
 from app.core.logging import get_logger
 
@@ -89,68 +90,7 @@ async def seed_data(session: AsyncSession) -> None:
     )
 
     session.add_all([emma, david, margaret, test, admin_user])
-    await session.flush()
 
-    # ==================== CREATE PROFILES ====================
-
-    # Calculate experience start dates
-    from datetime import date
-    from dateutil.relativedelta import relativedelta
-
-    today = date.today()
-
-    # Emma's Profile - 17-year-old student (started 6 months ago)
-    profile_emma = Profile(
-        user_id=emma.id,
-        tagline="Student in Training 🌱",
-        age=17,
-        living_situation="Bedroom in Parents' House",
-        experience_level="Beginner",
-        experience_start_date=today - relativedelta(months=6),  # 6 months ago
-    )
-
-    # David's Profile - 37-year-old AI engineer (started 3 months ago)
-    profile_david = Profile(
-        user_id=david.id,
-        tagline="Busy Professional",
-        age=37,
-        living_situation="Apartment",
-        experience_level="Beginner",
-        experience_start_date=today - relativedelta(months=3),  # 3 months ago
-    )
-
-    # Margaret's Profile - 70-year-old experienced gardener (started 40 years ago)
-    profile_margaret = Profile(
-        user_id=margaret.id,
-        tagline="Master Gardener & Plant Seller",
-        age=70,
-        living_situation="House with Large Garden",
-        experience_level="Expert",
-        experience_start_date=today - relativedelta(years=40),  # 40 years ago
-    )
-
-    # Test Profile (started 1 year 2 months ago)
-    # profile_test = Profile(
-    #     user_id=test.id,
-    #     tagline="Plant Enthusiast 🌱",
-    #     age=25,
-    #     living_situation="Apartment",
-    #     experience_level="Intermediate",
-    #     experience_start_date=today - relativedelta(years=1, months=2),  # 1 year 2 months ago
-    # )
-
-    # Admin Profile (started 10 years ago)
-    profile_admin = Profile(
-        user_id=admin_user.id,
-        tagline="System Administrator",
-        age=30,
-        living_situation="Office",
-        experience_level="Expert",
-        experience_start_date=today - relativedelta(years=10),  # 10 years ago
-        
-    )
-
-    session.add_all([profile_emma, profile_david, profile_margaret, profile_admin])
     await session.flush()
 
     # ==================== CREATE PLANT SPECIES ====================
@@ -544,6 +484,191 @@ async def seed_data(session: AsyncSession) -> None:
 
     await session.flush()
 
+    # ==================== CREATE DIAGNOSES ====================
+    diagnosis_emma_1 = Diagnosis(
+        user_id=emma.id,
+        plant_id=plant_emma_1.id,
+        plant_common_name=species_pothos.common_name,
+        issue_detected="Root Rot",
+        confidence_score=0.85,
+        severity="moderate",
+        recommendation="Reduce watering, repot in dry soil.",
+        image_url=plant_emma_1.image_url,
+        created_at=datetime.utcnow() - timedelta(days=2),
+    )
+    diagnosis_david_1 = Diagnosis(
+        user_id=david.id,
+        plant_id=plant_david_1.id,
+        plant_common_name=species_snake.common_name,
+        issue_detected="Leaf Yellowing",
+        confidence_score=0.90,
+        severity="mild",
+        recommendation="Increase sunlight, check for pests.",
+        image_url=plant_david_1.image_url,
+        created_at=datetime.utcnow() - timedelta(days=3),
+    )
+    diagnosis_margaret_1 = Diagnosis(
+        user_id=margaret.id,
+        plant_id=plant_margaret_1.id,
+        plant_common_name=species_orchid.common_name,
+        issue_detected="Fungal Spots",
+        confidence_score=0.92,
+        severity="severe",
+        recommendation="Remove affected leaves, apply fungicide.",
+        image_url=plant_margaret_1.image_url,
+        created_at=datetime.utcnow() - timedelta(days=1),
+    )
+    session.add_all([diagnosis_emma_1, diagnosis_david_1, diagnosis_margaret_1])
+    await session.flush()
+
+    # ==================== CREATE ACTIVITIES ====================
+
+    # Emma activities
+
+    from app.services.activity_service import get_activity_title
+
+    activity_emma_plant_added = Activity(
+        user_id=emma.id,
+        plant_id=plant_emma_1.id,
+        activity_type=ActivityType.PLANT_ADDED,
+        title=get_activity_title(ActivityType.PLANT_ADDED),
+        created_at=plant_emma_1.acquired_date or (datetime.utcnow() - timedelta(days=30)),
+    )
+    activity_emma_watered = Activity(
+        user_id=emma.id,
+        plant_id=plant_emma_1.id,
+        activity_type=ActivityType.WATERED,
+        title=get_activity_title(ActivityType.WATERED, plant_emma_1.plant_name),
+        created_at=plant_emma_1.last_watered,
+    )
+    activity_emma_diagnosis = Activity(
+        user_id=emma.id,
+        plant_id=plant_emma_1.id,
+        diagnosis_id=diagnosis_emma_1.id,
+        activity_type=ActivityType.DIAGNOSIS,
+        title=get_activity_title(ActivityType.DIAGNOSIS),
+        created_at=diagnosis_emma_1.created_at,
+    )
+
+    # David activities
+
+    activity_david_plant_added = Activity(
+        user_id=david.id,
+        plant_id=plant_david_1.id,
+        activity_type=ActivityType.PLANT_ADDED,
+        title=get_activity_title(ActivityType.PLANT_ADDED),
+        created_at=plant_david_1.acquired_date or (datetime.utcnow() - timedelta(days=30)),
+    )
+    activity_david_watered = Activity(
+        user_id=david.id,
+        plant_id=plant_david_1.id,
+        activity_type=ActivityType.WATERED,
+        title=get_activity_title(ActivityType.WATERED, plant_david_1.plant_name),
+        created_at=plant_david_1.last_watered,
+    )
+    activity_david_diagnosis = Activity(
+        user_id=david.id,
+        plant_id=plant_david_1.id,
+        diagnosis_id=diagnosis_david_1.id,
+        activity_type=ActivityType.DIAGNOSIS,
+        title=get_activity_title(ActivityType.DIAGNOSIS),
+        created_at=diagnosis_david_1.created_at,
+    )
+
+    # Margaret activities
+
+    activity_margaret_plant_added = Activity(
+        user_id=margaret.id,
+        plant_id=plant_margaret_1.id,
+        activity_type=ActivityType.PLANT_ADDED,
+        title=get_activity_title(ActivityType.PLANT_ADDED),
+        created_at=plant_margaret_1.acquired_date or (datetime.utcnow() - timedelta(days=30)),
+    )
+    activity_margaret_watered = Activity(
+        user_id=margaret.id,
+        plant_id=plant_margaret_1.id,
+        activity_type=ActivityType.WATERED,
+        title=get_activity_title(ActivityType.WATERED, plant_margaret_1.plant_name),
+        created_at=plant_margaret_1.last_watered,
+    )
+    activity_margaret_diagnosis = Activity(
+        user_id=margaret.id,
+        plant_id=plant_margaret_1.id,
+        diagnosis_id=diagnosis_margaret_1.id,
+        activity_type=ActivityType.DIAGNOSIS,
+        title=get_activity_title(ActivityType.DIAGNOSIS),
+        created_at=diagnosis_margaret_1.created_at,
+    )
+
+    session.add_all([
+        activity_emma_plant_added, activity_emma_watered, activity_emma_diagnosis,
+        activity_david_plant_added, activity_david_watered, activity_david_diagnosis,
+        activity_margaret_plant_added, activity_margaret_watered, activity_margaret_diagnosis,
+    ])
+    await session.flush()
+
+    # ==================== CREATE PROFILES ====================
+
+    # Calculate experience start dates
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+
+    today = date.today()
+
+    # Emma's Profile - 17-year-old student (started 6 months ago)
+    profile_emma = Profile(
+        user_id=emma.id,
+        tagline="Student in Training 🌱",
+        age=17,
+        living_situation="Bedroom in Parents' House",
+        experience_level="Beginner",
+        experience_start_date=today - relativedelta(months=6),  # 6 months ago
+    )
+
+    # David's Profile - 37-year-old AI engineer (started 3 months ago)
+    profile_david = Profile(
+        user_id=david.id,
+        tagline="Busy Professional",
+        age=37,
+        living_situation="Apartment",
+        experience_level="Beginner",
+        experience_start_date=today - relativedelta(months=3),  # 3 months ago
+    )
+
+    # Margaret's Profile - 70-year-old experienced gardener (started 40 years ago)
+    profile_margaret = Profile(
+        user_id=margaret.id,
+        tagline="Master Gardener & Plant Seller",
+        age=70,
+        living_situation="House with Large Garden",
+        experience_level="Expert",
+        experience_start_date=today - relativedelta(years=40),  # 40 years ago
+    )
+
+    # Test Profile (started 1 year 2 months ago)
+    # profile_test = Profile(
+    #     user_id=test.id,
+    #     tagline="Plant Enthusiast 🌱",
+    #     age=25,
+    #     living_situation="Apartment",
+    #     experience_level="Intermediate",
+    #     experience_start_date=today - relativedelta(years=1, months=2),  # 1 year 2 months ago
+    # )
+
+    # Admin Profile (started 10 years ago)
+    profile_admin = Profile(
+        user_id=admin_user.id,
+        tagline="System Administrator",
+        age=30,
+        living_situation="Office",
+        experience_level="Expert",
+        experience_start_date=today - relativedelta(years=10),  # 10 years ago
+        
+    )
+
+    session.add_all([profile_emma, profile_david, profile_margaret, profile_admin])
+    await session.flush()
+
 
 async def init_db() -> None:
     """
@@ -558,7 +683,7 @@ async def init_db() -> None:
     """
     logger.info("Dropping all tables...")
 
-    # Drop all tables first
+    # Drop all tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 

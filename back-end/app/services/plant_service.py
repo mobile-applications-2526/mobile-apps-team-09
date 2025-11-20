@@ -4,10 +4,13 @@ Plant service containing business logic
 
 from typing import Optional, List
 from fastapi import HTTPException, status
+from datetime import datetime, timezone
 
 from app.models.plant import Plant
+from app.models.activity import Activity, ActivityType
 from app.repositories.plant_repository import PlantRepository
 from app.schemas.plant_schema import PlantCreate, PlantUpdate
+from app.services.activity_service import get_activity_title
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -35,6 +38,18 @@ class PlantService:
             user_id=user_id,
             **data.model_dump(exclude_unset=True),
         )
+
+        # Create activity for plant added
+        activity = Activity(
+            user_id=user_id,
+            plant_id=plant.id,
+            activity_type=ActivityType.PLANT_ADDED,
+            title=get_activity_title(ActivityType.PLANT_ADDED),
+            created_at=datetime.now(timezone.utc)
+        )
+        self.repository.session.add(activity)
+        await self.repository.session.commit()
+
         logger.info(f"Created plant '{plant.plant_name}' (ID: {plant.id}) for user {user_id}")
         return plant
 
