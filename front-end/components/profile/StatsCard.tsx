@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: 4,
   },
   iconContainer: {
     width: 48,

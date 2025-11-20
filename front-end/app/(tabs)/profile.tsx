@@ -371,6 +371,7 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: "row",
+    gap: 12,
     paddingHorizontal: 16,
     marginBottom: 8,
   },
