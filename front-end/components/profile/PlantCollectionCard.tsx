@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { COLORS } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 
 interface PlantItem {
   id: number;
@@ -32,6 +32,34 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
   const pageGap = 16;
   const cardWidth = (availableWidth - 16) / 3;
 
+  // Handle empty state
+  if (plants.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>My Plant Collection</Text>
+        </View>
+        <View style={styles.emptyStateContainer}>
+          <View style={styles.emptyStateIconContainer}>
+            <Ionicons name="leaf" size={32} color={COLORS.primaryGreen} />
+          </View>
+          <Text style={styles.emptyStateTitle}>No Plants Yet</Text>
+          <Text style={styles.emptyStateDescription}>
+            Start your collection by adding your first plant to track its growth
+            and care
+          </Text>
+          <TouchableOpacity
+            style={styles.addPlantButton}
+            onPress={() => router.push("/add-plant/choose-photo")}
+          >
+            <Ionicons name="add-circle" size={20} color="#FFFFFF" />
+            <Text style={styles.addPlantButtonText}>Add a Plant</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   // Split plants into pages of 6
   const pages: PlantItem[][] = [];
   for (let i = 0; i < plants.length; i += 6) {
@@ -41,11 +69,12 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Plant Collection ({plants.length})</Text>
+        <Text style={styles.title}>My Plant Collection</Text>
         <TouchableOpacity onPress={onViewAll}>
           <Text style={styles.viewAll}>View All</Text>
         </TouchableOpacity>
       </View>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -160,7 +189,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.cardWhite,
     borderRadius: 16,
-    padding: 12,
+    padding: 16,
     marginHorizontal: 16,
     marginVertical: 8,
   },
@@ -168,10 +197,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: COLORS.textPrimary,
   },
@@ -219,80 +248,47 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     textAlign: "center",
   },
-  moreCard: {
-    width: "81%",
-    aspectRatio: 1,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 11,
-    backgroundColor: "rgba(16, 185, 129, 0.05)",
-    borderWidth: 2,
-    borderColor: COLORS.primaryGreen,
-    borderStyle: "dashed",
-  },
-  moreText: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: COLORS.primaryGreen,
-  },
-  moreSubText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: COLORS.primaryGreen,
-    marginTop: 4,
-  },
+  // Empty state styles
   emptyStateContainer: {
     alignItems: "center",
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    height: 230,
-    justifyContent: "center",
+    paddingVertical: 5,
+    paddingHorizontal: 16,
   },
   emptyStateIconContainer: {
-    width: 70,
-    height: 70,
-    borderRadius: 70,
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primaryPale,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   emptyStateTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: COLORS.textPrimary,
-    marginBottom: 6,
+    marginBottom: 8,
     textAlign: "center",
   },
   emptyStateDescription: {
-    fontSize: 13,
+    fontSize: 14,
     color: COLORS.textSecondary,
     textAlign: "center",
-    lineHeight: 18,
-    marginBottom: 16,
+    marginBottom: 24,
+    lineHeight: 20,
   },
   addPlantButton: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     backgroundColor: COLORS.primaryGreen,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 10,
+    borderRadius: 12,
     gap: 8,
-    shadowColor: COLORS.primaryGreen,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   addPlantButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
     color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

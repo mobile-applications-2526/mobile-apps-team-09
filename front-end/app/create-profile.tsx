@@ -129,7 +129,7 @@ export default function CreateProfile() {
             </LinearGradient>
             <Text style={styles.welcomeText}>Welcome to PlantSense!</Text>
             <Text style={styles.welcomeSubtext}>
-              Let`&apos;`s set up your profile to personalize your plant care
+              Let&apos;s set up your profile to personalize your plant care
               journey
             </Text>
           </View>
@@ -183,83 +183,84 @@ export default function CreateProfile() {
               />
             </View>
           </View>
-        </View>
-        {/* Living Situation Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Living Situation</Text>
 
-          <View style={styles.inputGroup}>
-            <View style={styles.labelRow}>
-              <Ionicons
-                name="home-outline"
-                size={16}
-                color="#1B5E20"
-                style={{ opacity: 0.6 }}
+          {/* Living Situation Card */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Living Situation</Text>
+
+            <View style={styles.inputGroup}>
+              <View style={styles.labelRow}>
+                <Ionicons
+                  name="home-outline"
+                  size={16}
+                  color="#1B5E20"
+                  style={{ opacity: 0.6 }}
+                />
+                <Text style={styles.label}>
+                  Where do you live? <Text style={styles.required}>*</Text>
+                </Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                value={livingSituation}
+                onChangeText={setLivingSituation}
+                placeholder="e.g., Apartment with Balcony, House with Garden"
+                placeholderTextColor="#717182"
               />
-              <Text style={styles.label}>
-                Where do you live? <Text style={styles.required}>*</Text>
-              </Text>
             </View>
-            <TextInput
-              style={styles.input}
-              value={livingSituation}
-              onChangeText={setLivingSituation}
-              placeholder="e.g., Apartment with Balcony, House with Garden"
-              placeholderTextColor="#717182"
-            />
           </View>
-        </View>
 
-        {/* Plant Experience Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Plant Experience</Text>
+          {/* Plant Experience Card */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Plant Experience</Text>
 
-          <View style={styles.inputGroup}>
-            <View style={styles.labelRow}>
-              <Ionicons
-                name="leaf-outline"
-                size={16}
-                color="#1B5E20"
-                style={{ opacity: 0.6 }}
-              />
-              <Text style={styles.label}>
-                Experience Level <Text style={styles.required}>*</Text>
-              </Text>
-            </View>
-            <View style={styles.chipContainer}>
-              {["Beginner", "Intermediate", "Expert"].map((level) => (
-                <TouchableOpacity
-                  key={level}
-                  style={[
-                    styles.chip,
-                    experienceLevel === level && styles.chipSelected,
-                  ]}
-                  onPress={() => setExperienceLevel(level)}
-                >
-                  <Text
+            <View style={styles.inputGroup}>
+              <View style={styles.labelRow}>
+                <Ionicons
+                  name="leaf-outline"
+                  size={16}
+                  color="#1B5E20"
+                  style={{ opacity: 0.6 }}
+                />
+                <Text style={styles.label}>
+                  Experience Level <Text style={styles.required}>*</Text>
+                </Text>
+              </View>
+              <View style={styles.chipContainer}>
+                {["Beginner", "Intermediate", "Expert"].map((level) => (
+                  <TouchableOpacity
+                    key={level}
                     style={[
-                      styles.chipText,
-                      experienceLevel === level && styles.chipTextSelected,
+                      styles.chip,
+                      experienceLevel === level && styles.chipSelected,
                     ]}
+                    onPress={() => setExperienceLevel(level)}
                   >
-                    {level}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.chipText,
+                        experienceLevel === level && styles.chipTextSelected,
+                      ]}
+                    >
+                      {level}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-          </View>
 
-          <View style={styles.inputGroup}>
-            <View style={styles.labelRow}>
-              <Ionicons
-                name="time-outline"
-                size={16}
-                color="#1B5E20"
-                style={{ opacity: 0.6 }}
-              />
-              <Text style={styles.label}>
-                When did you start? <Text style={styles.required}>*</Text>
-              </Text>
+            <View style={styles.inputGroup}>
+              <View style={styles.labelRow}>
+                <Ionicons
+                  name="time-outline"
+                  size={16}
+                  color="#1B5E20"
+                  style={{ opacity: 0.6 }}
+                />
+                <Text style={styles.label}>
+                  When did you start? <Text style={styles.required}>*</Text>
+                </Text>
+              </View>
               <TouchableOpacity
                 style={styles.datePickerButton}
                 onPress={() => {
@@ -278,7 +279,7 @@ export default function CreateProfile() {
             </View>
           </View>
 
-          {/* Submit Button */}
+          {/* Submit Button - Outside the card */}
           <TouchableOpacity
             style={[
               styles.submitButton,
@@ -362,9 +363,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 16,
     marginBottom: 18,
-    paddingVertical: 26,
+    paddingVertical: 16,
     paddingHorizontal: 16,
-    borderRadius: 30,
+    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -382,25 +383,23 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flex: 1,
-    paddingLeft: 38,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: "500",
+    fontSize: 20,
+    fontWeight: "600",
     color: "#1B5E20",
     marginBottom: 2,
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#558B2F",
     opacity: 0.6,
-    marginLeft: 14,
   },
   iconCard: {
     backgroundColor: COLORS.cardWhite,
     marginHorizontal: 16,
     marginBottom: 24,
-    padding: 32,
+    padding: 24,
     borderRadius: 20,
     alignItems: "center",
     shadowColor: "#000",
@@ -410,15 +409,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   iconGradient: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   welcomeText: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "600",
     color: "#1B5E20",
     marginBottom: 8,
@@ -433,13 +432,12 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 40,
   },
   card: {
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 14,
     padding: 20,
-    marginBottom: 24,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -450,7 +448,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#1B5E20",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   inputGroup: {
     marginBottom: 16,
@@ -472,14 +470,13 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: COLORS.cardWhite,
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: "#E5E7EB",
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
+    paddingVertical: 12,
+    fontSize: 15,
     color: "#1B5E20",
-    height: 36,
   },
   chipContainer: {
     flexDirection: "row",
@@ -487,7 +484,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chip: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
     backgroundColor: COLORS.cardWhite,
@@ -511,7 +508,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#558B2F",
     opacity: 0.5,
-    marginTop: 4,
+    marginTop: 6,
   },
   submitButton: {
     flexDirection: "row",
@@ -519,14 +516,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#4CAF50",
     borderRadius: 28,
-    paddingVertical: 18,
-    paddingHorizontal: 32,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     gap: 12,
+    marginTop: 8,
     shadowColor: "#4CAF50",
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowRadius: 8,
+    elevation: 6,
   },
   submitButtonDisabled: {
     opacity: 0.6,
@@ -547,7 +545,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   submitButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: COLORS.cardWhite,
     flex: 1,
@@ -555,18 +553,17 @@ const styles = StyleSheet.create({
   },
   datePickerButton: {
     backgroundColor: COLORS.cardWhite,
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: "#E5E7EB",
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    height: 36,
+    paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   datePickerText: {
-    fontSize: 16,
+    fontSize: 15,
     color: "#1B5E20",
   },
   datePickerContainer: {
@@ -583,8 +580,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 10,
-    alignItems: "center",
-    justifyContent: "center",
   },
   datePickerHeader: {
     flexDirection: "row",
