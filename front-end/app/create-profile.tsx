@@ -69,7 +69,7 @@ export default function CreateProfile() {
         age: parseInt(age, 10),
         living_situation: livingSituation.trim(),
         experience_level: experienceLevel.trim(),
-        experience_start_date: experienceStartDate.toISOString().split("T")[0], // Send only date part YYYY-MM-DD
+        experience_start_date: experienceStartDate.toISOString().split("T")[0],
       };
 
       await createProfile(userId, profileData);
@@ -183,84 +183,83 @@ export default function CreateProfile() {
               />
             </View>
           </View>
+        </View>
+        {/* Living Situation Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Living Situation</Text>
 
-          {/* Living Situation Card */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Living Situation</Text>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.labelRow}>
-                <Ionicons
-                  name="home-outline"
-                  size={16}
-                  color="#1B5E20"
-                  style={{ opacity: 0.6 }}
-                />
-                <Text style={styles.label}>
-                  Where do you live? <Text style={styles.required}>*</Text>
-                </Text>
-              </View>
-              <TextInput
-                style={styles.input}
-                value={livingSituation}
-                onChangeText={setLivingSituation}
-                placeholder="e.g., Apartment with Balcony, House with Garden"
-                placeholderTextColor="#717182"
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons
+                name="home-outline"
+                size={16}
+                color="#1B5E20"
+                style={{ opacity: 0.6 }}
               />
+              <Text style={styles.label}>
+                Where do you live? <Text style={styles.required}>*</Text>
+              </Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={livingSituation}
+              onChangeText={setLivingSituation}
+              placeholder="e.g., Apartment with Balcony, House with Garden"
+              placeholderTextColor="#717182"
+            />
+          </View>
+        </View>
+
+        {/* Plant Experience Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Plant Experience</Text>
+
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons
+                name="leaf-outline"
+                size={16}
+                color="#1B5E20"
+                style={{ opacity: 0.6 }}
+              />
+              <Text style={styles.label}>
+                Experience Level <Text style={styles.required}>*</Text>
+              </Text>
+            </View>
+            <View style={styles.chipContainer}>
+              {["Beginner", "Intermediate", "Expert"].map((level) => (
+                <TouchableOpacity
+                  key={level}
+                  style={[
+                    styles.chip,
+                    experienceLevel === level && styles.chipSelected,
+                  ]}
+                  onPress={() => setExperienceLevel(level)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      experienceLevel === level && styles.chipTextSelected,
+                    ]}
+                  >
+                    {level}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
 
-          {/* Plant Experience Card */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Plant Experience</Text>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.labelRow}>
-                <Ionicons
-                  name="leaf-outline"
-                  size={16}
-                  color="#1B5E20"
-                  style={{ opacity: 0.6 }}
-                />
-                <Text style={styles.label}>
-                  Experience Level <Text style={styles.required}>*</Text>
-                </Text>
-              </View>
-              <View style={styles.chipContainer}>
-                {["Beginner", "Intermediate", "Expert"].map((level) => (
-                  <TouchableOpacity
-                    key={level}
-                    style={[
-                      styles.chip,
-                      experienceLevel === level && styles.chipSelected,
-                    ]}
-                    onPress={() => setExperienceLevel(level)}
-                  >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        experienceLevel === level && styles.chipTextSelected,
-                      ]}
-                    >
-                      {level}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.labelRow}>
-                <Ionicons
-                  name="time-outline"
-                  size={16}
-                  color="#1B5E20"
-                  style={{ opacity: 0.6 }}
-                />
-                <Text style={styles.label}>
-                  When did you start? <Text style={styles.required}>*</Text>
-                </Text>
-              </View>
+          <View style={styles.inputGroup}>
+            <View style={styles.labelRow}>
+              <Ionicons
+                name="time-outline"
+                size={16}
+                color="#1B5E20"
+                style={{ opacity: 0.6 }}
+              />
+              <Text style={styles.label}>
+                When did you start? <Text style={styles.required}>*</Text>
+              </Text>
               <TouchableOpacity
                 style={styles.datePickerButton}
                 onPress={() => {

@@ -9,6 +9,8 @@ import {
   Dimensions,
 } from "react-native";
 import { COLORS } from "@/constants/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 interface PlantItem {
   id: number;
@@ -39,12 +41,11 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Plant Collection</Text>
+        <Text style={styles.title}>My Plant Collection ({plants.length})</Text>
         <TouchableOpacity onPress={onViewAll}>
           <Text style={styles.viewAll}>View All</Text>
         </TouchableOpacity>
       </View>
-
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.cardWhite,
     borderRadius: 16,
-    padding: 16,
+    padding: 12,
     marginHorizontal: 16,
     marginVertical: 8,
   },
@@ -167,10 +168,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 10,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: COLORS.textPrimary,
   },
@@ -217,5 +218,81 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: COLORS.textPrimary,
     textAlign: "center",
+  },
+  moreCard: {
+    width: "81%",
+    aspectRatio: 1,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 11,
+    backgroundColor: "rgba(16, 185, 129, 0.05)",
+    borderWidth: 2,
+    borderColor: COLORS.primaryGreen,
+    borderStyle: "dashed",
+  },
+  moreText: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: COLORS.primaryGreen,
+  },
+  moreSubText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: COLORS.primaryGreen,
+    marginTop: 4,
+  },
+  emptyStateContainer: {
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    height: 230,
+    justifyContent: "center",
+  },
+  emptyStateIconContainer: {
+    width: 70,
+    height: 70,
+    borderRadius: 70,
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  emptyStateTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  emptyStateDescription: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  addPlantButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.primaryGreen,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    gap: 8,
+    shadowColor: COLORS.primaryGreen,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  addPlantButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
 });
