@@ -88,3 +88,38 @@ class PlantService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant not found")
         logger.info(f"Deleted plant ID {plant_id} for user {user_id}")
         return True
+
+    async def water_plant(self, plant_id: int, user_id: int) -> Plant:
+        """
+        Water a plant (updates last_watered and creates activity log)
+        
+        Args:
+            plant_id: Plant ID
+            user_id: User ID
+            
+        Returns:
+            Updated plant
+        """
+        # Get the plant to ensure it exists and belongs to the user
+        plant = await self.repository.get_by_id_for_user(plant_id=plant_id, user_id=user_id)
+        if not plant:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant not found")
+        
+        # Update last_watered to now
+        now = datetime.now(timezone.utc)
+        update_data = PlantUpdate(last_watered=now.isoformat())
+        updated_plant = await self.repository.update(plant_id, user_id=user_id, last_watered=now)
+        
+        # Create activity log with plant name
+        activity = Activity(
+            user_id=user_id,
+            plant_id=plant.id,
+            activity_type=ActivityType.WATERED,
+            title=get_activity_title(ActivityType.WATERED, plant_name=plant.plant_name),
+            created_at=now
+        )
+        self.repository.session.add(activity)
+        await self.repository.session.commit()
+        
+        logger.info(f"Watered plant '{plant.plant_name}' (ID: {plant_id}) for user {user_id}")
+        return updated_plant

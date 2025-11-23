@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/colors";
 
@@ -37,7 +37,7 @@ const ActivityItemComponent: React.FC<ActivityItemProps> = ({ item }) => {
 interface RecentActivityCardProps {
   activities: {
     id: string;
-    type: "watered" | "added" | "moved";
+    type: string;
     title: string;
     timeAgo: string;
   }[];
@@ -54,6 +54,7 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({
           backgroundColor: "#E0F2FE",
         };
       case "added":
+      case "plant_added":
         return {
           icon: (
             <MaterialCommunityIcons
@@ -69,6 +70,17 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({
           icon: <Ionicons name="sunny" size={20} color={COLORS.sunGold} />,
           backgroundColor: "#FEF3C7",
         };
+      case "diagnosis":
+        return {
+          icon: (
+            <MaterialCommunityIcons
+              name="heart-pulse"
+              size={20}
+              color="#EF4444"
+            />
+          ),
+          backgroundColor: "#FEE2E2",
+        };
       default:
         return {
           icon: <Ionicons name="leaf" size={20} color={COLORS.primaryGreen} />,
@@ -81,21 +93,45 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({
     <View style={styles.container}>
       <Text style={styles.title}>Recent Activity</Text>
 
-      {activities.map((activity) => {
-        const iconData = getActivityIcon(activity.type);
-        return (
-          <ActivityItemComponent
-            key={activity.id}
-            item={{
-              id: activity.id,
-              icon: iconData.icon,
-              title: activity.title,
-              timeAgo: activity.timeAgo,
-              iconBackgroundColor: iconData.backgroundColor,
-            }}
-          />
-        );
-      })}
+      {activities.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIconContainer}>
+            <MaterialCommunityIcons
+              name="clock-outline"
+              size={32}
+              color={COLORS.textSecondary}
+              style={{ opacity: 0.5 }}
+            />
+          </View>
+          <Text style={styles.emptyText}>No recent activity</Text>
+          <Text style={styles.emptySubtext}>
+            Your plant care journey starts here!
+          </Text>
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={true}
+          nestedScrollEnabled={true}
+          indicatorStyle="default"
+        >
+          {activities.map((activity) => {
+            const iconData = getActivityIcon(activity.type);
+            return (
+              <ActivityItemComponent
+                key={activity.id}
+                item={{
+                  id: activity.id,
+                  icon: iconData.icon,
+                  title: activity.title,
+                  timeAgo: activity.timeAgo,
+                  iconBackgroundColor: iconData.backgroundColor,
+                }}
+              />
+            );
+          })}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -113,6 +149,33 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: COLORS.textPrimary,
     marginBottom: 16,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 24,
+  },
+  emptyIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.background,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  scrollView: {
+    maxHeight: 160,
   },
   activityItem: {
     flexDirection: "row",

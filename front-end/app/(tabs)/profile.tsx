@@ -26,6 +26,11 @@ import {
 } from "@/services/ProfileService";
 import { getCurrentUserId, getCurrentUsername } from "@/services/UserService";
 import PlantService, { PlantResponse } from "@/services/PlantService";
+import {
+  getActivitiesByUserId,
+  Activity,
+  formatTimeAgo,
+} from "@/services/ActivityService";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -36,6 +41,7 @@ export default function ProfileScreen() {
     null
   );
   const [plants, setPlants] = useState<PlantResponse[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profileNotFound, setProfileNotFound] = useState(false);
@@ -115,6 +121,15 @@ export default function ProfileScreen() {
       } catch (plantsError: any) {
         console.error("Error fetching plants:", plantsError);
         setPlants([]);
+      }
+
+      // Fetch activities
+      try {
+        const userActivities = await getActivitiesByUserId(userId);
+        setActivities(userActivities);
+      } catch (activityError: any) {
+        console.error("Error fetching activities:", activityError);
+        setActivities([]);
       }
     } catch (err: any) {
       console.error("Error fetching data:", err);
@@ -226,26 +241,12 @@ export default function ProfileScreen() {
       livingSituation: profileData.living_situation || "Not specified",
       experienceLevel: profileData.experience_level || "Not specified",
     },
-    recentActivity: [
-      {
-        id: "1",
-        type: "watered" as const,
-        title: "Watered Monstera",
-        timeAgo: "2 hours ago",
-      },
-      {
-        id: "2",
-        type: "added" as const,
-        title: "Added new plant to collection",
-        timeAgo: "Yesterday",
-      },
-      {
-        id: "3",
-        type: "moved" as const,
-        title: "Moved Orchid to sunnier spot",
-        timeAgo: "2 days ago",
-      },
-    ],
+    recentActivity: activities.map((activity) => ({
+      id: activity.id.toString(),
+      type: activity.activity_type,
+      title: activity.title || "Activity",
+      timeAgo: formatTimeAgo(activity.created_at),
+    })),
   };
 
   return (

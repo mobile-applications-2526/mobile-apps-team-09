@@ -220,7 +220,6 @@ class PlantService {
 
         return response.data;
       } catch (error: any) {
-        console.error("Error uploading plant image:", error);
         const errorMessage =
           error.response?.data?.detail || "Failed to upload image";
         if (
@@ -287,6 +286,19 @@ class PlantService {
     } catch (error: any) {
       console.error("Error deleting plant:", error);
       throw new Error(error.response?.data?.detail || "Failed to delete plant");
+    }
+  }
+
+  /**
+   * Water a plant (updates last_watered and creates activity log)
+   */
+  async waterPlant(id: number): Promise<PlantResponse> {
+    try {
+      const response = await api.post<PlantResponse>(`/plants/${id}/water`);
+      return response.data;
+    } catch (error: any) {
+      console.error("Error watering plant:", error);
+      throw new Error(error.response?.data?.detail || "Failed to water plant");
     }
   }
 }

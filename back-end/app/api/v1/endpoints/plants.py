@@ -84,3 +84,24 @@ async def delete_plant(
     if not deleted:
         raise HTTPException(status_code=404, detail="Plant not found")
     return
+
+
+@router.post("/{plant_id}/water", response_model=PlantResponse)
+async def water_plant(
+    plant_id: int,
+    plant_service: PlantService = Depends(get_plant_service),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Mark a plant as watered (updates last_watered to now and creates activity log)
+
+    Args:
+        plant_id: Plant ID
+        plant_service: Plant service instance
+        current_user: Currently authenticated user
+
+    Returns:
+        Updated plant information
+    """
+    plant = await plant_service.water_plant(plant_id, current_user.id)
+    return plant

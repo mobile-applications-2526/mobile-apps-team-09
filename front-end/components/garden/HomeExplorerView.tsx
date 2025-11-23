@@ -107,6 +107,8 @@ const HomeExplorerView: React.FC = () => {
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isWatering, setIsWatering] = useState(false);
+  const [wateringSuccess, setWateringSuccess] = useState(false);
 
   // Modal swipe gesture
   const modalTranslateY = useSharedValue(0);
@@ -187,6 +189,63 @@ const HomeExplorerView: React.FC = () => {
   const handlePlantPress = (plant: Plant) => {
     setSelectedPlant(plant);
     setModalVisible(true);
+    setWateringSuccess(false);
+  };
+
+  const handleWaterPlant = async () => {
+    if (!selectedPlant || isWatering) return;
+
+    setIsWatering(true);
+
+    try {
+      // Call the backend API to water the plant
+      const updatedPlant = await PlantService.waterPlant(selectedPlant.id);
+
+      // Update the plant in the local state
+      setPlants((prevPlants) =>
+        prevPlants.map((p) =>
+          p.id === updatedPlant.id
+            ? {
+                ...p,
+                last_watered: updatedPlant.last_watered,
+                status: calculatePlantStatus(
+                  updatedPlant.last_watered,
+                  p.species.watering_frequency_days
+                ),
+              }
+            : p
+        )
+      );
+
+      // Update the selected plant
+      setSelectedPlant((prev) =>
+        prev
+          ? {
+              ...prev,
+              last_watered: updatedPlant.last_watered,
+              status: calculatePlantStatus(
+                updatedPlant.last_watered,
+                prev.species.watering_frequency_days
+              ),
+            }
+          : null
+      );
+
+      // Show success feedback
+      setWateringSuccess(true);
+
+      // Auto-close modal after showing success message for 1.5 seconds
+      setTimeout(() => {
+        setWateringSuccess(false);
+        setModalVisible(false);
+        setIsWatering(false);
+      }, 1500);
+    } catch (error: any) {
+      console.error("Error watering plant:", error);
+      setIsWatering(false);
+      // Show error alert
+      alert(error.message || "Failed to water plant. Please try again.");
+    }
   };
 
   const pinchGesture = Gesture.Pinch()
@@ -447,9 +506,41 @@ const HomeExplorerView: React.FC = () => {
                       )}
 
                       {/* Action Button */}
-                      <TouchableOpacity style={styles.actionButton}>
-                        <Feather name="droplet" size={20} color="#2D4A3E" />
-                        <Text style={styles.actionButtonText}>Water Now</Text>
+                      <TouchableOpacity
+                        style={[
+                          styles.actionButton,
+                          isWatering && styles.actionButtonWatering,
+                          wateringSuccess && styles.actionButtonSuccess,
+                        ]}
+                        onPress={handleWaterPlant}
+                        disabled={isWatering || wateringSuccess}
+                      >
+                        {isWatering ? (
+                          <>
+                            <ActivityIndicator size="small" color="#FFFFFF" />
+                            <Text style={styles.actionButtonTextBlue}>
+                              Watering...
+                            </Text>
+                          </>
+                        ) : wateringSuccess ? (
+                          <>
+                            <Feather
+                              name="check-circle"
+                              size={20}
+                              color="#FFFFFF"
+                            />
+                            <Text style={styles.actionButtonTextBlue}>
+                              Plant Watered! 💧
+                            </Text>
+                          </>
+                        ) : (
+                          <>
+                            <Feather name="droplet" size={20} color="#FFFFFF" />
+                            <Text style={styles.actionButtonTextBlue}>
+                              Water Now
+                            </Text>
+                          </>
+                        )}
                       </TouchableOpacity>
                     </View>
                   </ScrollView>
@@ -725,7 +816,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   actionButton: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#1976D2",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -733,14 +824,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginTop: 12,
     gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
   },
-  actionButtonText: {
-    color: "#2D4A3E",
+  actionButtonWatering: {
+    backgroundColor: "#0D47A1",
+    opacity: 1,
+  },
+  actionButtonSuccess: {
+    backgroundColor: "#1976D2",
+  },
+  actionButtonTextBlue: {
+    color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "800",
     letterSpacing: 0.5,

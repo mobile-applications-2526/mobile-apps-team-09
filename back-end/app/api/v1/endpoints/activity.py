@@ -10,6 +10,6 @@ router = APIRouter()
 @router.get("/activities/user/{user_id}", response_model=List[ActivityOut])
 async def get_activities_for_user(user_id: int, db: AsyncSession = Depends(get_session)):
     activities = await get_activities_by_user_id(user_id, db)
-    if activities is None:
+    if not activities:
         raise HTTPException(status_code=404, detail="No activities found for user")
     return activities
