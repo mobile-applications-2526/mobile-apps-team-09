@@ -97,13 +97,13 @@ export default function ProfileScreen() {
       }
 
       // Fetch profile
+      let profile = null;
       try {
-        const profile = await getProfileByUserId(userId);
+        profile = await getProfileByUserId(userId);
         setProfileData(profile);
       } catch (profileError: any) {
         if (profileError instanceof ProfileNotFoundError) {
           // Profile doesn't exist - this is OK, show create profile UI
-          console.log("No profile found for user");
           setProfileData(null);
           setProfileNotFound(true);
         } else {
@@ -123,12 +123,14 @@ export default function ProfileScreen() {
         setPlants([]);
       }
 
-      // Fetch activities
+      // Fetch activities (activities don't require a profile to exist)
       try {
         const userActivities = await getActivitiesByUserId(userId);
-        setActivities(userActivities);
+        console.log("Fetched activities:", userActivities);
+        setActivities(userActivities || []);
       } catch (activityError: any) {
         console.error("Error fetching activities:", activityError);
+        console.error("Activity error details:", activityError.response?.data);
         setActivities([]);
       }
     } catch (err: any) {
@@ -241,12 +243,21 @@ export default function ProfileScreen() {
       livingSituation: profileData.living_situation || "Not specified",
       experienceLevel: profileData.experience_level || "Not specified",
     },
-    recentActivity: activities.map((activity) => ({
-      id: activity.id.toString(),
-      type: activity.activity_type,
-      title: activity.title || "Activity",
-      timeAgo: formatTimeAgo(activity.created_at),
-    })),
+    recentActivity: activities.map((activity) => {
+      // Convert activity_type to string - handle both enum values and names
+      let activityType = String(activity.activity_type);
+      // If it's an enum value like "plant_added", keep it; if it's a name like "PLANT_ADDED", convert to lowercase
+      if (activityType === "PLANT_ADDED") activityType = "plant_added";
+      else if (activityType === "DIAGNOSIS") activityType = "diagnosis";
+      else if (activityType === "WATERED") activityType = "watered";
+
+      return {
+        id: activity.id.toString(),
+        type: activityType,
+        title: activity.title || "Activity",
+        timeAgo: formatTimeAgo(activity.created_at),
+      };
+    }),
   };
 
   return (
@@ -295,6 +306,8 @@ export default function ProfileScreen() {
           livingSituation={displayData.aboutMe.livingSituation}
           experienceLevel={displayData.aboutMe.experienceLevel}
           experienceStartDate={profileData?.experience_start_date}
+          city={profileData?.city}
+          country={profileData?.country}
         />
 
         {/* Plant Collection */}

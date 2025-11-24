@@ -21,10 +21,15 @@ export const getActivitiesByUserId = async (
 ): Promise<Activity[]> => {
   try {
     const response = await api.get(`/activities/user/${userId}`);
-    return response.data;
-  } catch (error) {
+    return response.data || [];
+  } catch (error: any) {
+    // If 404 or no activities, return empty array (not an error)
+    if (error.response?.status === 404) {
+      return [];
+    }
     console.error("Error fetching activities:", error);
-    throw error;
+    // For other errors, still return empty array to prevent UI errors
+    return [];
   }
 };
 

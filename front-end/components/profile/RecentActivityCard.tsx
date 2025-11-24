@@ -48,13 +48,15 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({
 }) => {
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case "watered":
+      case "WATERED":
+      case "watered": // Support both for backward compatibility
         return {
           icon: <Ionicons name="water" size={20} color={COLORS.skyBlue} />,
           backgroundColor: "#E0F2FE",
         };
       case "added":
-      case "plant_added":
+      case "PLANT_ADDED":
+      case "plant_added": // Support both for backward compatibility
         return {
           icon: (
             <MaterialCommunityIcons
@@ -70,7 +72,8 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({
           icon: <Ionicons name="sunny" size={20} color={COLORS.sunGold} />,
           backgroundColor: "#FEF3C7",
         };
-      case "diagnosis":
+      case "DIAGNOSIS":
+      case "diagnosis": // Support both for backward compatibility
         return {
           icon: (
             <MaterialCommunityIcons

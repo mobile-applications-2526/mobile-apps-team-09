@@ -19,6 +19,7 @@ import { createProfile } from "@/services/ProfileService";
 import { getCurrentUserId } from "@/services/UserService";
 import { LinearGradient } from "expo-linear-gradient";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as SecureStore from "expo-secure-store";
 
 export default function CreateProfile() {
   const router = useRouter();
@@ -33,6 +34,25 @@ export default function CreateProfile() {
   const [experienceStartDate, setExperienceStartDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+
+  // Load detected location from SecureStore on mount
+  React.useEffect(() => {
+    const loadDetectedLocation = async () => {
+      try {
+        const detectedCity = await SecureStore.getItemAsync("detected_city");
+        const detectedCountry = await SecureStore.getItemAsync(
+          "detected_country"
+        );
+        if (detectedCity) setCity(detectedCity);
+        if (detectedCountry) setCountry(detectedCountry);
+      } catch (error) {
+        console.log("Error loading detected location:", error);
+      }
+    };
+    loadDetectedLocation();
+  }, []);
 
   const handleSubmit = async () => {
     // Validation
@@ -70,16 +90,14 @@ export default function CreateProfile() {
         living_situation: livingSituation.trim(),
         experience_level: experienceLevel.trim(),
         experience_start_date: experienceStartDate.toISOString().split("T")[0],
+        city: city.trim() || undefined,
+        country: country.trim() || undefined,
       };
 
       await createProfile(userId, profileData);
 
-      Alert.alert("Success", "Profile created successfully!", [
-        {
-          text: "OK",
-          onPress: () => router.replace("/(tabs)/profile"),
-        },
-      ]);
+      // Redirect directly to profile page without showing success message
+      router.replace("/(tabs)/profile");
     } catch (error: any) {
       console.error("Error creating profile:", error);
       Alert.alert("Error", error.message || "Failed to create profile");
@@ -207,6 +225,56 @@ export default function CreateProfile() {
                 placeholder="e.g., Apartment with Balcony, House with Garden"
                 placeholderTextColor="#717182"
               />
+            </View>
+          </View>
+
+          {/* Location Card */}
+          <View style={styles.card}>
+            <View style={styles.locationHeader}>
+              <Text style={styles.cardTitle}>Location</Text>
+              <Text style={styles.locationHelperText}>
+                Help us provide location-aware plant care advice
+              </Text>
+            </View>
+
+            <View style={styles.locationRow}>
+              <View style={[styles.inputGroup, styles.locationInputGroup]}>
+                <View style={styles.labelRow}>
+                  <Ionicons
+                    name="location-outline"
+                    size={16}
+                    color="#1B5E20"
+                    style={{ opacity: 0.6 }}
+                  />
+                  <Text style={styles.label}>City</Text>
+                </View>
+                <TextInput
+                  style={styles.input}
+                  value={city}
+                  onChangeText={setCity}
+                  placeholder="e.g., Brussels"
+                  placeholderTextColor="#717182"
+                />
+              </View>
+
+              <View style={[styles.inputGroup, styles.locationInputGroup]}>
+                <View style={styles.labelRow}>
+                  <Ionicons
+                    name="globe-outline"
+                    size={16}
+                    color="#1B5E20"
+                    style={{ opacity: 0.6 }}
+                  />
+                  <Text style={styles.label}>Country</Text>
+                </View>
+                <TextInput
+                  style={styles.input}
+                  value={country}
+                  onChangeText={setCountry}
+                  placeholder="e.g., Belgium"
+                  placeholderTextColor="#717182"
+                />
+              </View>
             </View>
           </View>
 
@@ -509,6 +577,23 @@ const styles = StyleSheet.create({
     color: "#558B2F",
     opacity: 0.5,
     marginTop: 6,
+  },
+  locationHeader: {
+    marginBottom: 16,
+  },
+  locationHelperText: {
+    fontSize: 13,
+    color: "#558B2F",
+    opacity: 0.7,
+    lineHeight: 18,
+  },
+  locationRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  locationInputGroup: {
+    flex: 1,
+    marginBottom: 0,
   },
   submitButton: {
     flexDirection: "row",

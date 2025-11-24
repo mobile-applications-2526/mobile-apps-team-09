@@ -59,6 +59,12 @@ async def login(
     # Get user info to return with token
     user = await user_service.get_user_by_username(credentials.username)
     
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="User not found after authentication"
+        )
+    
     return Token(
         access_token=access_token,
         user_id=user.id,
