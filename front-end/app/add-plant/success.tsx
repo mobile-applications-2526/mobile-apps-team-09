@@ -22,12 +22,14 @@ export default function SuccessScreen() {
     imageUri?: string;
   }>();
 
-  const [plantImage, setPlantImage] = useState<string | null>(null);
+  const [plantImage, setPlantImage] = useState<string | null>(
+    params.imageUri || null
+  );
 
   // Animation values
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
-  const imageOpacity = useSharedValue(0);
+  const imageOpacity = useSharedValue(params.imageUri ? 1 : 0);
 
   useEffect(() => {
     // Animate checkmark with continuous pulsing
@@ -51,7 +53,7 @@ export default function SuccessScreen() {
     );
     opacity.value = withTiming(1, { duration: 300 });
 
-    // Fetch plant data to get the uploaded image URL
+    // Fetch plant data to get the uploaded image URL (update in background)
     const fetchPlantImage = async () => {
       try {
         if (params.plantId) {
@@ -60,10 +62,10 @@ export default function SuccessScreen() {
           );
           if (plant.image_url) {
             setPlantImage(plant.image_url);
-            // Delay image animation
-            setTimeout(() => {
+            // Only animate if we didn't have local image
+            if (!params.imageUri) {
               imageOpacity.value = withTiming(1, { duration: 500 });
-            }, 300);
+            }
           }
         }
       } catch (error) {

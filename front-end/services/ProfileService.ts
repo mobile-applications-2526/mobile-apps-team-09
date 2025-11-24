@@ -22,6 +22,8 @@ export interface ProfileBackendResponse {
   experience_level: string | null;
   experience_start_date: string | null;
   living_situation: string | null;
+  city: string | null;
+  country: string | null;
   plant_count: number;
   care_rate: number;
   created_at: string;
@@ -37,6 +39,8 @@ export interface ProfileUpdateRequest {
   living_situation?: string;
   experience_level?: string;
   experience_start_date?: string;
+  city?: string;
+  country?: string;
 }
 
 /**

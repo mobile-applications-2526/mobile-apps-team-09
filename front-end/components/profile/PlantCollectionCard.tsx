@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   viewAll: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1B5E20",
+    color: COLORS.primaryLight,
   },
   scrollContent: {
     paddingRight: 0,
