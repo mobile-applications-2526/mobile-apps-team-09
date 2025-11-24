@@ -10,7 +10,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "../../services/apiService";
+import { updateProfile } from "@/services/ProfileService";
+import { getCurrentUserId } from "@/services/UserService";
 import * as Location from "expo-location";
+import * as SecureStore from "expo-secure-store";
 import { COLORS } from "@/constants/colors";
 import {
   WeatherData,
@@ -58,8 +61,32 @@ export default function Overview() {
         longitude,
       });
 
-      const locationName =
-        addresses[0]?.city || addresses[0]?.region || "Your Location";
+      const address = addresses[0];
+      const locationName = address?.city || address?.region || "Your Location";
+      const city = address?.city || address?.subregion;
+      const country = address?.country;
+
+      // Save location to SecureStore for profile creation form
+      if (city && country) {
+        try {
+          await SecureStore.setItemAsync("detected_city", city);
+          await SecureStore.setItemAsync("detected_country", country);
+        } catch (err) {
+          console.log("Failed to save location to SecureStore:", err);
+        }
+
+        // Update profile location in background if profile exists
+        getCurrentUserId().then((userId) => {
+          if (userId) {
+            updateProfile(userId, { city, country }).catch((err) => {
+              // Silently fail if profile doesn't exist yet
+              if (err.response?.status !== 404) {
+                console.log("Background profile location update failed:", err);
+              }
+            });
+          }
+        });
+      }
 
       const weatherResponse = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=celsius&timezone=auto`

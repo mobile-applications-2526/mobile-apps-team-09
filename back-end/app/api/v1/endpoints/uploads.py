@@ -15,46 +15,6 @@ from typing import Dict
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 
 
-@router.post("/user/avatar", response_model=Dict[str, str])
-async def upload_user_avatar(
-    file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user),
-    user_service: UserService = Depends(get_user_service),
-):
-    """
-    Upload user avatar image to Supabase Storage and update user profile
-    
-    Returns URL of uploaded image
-    """
-    # Validate file type
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image")
-    
-    # Validate file size (e.g., max 5MB)
-    content = await file.read()
-    if len(content) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File too large (max 5MB)")
-    
-    # Extract file extension
-    file_extension = file.filename.split(".")[-1].lower()
-    if file_extension not in ["jpg", "jpeg", "png", "webp"]:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid file type. Only PNG, JPEG, and WebP images are allowed."
-        )
-    
-    # Upload to Supabase
-    image_url = await storage_service.upload_user_avatar(
-        file_content=content,
-        user_id=current_user.id,
-        file_extension=file_extension
-    )
-    
-    # Update user profile with avatar URL
-    await user_service.update_user(current_user.id, UserUpdate(image_url=image_url))
-    
-    return {"image_url": image_url}
-
 
 @router.post("/plant/{plant_id}/image", response_model=Dict[str, str])
 async def upload_plant_image(

@@ -5,9 +5,10 @@ Plant diagnosis endpoints using AI
 import base64
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from app.models.user import User
-from app.core.dependencies import get_current_user, get_diagnosis_service
+from app.core.dependencies import get_current_user, get_diagnosis_service, get_profile_service
 from app.services.diagnosis_ai_service import diagnosis_ai_service
 from app.services.diagnosis_service import DiagnosisService
+from app.services.profile_service import ProfileService
 from app.services.storage_service import storage_service
 from app.schemas.diagnosis_schema import DiagnosisCreate, DiagnosisResponse
 from pydantic import BaseModel
@@ -21,13 +22,14 @@ async def diagnose_plant(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     diagnosis_service: DiagnosisService = Depends(get_diagnosis_service),
+    profile_service: ProfileService = Depends(get_profile_service),
 ):
     """
     Diagnose plant health from an image using AI and automatically save to database
 
     Steps:
     1. Upload image of plant (healthy or sick)
-    2. AI (Claude) acts as plant doctor and diagnoses issues
+    2. AI (Claude) acts as plant doctor and diagnoses issues (using user location context)
     3. Save diagnosis to database (without plant_id for standalone diagnosis)
     4. Return saved diagnosis with ID
 
@@ -37,11 +39,11 @@ async def diagnose_plant(
     # Validate file
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
-
+    
     content = await file.read()
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="File too large (max 10MB)")
-
+    
     # Validate file type
     file_extension = file.filename.split(".")[-1].lower()
     if file_extension not in ["jpg", "jpeg", "png", "webp"]:
@@ -49,6 +51,18 @@ async def diagnose_plant(
             status_code=400,
             detail="Invalid file type. Only PNG, JPEG, and WebP images are allowed."
         )
+    
+    # Get user location from profile for AI context
+    user_location = None
+    try:
+        profile = await profile_service.get_profile_by_user_id(current_user.id)
+        if profile and profile.city and profile.country:
+            user_location = f"{profile.city}, {profile.country}"
+        elif profile and profile.country:
+            user_location = profile.country
+    except Exception as e:
+        # Don't fail diagnosis if profile fetch fails
+        pass
 
     # Upload image to Supabase Storage first
     image_url = await storage_service.upload_diagnosis_image(
@@ -56,13 +70,13 @@ async def diagnose_plant(
         user_id=current_user.id,
         file_extension=file_extension
     )
-
+    
     # Convert image to base64 for Claude AI
     image_base64 = base64.b64encode(content).decode('utf-8')
-
+    
     # Get diagnosis from AI
-    diagnosis_info = await diagnosis_ai_service.diagnose_plant(image_base64)
-
+    diagnosis_info = await diagnosis_ai_service.diagnose_plant(image_base64, user_location)
+    
     # Create diagnosis data (with image_url from upload)
     diagnosis_data = DiagnosisCreate(
         plant_id=None,  # Standalone diagnosis (not tied to a plant)

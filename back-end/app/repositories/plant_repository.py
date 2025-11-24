@@ -3,7 +3,7 @@ Plant repository for data access
 """
 
 from typing import Optional, List
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload
 from app.models.plant import Plant
@@ -105,3 +105,17 @@ class PlantRepository(BaseRepository[Plant]):
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def count_plants_for_user(self, user_id: int) -> int:
+        """
+        Count total plants for a user
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            Total count of plants
+        """
+        stmt = select(func.count()).select_from(Plant).where(Plant.user_id == user_id)
+        result = await self.session.execute(stmt)
+        return result.scalar() or 0

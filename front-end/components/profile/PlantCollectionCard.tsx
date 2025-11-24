@@ -1,12 +1,21 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Dimensions,
+} from "react-native";
 import { COLORS } from "@/constants/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 interface PlantItem {
-  id: string;
-  name: string;
-  emoji: string;
-  backgroundColor: string;
+  id: number;
+  plant_name: string;
+  image_url: string | null;
 }
 
 interface PlantCollectionCardProps {
@@ -18,6 +27,45 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
   plants,
   onViewAll,
 }) => {
+  const screenWidth = Dimensions.get("window").width;
+  const availableWidth = screenWidth - 64;
+  const pageGap = 16;
+  const cardWidth = (availableWidth - 16) / 3;
+
+  // Handle empty state
+  if (plants.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>My Plant Collection</Text>
+        </View>
+        <View style={styles.emptyStateContainer}>
+          <View style={styles.emptyStateIconContainer}>
+            <Ionicons name="leaf" size={32} color={COLORS.primaryGreen} />
+          </View>
+          <Text style={styles.emptyStateTitle}>No Plants Yet</Text>
+          <Text style={styles.emptyStateDescription}>
+            Start your collection by adding your first plant to track its growth
+            and care
+          </Text>
+          <TouchableOpacity
+            style={styles.addPlantButton}
+            onPress={() => router.push("/add-plant/choose-photo")}
+          >
+            <Ionicons name="add-circle" size={20} color="#FFFFFF" />
+            <Text style={styles.addPlantButtonText}>Add a Plant</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  // Split plants into pages of 6
+  const pages: PlantItem[][] = [];
+  for (let i = 0; i < plants.length; i += 6) {
+    pages.push(plants.slice(i, i + 6));
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -27,21 +75,112 @@ export const PlantCollectionCard: React.FC<PlantCollectionCardProps> = ({
         </TouchableOpacity>
       </View>
 
-      <View style={styles.grid}>
-        {plants.map((plant) => (
-          <TouchableOpacity key={plant.id} style={styles.plantCard}>
-            <View
-              style={[
-                styles.plantEmoji,
-                { backgroundColor: plant.backgroundColor },
-              ]}
-            >
-              <Text style={styles.emoji}>{plant.emoji}</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        pagingEnabled={true}
+        decelerationRate="fast"
+        snapToInterval={availableWidth + pageGap}
+        contentContainerStyle={styles.scrollContent}
+        scrollEnabled={true}
+        bounces={false}
+      >
+        {pages.map((page, pageIndex) => (
+          <View
+            key={pageIndex}
+            style={[
+              styles.page,
+              {
+                width: availableWidth,
+                marginRight: pageIndex < pages.length - 1 ? pageGap : 0,
+              },
+            ]}
+          >
+            {/* Top Row - first 3 plants */}
+            <View style={styles.row}>
+              {page.slice(0, 3).map((plant, idx) => (
+                <TouchableOpacity
+                  key={plant.id}
+                  style={[styles.plantCard, { width: cardWidth }]}
+                >
+                  <View
+                    style={[
+                      styles.imageContainer,
+                      { width: cardWidth, height: cardWidth },
+                    ]}
+                  >
+                    {plant.image_url ? (
+                      <Image
+                        source={{ uri: plant.image_url }}
+                        style={styles.plantImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={styles.placeholderImage} />
+                    )}
+                  </View>
+                  <Text style={styles.plantName} numberOfLines={2}>
+                    {plant.plant_name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              {/* Fill empty spaces in top row if less than 3 plants */}
+              {page.slice(0, 3).length < 3 &&
+                Array.from({ length: 3 - page.slice(0, 3).length }).map(
+                  (_, idx) => (
+                    <View
+                      key={`top-placeholder-${idx}`}
+                      style={[styles.plantCard, { width: cardWidth }]}
+                    />
+                  )
+                )}
             </View>
-            <Text style={styles.plantName}>{plant.name}</Text>
-          </TouchableOpacity>
+
+            {/* Bottom Row - only show if there are more than 3 plants in this page */}
+            {page.length > 3 && (
+              <View style={styles.row}>
+                {page.slice(3, 6).map((plant) => (
+                  <TouchableOpacity
+                    key={plant.id}
+                    style={[styles.plantCard, { width: cardWidth }]}
+                  >
+                    <View
+                      style={[
+                        styles.imageContainer,
+                        { width: cardWidth, height: cardWidth },
+                      ]}
+                    >
+                      {plant.image_url ? (
+                        <Image
+                          source={{ uri: plant.image_url }}
+                          style={styles.plantImage}
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View style={styles.placeholderImage} />
+                      )}
+                    </View>
+                    <Text style={styles.plantName} numberOfLines={2}>
+                      {plant.plant_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                {/* Fill empty spaces in bottom row */}
+                {page.slice(3, 6).length < 3 &&
+                  Array.from({ length: 3 - page.slice(3, 6).length }).map(
+                    (_, idx) => (
+                      <View
+                        key={`bottom-placeholder-${idx}`}
+                        style={[styles.plantCard, { width: cardWidth }]}
+                      />
+                    )
+                  )}
+              </View>
+            )}
+          </View>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -68,32 +207,88 @@ const styles = StyleSheet.create({
   viewAll: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1B5E20",
+    color: COLORS.primaryLight,
   },
-  grid: {
+  scrollContent: {
+    paddingRight: 0,
+  },
+  page: {
+    paddingHorizontal: 0,
+  },
+  row: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: -4,
+    justifyContent: "space-between",
+    marginBottom: 0,
   },
   plantCard: {
-    width: "33.33%",
-    paddingHorizontal: 4,
-    marginBottom: 8,
+    alignItems: "center",
+    marginBottom: 12,
   },
-  plantEmoji: {
-    aspectRatio: 1,
+  imageContainer: {
     borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 8,
+    backgroundColor: COLORS.primaryPale,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
   },
-  emoji: {
-    fontSize: 32,
+  plantImage: {
+    width: "100%",
+    height: "100%",
+  },
+  placeholderImage: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: COLORS.primaryPale,
+    borderRadius: 16,
   },
   plantName: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
     color: COLORS.textPrimary,
     textAlign: "center",
+  },
+  // Empty state styles
+  emptyStateContainer: {
+    alignItems: "center",
+    paddingVertical: 5,
+    paddingHorizontal: 16,
+  },
+  emptyStateIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primaryPale,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  emptyStateDescription: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  addPlantButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.primaryGreen,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
+  },
+  addPlantButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

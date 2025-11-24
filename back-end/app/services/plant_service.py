@@ -4,10 +4,13 @@ Plant service containing business logic
 
 from typing import Optional, List
 from fastapi import HTTPException, status
+from datetime import datetime, timezone
 
 from app.models.plant import Plant
+from app.models.activity import Activity, ActivityType
 from app.repositories.plant_repository import PlantRepository
 from app.schemas.plant_schema import PlantCreate, PlantUpdate
+from app.services.activity_service import get_activity_title
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -35,6 +38,18 @@ class PlantService:
             user_id=user_id,
             **data.model_dump(exclude_unset=True),
         )
+
+        # Create activity for plant added
+        activity = Activity(
+            user_id=user_id,
+            plant_id=plant.id,
+            activity_type=ActivityType.PLANT_ADDED,
+            title=get_activity_title(ActivityType.PLANT_ADDED),
+            created_at=datetime.now(timezone.utc)
+        )
+        self.repository.session.add(activity)
+        await self.repository.session.commit()
+
         logger.info(f"Created plant '{plant.plant_name}' (ID: {plant.id}) for user {user_id}")
         return plant
 
@@ -73,3 +88,38 @@ class PlantService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant not found")
         logger.info(f"Deleted plant ID {plant_id} for user {user_id}")
         return True
+
+    async def water_plant(self, plant_id: int, user_id: int) -> Plant:
+        """
+        Water a plant (updates last_watered and creates activity log)
+        
+        Args:
+            plant_id: Plant ID
+            user_id: User ID
+            
+        Returns:
+            Updated plant
+        """
+        # Get the plant to ensure it exists and belongs to the user
+        plant = await self.repository.get_by_id_for_user(plant_id=plant_id, user_id=user_id)
+        if not plant:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant not found")
+        
+        # Update last_watered to now
+        now = datetime.now(timezone.utc)
+        update_data = PlantUpdate(last_watered=now.isoformat())
+        updated_plant = await self.repository.update(plant_id, user_id=user_id, last_watered=now)
+        
+        # Create activity log with plant name
+        activity = Activity(
+            user_id=user_id,
+            plant_id=plant.id,
+            activity_type=ActivityType.WATERED,
+            title=get_activity_title(ActivityType.WATERED, plant_name=plant.plant_name),
+            created_at=now
+        )
+        self.repository.session.add(activity)
+        await self.repository.session.commit()
+        
+        logger.info(f"Watered plant '{plant.plant_name}' (ID: {plant_id}) for user {user_id}")
+        return updated_plant

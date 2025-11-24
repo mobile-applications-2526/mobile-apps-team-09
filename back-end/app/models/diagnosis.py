@@ -41,7 +41,8 @@ class Diagnosis(Base):
     recovery_air_circulation = Column(String(255), nullable=True)
     recovery_temperature = Column(String(255), nullable=True)
     
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
     # Relationship to Plant
     plant = relationship("Plant", back_populates="diagnoses", lazy="joined")
+    activities = relationship("Activity", back_populates="diagnosis", cascade="all, delete-orphan", lazy="selectin")

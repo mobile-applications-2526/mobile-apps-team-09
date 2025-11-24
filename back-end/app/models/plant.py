@@ -27,6 +27,7 @@ class Plant(Base):
     acquired_date = Column(DateTime(timezone=True), nullable=True)
 
     # relationships
-    owner = relationship("User", back_populates="plants", lazy="selectin", )
-    species = relationship("PlantSpecies", back_populates="plants", lazy="joined", uselist=False,)
+    owner = relationship("User", back_populates="plants", lazy="selectin")
+    species = relationship("PlantSpecies", back_populates="plants", lazy="joined", uselist=False)
     diagnoses = relationship("Diagnosis", back_populates="plant", cascade="all, delete-orphan", lazy="selectin")
+    activities = relationship("Activity", back_populates="plant", cascade="all, delete-orphan", lazy="selectin")

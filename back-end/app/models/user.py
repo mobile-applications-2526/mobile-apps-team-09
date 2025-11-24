@@ -19,7 +19,6 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     full_name = Column(String, nullable=True)
-    image_url = Column(String(500), nullable=True)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -28,4 +27,5 @@ class User(Base):
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username}, email={self.email})>"
     
-    plants = relationship("Plant", back_populates="owner", cascade="all, delete-orphan",lazy="selectin", )
+    plants = relationship("Plant", back_populates="owner", cascade="all, delete-orphan", lazy="selectin")
+    activities = relationship("Activity", back_populates="user", cascade="all, delete-orphan", lazy="selectin")

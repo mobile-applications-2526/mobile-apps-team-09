@@ -32,55 +32,9 @@ class StorageService:
         )
         
         # Bucket names
-        self.USER_AVATARS_BUCKET = "user-avatars"
         self.PLANT_IMAGES_BUCKET = "plant-images"
         self.DIAGNOSIS_IMAGES_BUCKET = "diagnosis-images"
 
-    async def upload_user_avatar(
-        self, 
-        file_content: bytes, 
-        user_id: int, 
-        file_extension: str = "jpg"
-    ) -> str:
-        """
-        Upload user avatar to Supabase Storage
-        
-        Args:
-            file_content: Image file bytes
-            user_id: User ID
-            file_extension: File extension (jpg, png, etc.)
-            
-        Returns:
-            Public URL of uploaded image
-        """
-        if not self.client:
-            raise ValueError("Supabase Storage is not configured. Please add SUPABASE_URL and SUPABASE_KEY to .env")
-            
-        try:
-            # Generate unique filename
-            filename = f"{user_id}_{uuid.uuid4()}.{file_extension}"
-            
-            # Run the sync upload in a thread pool
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
-                None,
-                partial(
-                    self.client.storage.from_(self.USER_AVATARS_BUCKET).upload,
-                    path=filename,
-                    file=file_content,
-                    file_options={"content-type": f"image/{file_extension}"}
-                )
-            )
-            
-            # Get public URL
-            public_url = self.client.storage.from_(self.USER_AVATARS_BUCKET).get_public_url(filename)
-            
-            logger.info(f"User avatar uploaded: {filename}")
-            return public_url
-            
-        except Exception as e:
-            logger.error(f"Failed to upload user avatar: {e}")
-            raise
 
     async def upload_plant_image(
         self, 
@@ -126,8 +80,22 @@ class StorageService:
             return public_url
             
         except Exception as e:
-            logger.error(f"Failed to upload plant image: {e}")
-            raise
+            error_msg = str(e)
+            logger.error(f"Failed to upload plant image: {error_msg}")
+
+            # Provide helpful error messages
+            if "Bucket not found" in error_msg or "404" in error_msg:
+                raise ValueError(
+                    f"Storage bucket '{self.PLANT_IMAGES_BUCKET}' not found. "
+                    "Please create the bucket in Supabase Storage with public access enabled."
+                )
+            elif "permission" in error_msg.lower() or "403" in error_msg:
+                raise ValueError(
+                    "Permission denied. Make sure the bucket has public access enabled "
+                    "and you're using the correct Supabase key."
+                )
+            else:
+                raise ValueError(f"Failed to upload image: {error_msg}")
 
     async def upload_diagnosis_image(
         self, 
@@ -174,8 +142,22 @@ class StorageService:
             return public_url
             
         except Exception as e:
-            logger.error(f"Failed to upload diagnosis image: {e}")
-            raise
+            error_msg = str(e)
+            logger.error(f"Failed to upload diagnosis image: {error_msg}")
+
+            # Provide helpful error messages
+            if "Bucket not found" in error_msg or "404" in error_msg:
+                raise ValueError(
+                    f"Storage bucket '{self.DIAGNOSIS_IMAGES_BUCKET}' not found. "
+                    "Please create the bucket in Supabase Storage with public access enabled."
+                )
+            elif "permission" in error_msg.lower() or "403" in error_msg:
+                raise ValueError(
+                    "Permission denied. Make sure the bucket has public access enabled "
+                    "and you're using the correct Supabase key."
+                )
+            else:
+                raise ValueError(f"Failed to upload image: {error_msg}")
 
     async def delete_image(self, bucket_name: str, file_path: str) -> bool:
         """
