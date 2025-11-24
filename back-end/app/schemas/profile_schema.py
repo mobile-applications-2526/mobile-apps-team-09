@@ -17,6 +17,8 @@ class ProfileBase(BaseModel):
     living_situation: Optional[str] = Field(None, max_length=255)
     experience_level: Optional[str] = Field(None, max_length=100)
     experience_start_date: Optional[date] = Field(None, description="Date when user started their plant journey")
+    city: Optional[str] = Field(None, max_length=100)
+    country: Optional[str] = Field(None, max_length=100)
 
 
 class ProfileCreate(ProfileBase):
@@ -37,6 +39,8 @@ class ProfileUpdate(BaseModel):
     living_situation: Optional[str] = Field(None, max_length=255)
     experience_level: Optional[str] = Field(None, max_length=100)
     experience_start_date: Optional[date] = Field(None, description="Date when user started their plant journey")
+    city: Optional[str] = Field(None, max_length=100)
+    country: Optional[str] = Field(None, max_length=100)
 
 
 class ProfileResponse(BaseModel):
@@ -52,6 +56,8 @@ class ProfileResponse(BaseModel):
     experience_level: Optional[str] = None
     experience_start_date: Optional[date] = None
     living_situation: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
     plant_count: int = 0
     care_rate: int = 0
     created_at: datetime

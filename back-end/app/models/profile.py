@@ -21,6 +21,8 @@ class Profile(Base):
     living_situation = Column(String(255), nullable=True)
     experience_level = Column(String(100), nullable=True)
     experience_start_date = Column(Date, nullable=True)
+    city = Column(String(100), nullable=True)
+    country = Column(String(100), nullable=True)
     plant_count = Column(Integer, default=0, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

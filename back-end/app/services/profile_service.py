@@ -127,6 +127,8 @@ class ProfileService:
             "experience_level": profile.experience_level,
             "experience_start_date": profile.experience_start_date,
             "living_situation": profile.living_situation,
+            "city": profile.city,
+            "country": profile.country,
             "plant_count": profile.plant_count,
             "care_rate": care_rate,
             "created_at": profile.created_at,

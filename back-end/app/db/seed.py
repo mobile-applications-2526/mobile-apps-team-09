@@ -623,6 +623,8 @@ async def seed_data(session: AsyncSession) -> None:
         living_situation="Bedroom in Parents' House",
         experience_level="Beginner",
         experience_start_date=today - relativedelta(months=6),  # 6 months ago
+        city="London",
+        country="United Kingdom",
     )
 
     # David's Profile - 37-year-old AI engineer (started 3 months ago)
@@ -633,6 +635,8 @@ async def seed_data(session: AsyncSession) -> None:
         living_situation="Apartment",
         experience_level="Beginner",
         experience_start_date=today - relativedelta(months=3),  # 3 months ago
+        city="San Francisco",
+        country="United States",
     )
 
     # Margaret's Profile - 70-year-old experienced gardener (started 40 years ago)
@@ -643,6 +647,8 @@ async def seed_data(session: AsyncSession) -> None:
         living_situation="House with Large Garden",
         experience_level="Expert",
         experience_start_date=today - relativedelta(years=40),  # 40 years ago
+        city="Melbourne",
+        country="Australia",
     )
 
     # Test Profile (started 1 year 2 months ago)
@@ -663,7 +669,8 @@ async def seed_data(session: AsyncSession) -> None:
         living_situation="Office",
         experience_level="Expert",
         experience_start_date=today - relativedelta(years=10),  # 10 years ago
-        
+        city="New York",
+        country="United States",
     )
 
     session.add_all([profile_emma, profile_david, profile_margaret, profile_admin])
@@ -686,10 +693,14 @@ async def init_db() -> None:
     # Drop all tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+        
+        # Drop enum types explicitly (they're not dropped with tables)
+        from sqlalchemy import text
+        await conn.execute(text("DROP TYPE IF EXISTS activitytype CASCADE"))
 
     # Create all tables
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
 
     logger.info("Tables recreated")
 

@@ -25,12 +25,13 @@ class DiagnosisAIService:
         
         self.client = anthropic.Anthropic(api_key=api_key)
 
-    async def diagnose_plant(self, image_base64: str) -> Dict[str, str]:
+    async def diagnose_plant(self, image_base64: str, user_location: str = None) -> Dict[str, str]:
         """
         Diagnose plant health from image using Claude (acting as plant doctor)
         
         Args:
             image_base64: Base64 encoded image
+            user_location: Optional user location string (e.g. "Brussels, Belgium")
             
         Returns:
             Dict with complete diagnosis information:
@@ -47,6 +48,11 @@ class DiagnosisAIService:
             raise ValueError("AI service not configured. Please add ANTHROPIC_API_KEY to .env")
         
         try:
+            # Construct context string if location is provided
+            context_str = ""
+            if user_location:
+                context_str = f"\n\nCONTEXT: The user is located in {user_location}. Please consider the typical climate/season for this location at the current time when diagnosing."
+
             # Call Claude with vision to diagnose the plant
             message = self.client.messages.create(
                 model="claude-sonnet-4-5-20250929",
@@ -66,7 +72,7 @@ class DiagnosisAIService:
                             },
                             {
                                 "type": "text",
-                                "text": """You are an expert plant pathologist and botanist specializing in plant health diagnosis.
+                                "text": f"""You are an expert plant pathologist and botanist specializing in plant health diagnosis.{context_str}
 
 Analyze this plant image and provide a complete health diagnosis in JSON format:
 
@@ -95,7 +101,7 @@ CRITICAL REQUIREMENTS:
 Return ONLY valid JSON, no markdown formatting.
 
 Example for sick plant:
-{
+{{
   "plant_common_name": "Tomato Plant",
   "issue_detected": "Leaf Spot Disease",
   "confidence_score": 0.87,
@@ -105,10 +111,10 @@ Example for sick plant:
   "recovery_sunlight": "Bright indirect light, 4-6 hours",
   "recovery_air_circulation": "Excellent ventilation, space from other plants",
   "recovery_temperature": "18-24°C"
-}
+}}
 
 Example for healthy plant:
-{
+{{
   "plant_common_name": "Monstera Deliciosa",
   "issue_detected": "No Issues Detected",
   "confidence_score": 0.96,
@@ -118,7 +124,7 @@ Example for healthy plant:
   "recovery_sunlight": "Bright indirect light, 6-8 hours",
   "recovery_air_circulation": "Good room ventilation",
   "recovery_temperature": "18-24°C"
-}"""
+}}"""
                             }
                         ],
                     }
