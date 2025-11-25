@@ -52,11 +52,11 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    Alert.alert("Edit Profile", "Edit profile page coming soon!");
+    router.push("../profile/editProfile")
   };
 
   const handleSettings = () => {
-    Alert.alert("Settings", "Settings page coming soon!");
+    Alert.alert("Edit Profile", "Edit profile page coming soon!");
   };
 
   const handleLogout = async () => {
