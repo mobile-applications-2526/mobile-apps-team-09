@@ -1,3 +1,4 @@
+import { User, UserUpdateRequest, UserResponse } from "@/types/user";
 import api from "./apiService";
 import * as SecureStore from "expo-secure-store";
 
@@ -48,6 +49,52 @@ export const login = async (
     }
   }
 };
+
+export const getCurrentUserInfo = async (userId: number): Promise<User | undefined> => {
+  try {
+    const response = await api.get<UserResponse>(`/users/${userId}`)
+    return response.data
+  } catch (error: any) {
+    if (error.response) {
+      const { status, data } = error.response
+      if (status == 400) {
+        throw new Error(`Failed to fetch user info: ${data}`)
+      }
+    }
+    throw new Error("Failed to fetch user info: Network error")
+  }
+}
+
+export const updateUserInfo = async (userId: number, userInfo: UserUpdateRequest): Promise<User | undefined> => {
+  try {
+    console.log('Updating user:', userId, 'with data:', userInfo);
+    const response = await api.put<UserResponse>(`/users/${userId}`, userInfo);
+    console.log('Update response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Update error details:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
+
+    if (error.response) {
+      const { status, data } = error.response;
+      if (status === 400) {
+        throw new Error(`Failed to update user info: ${JSON.stringify(data.detail || data)}`);
+      }
+      if (status === 403) {
+        throw new Error("You don't have permission to update this user");
+      }
+      if (status === 404) {
+        throw new Error("User not found");
+      }
+      throw new Error(`Failed to update user info: ${status}`);
+    }
+    throw new Error(`Failed to update user info: ${error.message || 'Network error'}`);
+  }
+};
+
 
 /**
  * Get the current user's ID from secure storage
