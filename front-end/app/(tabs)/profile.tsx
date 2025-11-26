@@ -185,6 +185,24 @@ export default function ProfileScreen() {
           { paddingTop: insets.top },
         ]}
       >
+        <TouchableOpacity
+          onPress={handleLogout}
+          accessibilityLabel="Logout"
+          style={{
+            position: "absolute",
+            top: insets.top + 12,
+            right: 16,
+            zIndex: 50,
+            paddingVertical: 8,
+            paddingHorizontal: 12,
+            borderRadius: 20,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <Ionicons name="log-out-outline" size={16} color="#FB2C36" />
+          <Text style={[styles.menuText, styles.logoutText]}>Logout</Text>
+        </TouchableOpacity>
         <View style={styles.emptyProfileContainer}>
           <View style={styles.emptyProfileIconContainer}>
             <Ionicons name="person-add" size={80} color={COLORS.primaryGreen} />
@@ -435,5 +453,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "800",
     letterSpacing: 0.5,
+  },
+  menuText: {
+    fontSize: 16,
+    color: "#1B5E20",
+    letterSpacing: -0.3,
+    fontWeight: "400",
+  },
+  logoutText: {
+    color: "#FB2C36",
   },
 });
