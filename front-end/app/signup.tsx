@@ -15,17 +15,34 @@ import { LoginButton } from "@/components/auth/LoginButton";
 import { SocialDivider } from "@/components/auth/SocialDivider";
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
+import { login, registerUser } from "@/services/UserService";
 
 export default function Signup() {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [rePassword, setRePassword] = React.useState("");
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
+  const [loading, setLoading] = React.useState(false);
+
+  async function handleLogin() {
+    try {
+      const response = await login(username, password);
+      if (!response) {
+        Alert.alert("Error", "Username and password do not match");
+        return;
+      }
+      router.replace("/(tabs)/overview");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "An error occurred during login");
+    }
+  }
+
   async function handleSignup() {
-    if (!name || !email || !password || !rePassword) {
+    if (!name || !email || !username || !password || !rePassword) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
@@ -35,9 +52,46 @@ export default function Signup() {
       return;
     }
 
-    // TODO: Implement actual signup logic
-    Alert.alert("Success", "Account created successfully!");
-    router.replace("/login");
+    // basic email sanity check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const newUser = await registerUser({
+        full_name: name,
+        email,
+        username,
+        password,
+      });
+
+      if (newUser) {
+        Alert.alert("Success", "Account created successfully!", [
+          {
+            text: "OK",
+            onPress: () => handleLogin(),
+          },
+        ]);
+      } else {
+        Alert.alert("Error", "Registration failed. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      let message = "An unexpected error occurred";
+
+      if (err?.message) {
+        message = err.message;
+      } else if (err?.response?.data?.detail) {
+        message = err.response.data.detail;
+      }
+
+      Alert.alert("Registration Error", message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleGoogleSignup = () => {
@@ -48,9 +102,9 @@ export default function Signup() {
     Alert.alert("Facebook Signup", "Facebook signup not implemented yet");
   };
 
-  const handleLogin = () => {
-    router.replace("/login");
-  };
+  const redirectLogin = () => {
+    router.replace('/login')
+  }
 
   return (
     <View style={[styles.mainContainer, { paddingTop: insets.top }]}>
@@ -85,6 +139,14 @@ export default function Signup() {
             />
 
             <LoginInput
+              label="Username"
+              value={username}
+              onChangeText={setUsername}
+              placeholder=""
+              autoCapitalize="none"
+            />
+
+            <LoginInput
               label="Password"
               value={password}
               onChangeText={setPassword}
@@ -109,7 +171,7 @@ export default function Signup() {
               onFacebookPress={handleFacebookSignup}
             />
 
-            <LoginPrompt onPress={handleLogin} />
+            <LoginPrompt onPress={redirectLogin} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

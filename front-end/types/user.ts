@@ -24,3 +24,10 @@ export interface UserUpdateRequest {
     full_name?: string;
     password?: string;
 }
+
+export interface UserRegisterData {
+  email: string;
+  username: string;
+  full_name: string;
+  password: string;
+}

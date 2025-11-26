@@ -1,4 +1,4 @@
-import { User, UserUpdateRequest, UserResponse } from "@/types/user";
+import { User, UserUpdateRequest, UserResponse, UserRegisterData } from "@/types/user";
 import api from "./apiService";
 import * as SecureStore from "expo-secure-store";
 
@@ -94,6 +94,44 @@ export const updateUserInfo = async (userId: number, userInfo: UserUpdateRequest
     throw new Error(`Failed to update user info: ${error.message || 'Network error'}`);
   }
 };
+
+
+export const registerUser = async (userData: UserRegisterData): Promise<User | undefined> => {
+  try {
+    const response = await api.post<UserResponse>(`/auth/register`, userData);
+    return response.data;
+  } catch (error: any) {
+    console.error('Registration error:', error);
+    console.error('Request details:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      baseURL: error.config?.baseURL,
+    });
+
+    if (error.response) {
+      const { status, data } = error.response;
+
+      if (status === 400) {
+        // Handle validation errors
+        const errorMessage = data.detail || JSON.stringify(data);
+        throw new Error(`Registration failed: ${errorMessage}`);
+      }
+
+      if (status === 405) {
+        throw new Error("Registration endpoint not available. Please check API configuration.");
+      }
+
+      if (status === 409) {
+        throw new Error("Username or email already exists");
+      }
+
+      throw new Error(`Registration failed: ${status}`);
+    }
+
+    throw new Error(error.message || 'Registration failed: Network error');
+  }
+};
+
 
 
 /**
