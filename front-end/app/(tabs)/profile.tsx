@@ -56,7 +56,7 @@ export default function ProfileScreen() {
   };
 
   const handleSettings = () => {
-    Alert.alert("Edit Profile", "Edit profile page coming soon!");
+    router.push("../profile/settings")
   };
 
   const handleLogout = async () => {

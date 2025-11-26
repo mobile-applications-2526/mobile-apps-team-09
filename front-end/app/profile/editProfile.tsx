@@ -13,11 +13,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/colors";
 import { useRouter } from "expo-router";
-import { EditProfileHeader } from "@/components/profile/EditProfileHeader";
 import { getCurrentUserId } from "@/services/UserService";
 import { getProfileByUserId, ProfileBackendResponse, updateProfile } from "@/services/ProfileService";
 import { FormInput } from "@/components/add-plant/FormInput";
 import * as SecureStore from "expo-secure-store";
+import { EditProfileAndSettingsHeader } from "@/components/profile/EditProfileAndSettingsHeader";
 
 export default function EditProfileScreen() {
     const insets = useSafeAreaInsets();
@@ -60,7 +60,6 @@ export default function EditProfileScreen() {
 
             if (userInfoResponse) {
                 setUserInfo(userInfoResponse);
-                // Pre-fill form fields with existing data
                 const initialTagline = userInfoResponse.tagline || "";
                 const initialAge = userInfoResponse.age?.toString() || "";
                 const initialLivingSituation = userInfoResponse.living_situation || "";
@@ -75,7 +74,6 @@ export default function EditProfileScreen() {
                 setCity(initialCity);
                 setCountry(initialCountry);
 
-                // Store original values
                 setOriginalValues({
                     tagline: initialTagline,
                     age: initialAge,
@@ -147,7 +145,7 @@ export default function EditProfileScreen() {
             keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
         >
             <View style={[styles.mainContainer, { paddingTop: insets.top + 10 }]}>
-                <EditProfileHeader onBackPress={handleBackPress}/>
+                <EditProfileAndSettingsHeader title="Edit Profile" onBackPress={handleBackPress}/>
 
                 {userInfo ? (
                     <ScrollView
