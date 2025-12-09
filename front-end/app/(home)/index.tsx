@@ -12,31 +12,43 @@ import { ThemedView } from "@/components/themed-view";
 import { Fonts } from "@/constants/theme";
 import { Image } from "expo-image";
 import { useEffect } from "react";
-import { login } from "@/services/UserService";
+import * as SecureStore from "expo-secure-store";
 
 const DEV_MODE = true;
 
 export default function HomeScreen() {
   const router = useRouter();
 
-  useEffect(() => {
-    if (DEV_MODE) {
-      const autoLogin = async () => {
-        try {
-          // await login("test", "test1234");
-          await login("margaret", "margaret123");
-          router.replace("/(tabs)/overview");
-        } catch (error) {
-          console.error("Dev auto-login failed:", error);
-        }
-      };
-      autoLogin();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (DEV_MODE) {
+  //     const autoLogin = async () => {
+  //       try {
+  //         // await login("test", "test1234");
+  //         await login("margaret", "margaret123");
+  //         router.replace("/(tabs)/overview");
+  //       } catch (error) {
+  //         console.error("Dev auto-login failed:", error);
+  //       }
+  //     };
+  //     autoLogin();
+  //   }
+  // }, []);
 
   const handleArrowPress = () => {
     router.push("/firstTimeInfo");
   };
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await SecureStore.getItemAsync("access_token");
+
+      if (token) {
+        router.replace("/(tabs)/overview");
+      }
+    };
+    checkToken();
+  }, [router]);
+
 
   return (
     <ImageBackground
