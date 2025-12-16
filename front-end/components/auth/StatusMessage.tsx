@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   message: {
-    fontSize: 16,
+    fontSize: 17,
     fontFamily: Fonts.rounded,
     fontWeight: "800",
   },
