@@ -25,7 +25,7 @@ export default function DiagnosisDetailScreen() {
   const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>();
   const [diagnosis, setDiagnosis] = useState<DiagnosisHistoryItem | null>(null);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function DiagnosisDetailScreen() {
 
       try {
         setLoading(true);
-        setError(null);
+        setError(undefined);
         const data = await DiagnosisService.getDiagnosisById(parseInt(id));
         setDiagnosis(data);
       } catch (err: any) {
