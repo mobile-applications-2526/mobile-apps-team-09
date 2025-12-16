@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   Platform,
   StyleSheet,
@@ -6,16 +6,18 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Alert,
+  Text,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SignupHeader } from "@/components/auth/SignupHeader";
 import { LoginInput } from "@/components/auth/LoginInput";
 import { LoginButton } from "@/components/auth/LoginButton";
-import { SocialDivider } from "@/components/auth/SocialDivider";
-import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 import { LoginPrompt } from "@/components/auth/LoginPrompt";
 import { login, registerUser } from "@/services/UserService";
+import { SocialDivider } from "@/components/auth/SocialDivider";
+import { StatusMessage } from "@/components/auth/StatusMessage";
+import { Fonts } from "@/constants/theme";
 
 export default function Signup() {
   const [name, setName] = React.useState("");
@@ -23,8 +25,14 @@ export default function Signup() {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [rePassword, setRePassword] = React.useState("");
+  const [statusMessage, setStatusMessage] = React.useState("");
+  const [statusType, setStatusType] = React.useState<"error" | "success">(
+    "error"
+  );
+  const [showStatus, setShowStatus] = React.useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const [loading, setLoading] = React.useState(false);
 
@@ -42,20 +50,66 @@ export default function Signup() {
   }
 
   async function handleSignup() {
-    if (!name || !email || !username || !password || !rePassword) {
-      Alert.alert("Error", "Please fill in all fields");
+    // Clear previous messages
+    setShowStatus(false);
+
+    // Validate all fields first
+    if (!name && !email && !username && !password && !rePassword) {
+      setStatusMessage("All fields are required.");
+      setStatusType("error");
+      setShowStatus(true);
+      return;
+    }
+
+    // Then check individual fields
+    if (!name) {
+      setStatusMessage("Name is required.");
+      setStatusType("error");
+      setShowStatus(true);
+      return;
+    }
+
+    if (!email) {
+      setStatusMessage("Email is required.");
+      setStatusType("error");
+      setShowStatus(true);
+      return;
+    }
+
+    // Basic email sanity check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setStatusMessage("Please enter a valid email address.");
+      setStatusType("error");
+      setShowStatus(true);
+      return;
+    }
+
+    if (!username) {
+      setStatusMessage("Username is required.");
+      setStatusType("error");
+      setShowStatus(true);
+      return;
+    }
+
+    if (!password) {
+      setStatusMessage("Password is required.");
+      setStatusType("error");
+      setShowStatus(true);
+      return;
+    }
+
+    if (!rePassword) {
+      setStatusMessage("Please confirm your password.");
+      setStatusType("error");
+      setShowStatus(true);
       return;
     }
 
     if (password !== rePassword) {
-      Alert.alert("Error", "Passwords do not match");
-      return;
-    }
-
-    // basic email sanity check
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      Alert.alert("Error", "Please enter a valid email address");
+      setStatusMessage("Passwords do not match.");
+      setStatusType("error");
+      setShowStatus(true);
       return;
     }
 
@@ -69,59 +123,68 @@ export default function Signup() {
       });
 
       if (newUser) {
-        Alert.alert("Success", "Account created successfully!", [
-          {
-            text: "OK",
-            onPress: () => handleLogin(),
-          },
-        ]);
+        setStatusMessage("Account created! Logging you in...");
+        setStatusType("success");
+        setShowStatus(true);
+
+        setTimeout(() => {
+          handleLogin();
+        }, 1500);
       } else {
-        Alert.alert("Error", "Registration failed. Please try again.");
+        setStatusMessage("Registration failed. Please try again.");
+        setStatusType("error");
+        setShowStatus(true);
       }
     } catch (err: any) {
       console.error("Registration error:", err);
-      let message = "An unexpected error occurred";
+      let friendlyMessage = "An unexpected error occurred.";
 
-      if (err?.message) {
-        message = err.message;
-      } else if (err?.response?.data?.detail) {
-        message = err.response.data.detail;
+      if (
+        err?.message?.includes("already exists") ||
+        err?.message?.includes("duplicate")
+      ) {
+        friendlyMessage = "Username or email already exists.";
+      } else if (
+        err?.message?.includes("Network") ||
+        err?.message?.includes("fetch")
+      ) {
+        friendlyMessage = "Unable to connect. Check your internet connection.";
       }
 
-      Alert.alert("Registration Error", message);
+      setStatusMessage(friendlyMessage);
+      setStatusType("error");
+      setShowStatus(true);
     } finally {
       setLoading(false);
     }
   }
 
-  const handleGoogleSignup = () => {
-    Alert.alert("Google Signup", "Google signup not implemented yet");
-  };
-
-  const handleFacebookSignup = () => {
-    Alert.alert("Facebook Signup", "Facebook signup not implemented yet");
-  };
-
   const redirectLogin = () => {
-    router.replace('/login')
-  }
+    router.replace("/login");
+  };
 
   return (
     <View style={[styles.mainContainer, { paddingTop: insets.top }]}>
-      <View style={styles.topSection} />
+      <View style={styles.topSection}>
+        <Text style={styles.subtitle}>Enter your details to continue</Text>
+        <StatusMessage
+          message={statusMessage}
+          type={statusType}
+          visible={showStatus}
+        />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
           <View style={styles.contentContainer}>
-            <SignupHeader subtitle="Enter your details to continue" />
-
             <LoginInput
               label="Name"
               value={name}
@@ -144,6 +207,14 @@ export default function Signup() {
               onChangeText={setUsername}
               placeholder=""
               autoCapitalize="none"
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollTo({
+                    y: 50,
+                    animated: true,
+                  });
+                }, 100);
+              }}
             />
 
             <LoginInput
@@ -152,6 +223,14 @@ export default function Signup() {
               onChangeText={setPassword}
               placeholder=""
               secureTextEntry
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollTo({
+                    y: 120,
+                    animated: true,
+                  });
+                }, 100);
+              }}
             />
 
             <LoginInput
@@ -160,16 +239,19 @@ export default function Signup() {
               onChangeText={setRePassword}
               placeholder=""
               secureTextEntry
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollTo({
+                    y: 180,
+                    animated: true,
+                  });
+                }, 100);
+              }}
             />
 
             <LoginButton title="Register" onPress={handleSignup} />
 
             <SocialDivider />
-
-            <SocialLoginButtons
-              onGooglePress={handleGoogleSignup}
-              onFacebookPress={handleFacebookSignup}
-            />
 
             <LoginPrompt onPress={redirectLogin} />
           </View>
@@ -185,11 +267,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#D2EFDA",
   },
   topSection: {
-    flex: 1,
+    flex: 2.3,
     backgroundColor: "#D2EFDA",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontFamily: Fonts.rounded,
+    fontWeight: "700",
+    color: "#0F4336",
+    textAlign: "center",
+    marginBottom: 5,
   },
   keyboardView: {
     flex: 14,
+    borderTopLeftRadius: 58,
+    borderTopRightRadius: 58,
+    overflow: "hidden",
   },
   scrollContent: {
     flexGrow: 1,
