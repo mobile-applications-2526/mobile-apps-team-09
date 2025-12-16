@@ -1,6 +1,7 @@
 import { User, UserUpdateRequest, UserResponse, UserRegisterData } from "@/types/user";
 import api from "./apiService";
 import * as SecureStore from "expo-secure-store";
+import publicApi from "./publicApi";
 
 interface LoginResponse {
   access_token: string;
@@ -14,11 +15,12 @@ export const login = async (
   password: string
 ): Promise<LoginResponse> => {
   try {
-    const response = await api.post<LoginResponse>("/auth/login", {
+    console.log("sending request...")
+    const response = await publicApi.post<LoginResponse>("/auth/login", {
       username,
       password,
     });
-
+    console.log("reques send...")
     // Save the token and user info to secure storage
     if (response.data.access_token) {
       await SecureStore.setItemAsync(

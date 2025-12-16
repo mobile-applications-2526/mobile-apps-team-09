@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # Database
-    DATABASE_URL: str = "sqlite+aiosqlite:///./app.db"
+    # Database (Supabase PostgreSQL)
+    DATABASE_URL: str = "postgresql+asyncpg://user:password@db.xxxxx.supabase.co:5432/postgres"
 
     # Security
     SECRET_KEY: str
