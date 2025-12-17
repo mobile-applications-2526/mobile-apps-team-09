@@ -20,11 +20,13 @@ import { SignUpPrompt } from "@/components/auth/SignUpPrompt";
 export default function Login() {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [loggingIn, setLoggingIn] = React.useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
 
   async function handleLogin() {
+    setLoggingIn(true);
     try {
       const response = await login(username, password);
       if (!response) {
@@ -87,8 +89,7 @@ export default function Login() {
               placeholder=""
               secureTextEntry
             />
-
-            <LoginButton title="Sign In" onPress={handleLogin} />
+            <LoginButton title="Sign In" onPress={handleLogin} isLoading={loggingIn} />
 
             <SocialDivider />
 
