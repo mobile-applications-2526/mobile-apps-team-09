@@ -56,6 +56,7 @@ export default function Login() {
     }
 
     setLoggingIn(true);
+    
     try {
       const response = await login(username, password);
       if (!response) {
