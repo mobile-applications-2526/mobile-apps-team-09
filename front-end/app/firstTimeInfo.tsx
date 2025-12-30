@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 import { ThemedText } from "@/components/themed-text";
 import { Fonts } from "@/constants/theme";
 import { useState, useRef } from "react";
+import * as SecureStore from 'expo-secure-store';
 
 export default function FirstTimeInfo() {
     const router = useRouter();
@@ -32,8 +33,10 @@ export default function FirstTimeInfo() {
         },
     ];
 
-    const handleArrowPress = () => {
+    const handleArrowPress = async () => {
         if (step === steps.length - 1) {
+            // Mark that user has seen the intro
+            await SecureStore.setItemAsync('hasSeenIntro', 'true');
             router.push('/login');
             return;
         }

@@ -13,6 +13,7 @@ import { Fonts } from "@/constants/theme";
 import { Image } from "expo-image";
 import { useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
+import { login } from "@/services/UserService";
 
 const DEV_MODE = true;
 
@@ -32,7 +33,7 @@ export default function HomeScreen() {
   //     };
   //     autoLogin();
   //   }
-  // }, []);
+  // }, [router]);
 
   const handleArrowPress = () => {
     router.push("/firstTimeInfo");
@@ -48,7 +49,6 @@ export default function HomeScreen() {
     };
     checkToken();
   }, [router]);
-
 
   return (
     <ImageBackground

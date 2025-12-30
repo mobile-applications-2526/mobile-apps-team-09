@@ -52,11 +52,11 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    router.push("../profile/editProfile")
+    router.push("../profile/editProfile");
   };
 
   const handleSettings = () => {
-    router.push("../profile/settings")
+    router.push("../profile/settings");
   };
 
   const handleLogout = async () => {
@@ -461,6 +461,8 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   logoutText: {
-    color: "#FB2C36",
+    color: "#DC2626",
+    fontWeight: "700",
+    fontSize: 17,
   },
 });

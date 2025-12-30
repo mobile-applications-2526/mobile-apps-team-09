@@ -15,6 +15,7 @@ interface LoginInputProps {
   placeholder: string;
   secureTextEntry?: boolean;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  onFocus?: () => void;
 }
 
 export function LoginInput({
@@ -24,6 +25,7 @@ export function LoginInput({
   placeholder,
   secureTextEntry = false,
   autoCapitalize = "none",
+  onFocus,
 }: LoginInputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -39,6 +41,7 @@ export function LoginInput({
           placeholderTextColor="rgba(0, 0, 0, 0.5)"
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           autoCapitalize={autoCapitalize}
+          onFocus={onFocus}
         />
         {secureTextEntry && (
           <TouchableOpacity
@@ -59,7 +62,7 @@ export function LoginInput({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: 15,
   },
   label: {
     fontSize: 15,

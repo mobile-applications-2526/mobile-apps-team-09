@@ -10,12 +10,15 @@ import {
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { COLORS } from "@/constants/colors";
 import { Plant } from "@/utils/plantHelpers";
+import { useRouter } from "expo-router";
 
 interface AttentionCardsProps {
   plants: Plant[];
 }
 
 export const AttentionCards: React.FC<AttentionCardsProps> = ({ plants }) => {
+  const router = useRouter();
+
   if (plants.length === 0) {
     return null;
   }
@@ -27,7 +30,7 @@ export const AttentionCards: React.FC<AttentionCardsProps> = ({ plants }) => {
           Needs Attention Today
           <Text style={styles.badgeCount}> {plants.length}</Text>
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/(tabs)/garden")}>
           <IconSymbol
             name="chevron.right"
             size={20}
@@ -101,13 +104,15 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   badgeCount: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     color: COLORS.urgentRed,
     backgroundColor: `${COLORS.urgentRed}18`,
     paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginLeft: 8,
+    overflow: "hidden",
   },
   attentionList: {
     paddingRight: 24,
