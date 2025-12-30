@@ -16,6 +16,7 @@ interface LoginInputProps {
   secureTextEntry?: boolean;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   onFocus?: () => void;
+  testID?: string;
 }
 
 export function LoginInput({
@@ -26,6 +27,7 @@ export function LoginInput({
   secureTextEntry = false,
   autoCapitalize = "none",
   onFocus,
+  testID,
 }: LoginInputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -34,6 +36,7 @@ export function LoginInput({
       <Text style={styles.label}>{label}</Text>
       <View style={styles.inputContainer}>
         <TextInput
+          testID={testID}
           style={styles.input}
           value={value}
           onChangeText={onChangeText}

@@ -124,6 +124,7 @@ export default function Login() {
         >
           <View style={styles.contentContainer}>
             <LoginInput
+              testID="username-input"
               label="Username"
               value={username}
               onChangeText={setUsername}
@@ -132,6 +133,7 @@ export default function Login() {
             />
 
             <LoginInput
+              testID="password-input"
               label="Password"
               value={password}
               onChangeText={setPassword}
@@ -146,7 +148,7 @@ export default function Login() {
                 }, 100);
               }}
             />
-            <LoginButton title="Sign In" onPress={handleLogin} isLoading={loggingIn} />
+            <LoginButton testID="signin-button" title="Sign In" onPress={handleLogin} isLoading={loggingIn} />
 
             <SocialDivider />
 

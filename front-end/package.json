@@ -8,7 +8,13 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e:ios:build": "detox build --configuration ios.sim.release",
+    "test:e2e:ios:reset": "xcrun simctl shutdown 'iPhone 17 Pro' || true && xcrun simctl erase 'iPhone 17 Pro'",
+    "test:e2e:ios": "npm run test:e2e:ios:reset && detox test --configuration ios.sim.release"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -46,10 +52,15 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.3",
     "@types/react": "~19.1.0",
+    "detox": "^20.46.3",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^30.2.0",
     "react-native-dotenv": "^3.4.11",
+    "react-test-renderer": "^19.1.0",
     "typescript": "~5.9.2"
   },
   "private": true

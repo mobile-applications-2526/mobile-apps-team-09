@@ -5,11 +5,12 @@ interface LoginButtonProps {
   title: string;
   onPress: () => void;
   isLoading?: boolean;
+  testID?: string;
 }
 
-export function LoginButton({ title, onPress, isLoading }: LoginButtonProps) {
+export function LoginButton({ title, onPress, isLoading, testID }: LoginButtonProps) {
   return (
-    <TouchableOpacity style={[styles.button, isLoading && styles.buttonDisabled]} onPress={onPress} disabled={isLoading}>
+    <TouchableOpacity testID={testID} style={[styles.button, isLoading && styles.buttonDisabled]} onPress={onPress} disabled={isLoading}>
       <Text style={styles.buttonText}>{isLoading ? "Signing in..." : title}</Text>
     </TouchableOpacity>
   );
