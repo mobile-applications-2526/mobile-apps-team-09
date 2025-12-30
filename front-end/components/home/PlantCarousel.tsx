@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { COLORS } from "@/constants/colors";
 import { Plant, getPlantStatus } from "@/utils/plantHelpers";
+import { usePlantNavigation } from "@/contexts/PlantNavigationContext";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const CARD_WIDTH = SCREEN_WIDTH * 0.75;
@@ -25,6 +26,7 @@ interface PlantCarouselProps {
 export const PlantCarousel: React.FC<PlantCarouselProps> = ({ plants }) => {
   const scrollX = React.useRef(new Animated.Value(0)).current;
   const router = useRouter();
+  const { setSelectedPlantId } = usePlantNavigation();
 
   if (plants.length === 0) {
     return (
@@ -93,6 +95,10 @@ export const PlantCarousel: React.FC<PlantCarouselProps> = ({ plants }) => {
             <TouchableOpacity
               activeOpacity={0.95}
               style={[styles.carouselCardContainer]}
+              onPress={() => {
+                setSelectedPlantId(item.id);
+                router.push("/(tabs)/garden");
+              }}
             >
               <Animated.View
                 style={[

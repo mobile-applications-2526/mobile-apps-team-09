@@ -11,6 +11,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { COLORS } from "@/constants/colors";
 import { Plant } from "@/utils/plantHelpers";
 import { useRouter } from "expo-router";
+import { usePlantNavigation } from "@/contexts/PlantNavigationContext";
 
 interface AttentionCardsProps {
   plants: Plant[];
@@ -18,6 +19,7 @@ interface AttentionCardsProps {
 
 export const AttentionCards: React.FC<AttentionCardsProps> = ({ plants }) => {
   const router = useRouter();
+  const { setSelectedPlantId } = usePlantNavigation();
 
   if (plants.length === 0) {
     return null;
@@ -26,17 +28,12 @@ export const AttentionCards: React.FC<AttentionCardsProps> = ({ plants }) => {
   return (
     <>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>
-          Needs Attention Today
-          <Text style={styles.badgeCount}> {plants.length}</Text>
-        </Text>
-        <TouchableOpacity onPress={() => router.push("/(tabs)/garden")}>
-          <IconSymbol
-            name="chevron.right"
-            size={20}
-            color={COLORS.textSecondary}
-          />
-        </TouchableOpacity>
+        <View style={styles.titleContainer}>
+          <Text style={styles.sectionTitle}>Needs Attention Today</Text>
+          <View style={styles.badgeCount}>
+            <Text style={styles.badgeCountText}>{plants.length}</Text>
+          </View>
+        </View>
       </View>
 
       <FlatList
@@ -49,6 +46,10 @@ export const AttentionCards: React.FC<AttentionCardsProps> = ({ plants }) => {
           <TouchableOpacity
             style={[styles.attentionCard, index === 0 && { marginLeft: 24 }]}
             activeOpacity={0.8}
+            onPress={() => {
+              setSelectedPlantId(item.id);
+              router.push("/(tabs)/garden");
+            }}
           >
             <View style={styles.attentionImageContainer}>
               {item.image_url ? (
@@ -92,11 +93,13 @@ export const AttentionCards: React.FC<AttentionCardsProps> = ({ plants }) => {
 
 const styles = StyleSheet.create({
   sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     paddingHorizontal: 24,
     marginBottom: 16,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   sectionTitle: {
     fontSize: 22,
@@ -104,15 +107,17 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   badgeCount: {
-    fontSize: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.urgentRed,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeCountText: {
+    fontSize: 14,
     fontWeight: "700",
-    color: COLORS.urgentRed,
-    backgroundColor: `${COLORS.urgentRed}18`,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    marginLeft: 8,
-    overflow: "hidden",
+    color: "#FFFFFF",
   },
   attentionList: {
     paddingRight: 24,
