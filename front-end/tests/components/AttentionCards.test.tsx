@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { AttentionCards } from '@/components/home/AttentionCards';
 import { Plant } from '@/utils/plantHelpers';
+import { PlantNavigationProvider } from '@/contexts/PlantNavigationContext';
 
 // Mock expo-router
 const mockPush = jest.fn();
@@ -15,6 +16,14 @@ jest.mock('expo-router', () => ({
 jest.mock('@/components/ui/icon-symbol', () => ({
   IconSymbol: ({ name }: any) => null,
 }));
+
+// Wrapper component with provider
+const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+  return <PlantNavigationProvider>{children}</PlantNavigationProvider>;
+};
+
+const customRender = (ui: React.ReactElement, options?: any) =>
+  render(ui, { wrapper: AllTheProviders, ...options });
 
 describe('AttentionCards', () => {
   const mockPlants: Plant[] = [
@@ -66,29 +75,29 @@ describe('AttentionCards', () => {
 
   describe('Empty State', () => {
     it('should render nothing when plants array is empty', () => {
-      const { toJSON } = render(<AttentionCards plants={[]} />);
+      const { toJSON } = customRender(<AttentionCards plants={[]} />);
       expect(toJSON()).toBeNull();
     });
 
     it('should not display section header when no plants', () => {
-      render(<AttentionCards plants={[]} />);
+      customRender(<AttentionCards plants={[]} />);
       expect(screen.queryByText('Needs Attention Today')).toBeNull();
     });
   });
 
   describe('Section Header', () => {
     it('should display section title when plants exist', () => {
-      render(<AttentionCards plants={mockPlants} />);
+      customRender(<AttentionCards plants={mockPlants} />);
       expect(screen.getByText('Needs Attention Today', { exact: false })).toBeTruthy();
     });
 
     it('should display correct plant count in badge', () => {
-      render(<AttentionCards plants={mockPlants} />);
+      customRender(<AttentionCards plants={mockPlants} />);
       expect(screen.getByText('2')).toBeTruthy();
     });
 
     it('should display count of 1 for single plant', () => {
-      render(<AttentionCards plants={[mockPlants[0]]} />);
+      customRender(<AttentionCards plants={[mockPlants[0]]} />);
       expect(screen.getByText('1')).toBeTruthy();
     });
 
@@ -97,14 +106,14 @@ describe('AttentionCards', () => {
         ...plant,
         id: index + 1,
       }));
-      render(<AttentionCards plants={manyPlants} />);
+      customRender(<AttentionCards plants={manyPlants} />);
       expect(screen.getByText('15')).toBeTruthy();
     });
   });
 
   describe('Navigation', () => {
     it('should navigate to garden tab when chevron is pressed', () => {
-      const { UNSAFE_getAllByType } = render(<AttentionCards plants={mockPlants} />);
+      const { UNSAFE_getAllByType } = customRender(<AttentionCards plants={mockPlants} />);
       const { TouchableOpacity } = require('react-native');
 
       // Get all TouchableOpacity components
@@ -116,7 +125,7 @@ describe('AttentionCards', () => {
     });
 
     it('should call router.push only once per press', () => {
-      const { UNSAFE_getAllByType } = render(<AttentionCards plants={mockPlants} />);
+      const { UNSAFE_getAllByType } = customRender(<AttentionCards plants={mockPlants} />);
       const { TouchableOpacity } = require('react-native');
 
       const touchables = UNSAFE_getAllByType(TouchableOpacity);
@@ -128,28 +137,28 @@ describe('AttentionCards', () => {
 
   describe('Plant Cards Rendering', () => {
     it('should render all plants in the list', () => {
-      render(<AttentionCards plants={mockPlants} />);
+      customRender(<AttentionCards plants={mockPlants} />);
 
       expect(screen.getByText('Monstera')).toBeTruthy();
       expect(screen.getByText('Pothos')).toBeTruthy();
     });
 
     it('should display plant common names', () => {
-      render(<AttentionCards plants={mockPlants} />);
+      customRender(<AttentionCards plants={mockPlants} />);
 
       expect(screen.getByText('Swiss Cheese Plant')).toBeTruthy();
       expect(screen.getByText('Devil\'s Ivy')).toBeTruthy();
     });
 
     it('should display water badge for all plants', () => {
-      render(<AttentionCards plants={mockPlants} />);
+      customRender(<AttentionCards plants={mockPlants} />);
 
       const waterBadges = screen.getAllByText('Water');
       expect(waterBadges.length).toBe(2);
     });
 
     it('should handle single plant correctly', () => {
-      render(<AttentionCards plants={[mockPlants[0]]} />);
+      customRender(<AttentionCards plants={[mockPlants[0]]} />);
 
       expect(screen.getByText('Monstera')).toBeTruthy();
       expect(screen.queryByText('Pothos')).toBeNull();
@@ -158,7 +167,7 @@ describe('AttentionCards', () => {
 
   describe('Image Handling', () => {
     it('should render image when image_url is provided', () => {
-      const { UNSAFE_getAllByType } = render(<AttentionCards plants={[mockPlants[0]]} />);
+      const { UNSAFE_getAllByType } = customRender(<AttentionCards plants={[mockPlants[0]]} />);
       const { Image } = require('react-native');
 
       const images = UNSAFE_getAllByType(Image);
@@ -166,14 +175,14 @@ describe('AttentionCards', () => {
     });
 
     it('should render placeholder when image_url is null', () => {
-      render(<AttentionCards plants={[mockPlants[1]]} />);
+      customRender(<AttentionCards plants={[mockPlants[1]]} />);
 
       // Placeholder view should be rendered (no image role for null image_url)
       expect(screen.getByText('Pothos')).toBeTruthy();
     });
 
     it('should handle mixed image scenarios', () => {
-      render(<AttentionCards plants={mockPlants} />);
+      customRender(<AttentionCards plants={mockPlants} />);
 
       // One plant has image, one doesn't
       expect(screen.getByText('Monstera')).toBeTruthy();
@@ -188,7 +197,7 @@ describe('AttentionCards', () => {
         plant_name: 'This is a very long plant name that should be truncated',
       };
 
-      render(<AttentionCards plants={[longNamePlant]} />);
+      customRender(<AttentionCards plants={[longNamePlant]} />);
       expect(screen.getByText('This is a very long plant name that should be truncated')).toBeTruthy();
     });
 
@@ -201,7 +210,7 @@ describe('AttentionCards', () => {
         },
       };
 
-      render(<AttentionCards plants={[longSpeciesPlant]} />);
+      customRender(<AttentionCards plants={[longSpeciesPlant]} />);
       expect(screen.getByText('This is a very long species common name that should truncate')).toBeTruthy();
     });
   });
@@ -213,7 +222,7 @@ describe('AttentionCards', () => {
         plant_name: '',
       };
 
-      render(<AttentionCards plants={[emptyNamePlant]} />);
+      customRender(<AttentionCards plants={[emptyNamePlant]} />);
       expect(screen.getByText('')).toBeTruthy();
     });
 
@@ -223,7 +232,7 @@ describe('AttentionCards', () => {
         plant_name: 'My Plant ☘️ & Co.',
       };
 
-      render(<AttentionCards plants={[specialCharPlant]} />);
+      customRender(<AttentionCards plants={[specialCharPlant]} />);
       expect(screen.getByText('My Plant ☘️ & Co.')).toBeTruthy();
     });
   });

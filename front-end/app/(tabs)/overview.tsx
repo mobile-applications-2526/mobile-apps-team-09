@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 import api from "../../services/apiService";
 import { updateProfile } from "@/services/ProfileService";
 import { getCurrentUserId } from "@/services/UserService";
@@ -163,6 +164,13 @@ export default function Overview() {
     fetchUserData();
     requestLocationPermission();
   }, [fetchUserData, requestLocationPermission]);
+
+  // Refetch user data when screen comes into focus (e.g., after watering a plant)
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [fetchUserData])
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

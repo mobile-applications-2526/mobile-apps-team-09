@@ -25,6 +25,7 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import PlantService from "@/services/PlantService";
+import { usePlantNavigation } from "@/contexts/PlantNavigationContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -109,6 +110,7 @@ const HomeExplorerView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isWatering, setIsWatering] = useState(false);
   const [wateringSuccess, setWateringSuccess] = useState(false);
+  const { selectedPlantId, setSelectedPlantId } = usePlantNavigation();
 
   // Modal swipe gesture
   const modalTranslateY = useSharedValue(0);
@@ -126,6 +128,19 @@ const HomeExplorerView: React.FC = () => {
     fetchPlants();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-open modal when navigating from home screen with selected plant
+  useEffect(() => {
+    if (selectedPlantId && plants.length > 0) {
+      const plant = plants.find((p) => p.id === selectedPlantId);
+      if (plant) {
+        setSelectedPlant(plant);
+        setModalVisible(true);
+        // Clear the selected plant ID after opening
+        setSelectedPlantId(null);
+      }
+    }
+  }, [selectedPlantId, plants, setSelectedPlantId]);
 
   const calculatePlantStatus = (
     lastWatered: string,
