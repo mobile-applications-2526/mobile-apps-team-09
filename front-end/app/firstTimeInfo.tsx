@@ -102,7 +102,7 @@ export default function FirstTimeInfo() {
                 </ThemedText>
             </Animated.View>
 
-            <Pressable onPress={handleArrowPress} style={styles.arrowContainer}>
+            <Pressable testID="onboarding-next-button" onPress={handleArrowPress} style={styles.arrowContainer}>
                 <Image
                     source={require('@/assets/images/arrow-right.png')}
                     style={styles.arrow}
