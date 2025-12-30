@@ -8,7 +8,10 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test:e2e:ios:build": "detox build --configuration ios.sim.release",
+    "test:e2e:ios:reset": "xcrun simctl shutdown 'iPhone 17 Pro' || true && xcrun simctl erase 'iPhone 17 Pro'",
+    "test:e2e:ios": "npm run test:e2e:ios:reset && detox test --configuration ios.sim.release"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -47,8 +50,10 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "detox": "^20.46.3",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^30.2.0",
     "react-native-dotenv": "^3.4.11",
     "typescript": "~5.9.2"
   },
