@@ -24,6 +24,7 @@ export default function Login() {
     "error"
   );
   const [showStatus, setShowStatus] = React.useState(false);
+  const [loggingIn, setLoggingIn] = React.useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -54,6 +55,7 @@ export default function Login() {
       return;
     }
 
+    setLoggingIn(true);
     try {
       const response = await login(username, password);
       if (!response) {
@@ -143,8 +145,7 @@ export default function Login() {
                 }, 100);
               }}
             />
-
-            <LoginButton title="Sign In" onPress={handleLogin} />
+            <LoginButton title="Sign In" onPress={handleLogin} isLoading={loggingIn} />
 
             <SocialDivider />
 

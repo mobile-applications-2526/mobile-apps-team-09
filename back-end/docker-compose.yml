@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql+asyncpg://postgres.jktuqfwxzguqbzvvfmpl:tkw-vmn4vhg9gqx5FDY@aws-1-eu-west-1.pooler.supabase.com:5432/postgres
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG:-True}
       - APP_NAME=${APP_NAME:-PlantSense AI Backend}
@@ -16,54 +16,50 @@ services:
       - SUPABASE_KEY=${SUPABASE_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-    depends_on:
-      - db
     volumes:
       - ./app:/app/app
     restart: unless-stopped
-    networks:
-      - plantsense_network
 
   # PostgreSQL Database for PlantSense AI
-  db:
-    image: postgres:15-alpine
-    container_name: plantsense_postgres
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "5431:5432"
-    volumes:
-      - plantsense_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - plantsense_network
+#   db:
+#     image: postgres:15-alpine
+#     container_name: plantsense_postgres
+#     environment:
+#       - POSTGRES_USER=${POSTGRES_USER}
+#       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#       - POSTGRES_DB=${POSTGRES_DB}
+#     ports:
+#       - "5431:5432"
+#     volumes:
+#       - plantsense_data:/var/lib/postgresql/data
+#     restart: unless-stopped
+#     networks:
+#       - plantsense_network
 
-  # pgAdmin (Database Management UI)
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: plantsense_pgadmin
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@plantsense.com}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin}
-      - PGADMIN_CONFIG_SERVER_MODE=False
-      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
-    depends_on:
-      - db
-    restart: unless-stopped
-    networks:
-      - plantsense_network
+#   # pgAdmin (Database Management UI)
+#   pgadmin:
+#     image: dpage/pgadmin4:latest
+#     container_name: plantsense_pgadmin
+#     environment:
+#       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@plantsense.com}
+#       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin}
+#       - PGADMIN_CONFIG_SERVER_MODE=False
+#       - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+#     ports:
+#       - "5050:80"
+#     volumes:
+#       - pgadmin_data:/var/lib/pgadmin
+#       - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+#     depends_on:
+#       - db
+#     restart: unless-stopped
+#     networks:
+#       - plantsense_network
 
-networks:
-  plantsense_network:
-    driver: bridge
+# networks:
+#   plantsense_network:
+#     driver: bridge
 
-volumes:
-  plantsense_data:
-  pgadmin_data:
+# volumes:
+#   plantsense_data:
+#   pgadmin_data:
