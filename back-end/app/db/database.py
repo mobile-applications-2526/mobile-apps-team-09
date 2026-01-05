@@ -17,6 +17,9 @@ import ssl
 logger = get_logger(__name__)
 
 ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
 
 engine = create_async_engine(
     settings.DATABASE_URL,
@@ -25,7 +28,7 @@ engine = create_async_engine(
         "ssl": ssl_context,
         "statement_cache_size": 0,
     },
-    pool_size=1,        
+    pool_size=1,
     max_overflow=0,
 )
 
