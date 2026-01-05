@@ -26,8 +26,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     DB_CONNECTION_TIMEOUT: int = 120
     DB_COMMAND_TIMEOUT: int = 120
-    DB_POOL_SIZE: int = 10
-    DB_MAX_OVERFLOW: int = 20
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 10
     DB_SSL_VERIFY: bool = True
 
     # Security
