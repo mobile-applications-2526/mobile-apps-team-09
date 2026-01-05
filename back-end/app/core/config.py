@@ -4,6 +4,7 @@ Application configuration management
 
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 
 class Settings(BaseSettings):
@@ -19,15 +20,15 @@ class Settings(BaseSettings):
 
     # Server
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = int(os.getenv("PORT", 8000))
 
     # Database (Supabase PostgreSQL)
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@db.xxxxx.supabase.co:5432/postgres"
+    DATABASE_URL: str
     DB_CONNECTION_TIMEOUT: int = 120
     DB_COMMAND_TIMEOUT: int = 120
     DB_POOL_SIZE: int = 10
     DB_MAX_OVERFLOW: int = 20
-    DB_SSL_VERIFY: bool = False
+    DB_SSL_VERIFY: bool = True
 
     # Security
     SECRET_KEY: str
