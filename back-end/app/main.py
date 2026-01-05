@@ -19,11 +19,12 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for startup and shutdown events
     """
     # Startup
-    setup_logging()
-    await create_tables()
+    try:
+        setup_logging()
+        await create_tables()
+    except Exception as e:
+        print(e)
     yield
-    # Shutdown
-    # Add cleanup logic here if needed
 
 
 def create_application() -> FastAPI:

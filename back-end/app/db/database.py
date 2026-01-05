@@ -20,7 +20,7 @@ engine = create_async_engine(
     echo=settings.DEBUG,
     future=True,
     connect_args={
-        "ssl": False,  # 🔥 REQUIRED for Supabase + asyncpg
+        "ssl": False,
         "server_settings": {"application_name": "plantsense_backend"},
     },
     pool_size=settings.DB_POOL_SIZE,
@@ -28,6 +28,7 @@ engine = create_async_engine(
     pool_pre_ping=True,
     pool_recycle=3600,
 )
+
 
 AsyncSessionLocal = async_sessionmaker(
     engine,
