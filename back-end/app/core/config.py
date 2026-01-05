@@ -23,11 +23,11 @@ class Settings(BaseSettings):
 
     # Database (Supabase PostgreSQL)
     DATABASE_URL: str = "postgresql+asyncpg://user:password@db.xxxxx.supabase.co:5432/postgres"
-    DB_CONNECTION_TIMEOUT: int = 30  # Connection timeout in seconds
-    DB_COMMAND_TIMEOUT: int = 30  # Query execution timeout in seconds
-    DB_POOL_SIZE: int = 10  # Number of connections to keep in pool
-    DB_MAX_OVERFLOW: int = 20  # Maximum overflow connections
-    DB_SSL_VERIFY: bool = False  # Disable SSL verification for Supabase (self-signed certs)
+    DB_CONNECTION_TIMEOUT: int = 120
+    DB_COMMAND_TIMEOUT: int = 120
+    DB_POOL_SIZE: int = 10
+    DB_MAX_OVERFLOW: int = 20
+    DB_SSL_VERIFY: bool = False
 
     # Security
     SECRET_KEY: str
