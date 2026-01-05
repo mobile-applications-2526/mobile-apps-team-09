@@ -26,8 +26,8 @@ engine = create_async_engine(
     pool_pre_ping=True,
     connect_args={
         "ssl": "require",
-        "timeout": 10,
-        "command_timeout": 10,
+        "timeout": 120,
+        "command_timeout": 120,
         "server_settings": {"application_name": "plantsense_backend"},
     },
 )
