@@ -56,13 +56,14 @@ export default function Login() {
     }
 
     setLoggingIn(true);
-    
+
     try {
       const response = await login(username, password);
       if (!response) {
         setStatusMessage("Incorrect username or password.");
         setStatusType("error");
         setShowStatus(true);
+        setLoggingIn(false);
         return;
       }
 
@@ -77,7 +78,7 @@ export default function Login() {
       }, 1700);
     } catch (error: any) {
       console.log("Login error:", error);
-      
+
       let friendlyMessage = "Incorrect username or password.";
 
       if (
@@ -90,6 +91,7 @@ export default function Login() {
       setStatusMessage(friendlyMessage);
       setStatusType("error");
       setShowStatus(true);
+      setLoggingIn(false);
     }
   }
 

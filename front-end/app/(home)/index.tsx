@@ -17,6 +17,29 @@ import { login } from "@/services/UserService";
 
 const DEV_MODE = true;
 
+// Decode JWT token and check if it's expired
+const decodeToken = (token: string): { exp?: number;[key: string]: any } | null => {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    const decoded = JSON.parse(atob(parts[1]));
+    return decoded;
+  } catch (error) {
+    console.error("Failed to decode token:", error);
+    return null;
+  }
+};
+
+// Check if token is expired
+const isTokenExpired = (token: string): boolean => {
+  const decoded = decodeToken(token);
+  if (!decoded || !decoded.exp) return true;
+
+  const currentTime = Math.floor(Date.now() / 1000);
+  return decoded.exp < currentTime;
+};
+
 export default function HomeScreen() {
   const router = useRouter();
 
@@ -44,7 +67,19 @@ export default function HomeScreen() {
       const token = await SecureStore.getItemAsync("access_token");
 
       if (token) {
-        router.replace("/(tabs)/overview");
+        // Check if token is expired
+        if (isTokenExpired(token)) {
+          console.log("Token has expired");
+          await SecureStore.deleteItemAsync("access_token");
+          router.replace("/login");
+        } else {
+          const decoded = decodeToken(token);
+          console.log("Token is valid. User:", decoded?.sub || "Unknown");
+          router.replace("/(tabs)/overview");
+        }
+      } else {
+        await SecureStore.deleteItemAsync("access_token");
+        router.replace("/login");
       }
     };
     checkToken();
