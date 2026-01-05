@@ -20,18 +20,15 @@ ssl_context = ssl.create_default_context()
 
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=settings.DEBUG,
     pool_pre_ping=True,
     connect_args={
-        "ssl": ssl_context,         
+        "ssl": ssl_context,
         "statement_cache_size": 0,
-        "timeout": 10,
-        "command_timeout": 10,
-        "server_settings": {
-            "application_name": "plantsense_backend"
-        },
     },
+    pool_size=1,        
+    max_overflow=0,
 )
+
 
 
 
