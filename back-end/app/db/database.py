@@ -20,14 +20,14 @@ engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
     future=True,
-    pool_size=2,
-    max_overflow=3,
+    pool_size=5,
+    max_overflow=10,
     pool_recycle=3600,
     pool_pre_ping=True,
     connect_args={
         "ssl": "require",
-        "timeout": 120,
-        "command_timeout": 120,
+        "timeout": 30,
+        "command_timeout": 30,
         "server_settings": {"application_name": "plantsense_backend"},
     },
 )
