@@ -21,24 +21,12 @@ logger = get_logger(__name__)
 print("Database url" + settings.DATABASE_URL)
 
 
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = False
-ssl_context.verify_mode = ssl.CERT_NONE
-
 engine = create_async_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
-    pool_size=1,
-    max_overflow=0,
-    connect_args={
-        "ssl": ssl_context,
-        "timeout": 30,
-        "command_timeout": 30,
-    },
+    pool_size=5,
+    max_overflow=5,
 )
-
-
-
 
 AsyncSessionLocal = async_sessionmaker(
     engine,
