@@ -17,8 +17,8 @@ import ssl
 logger = get_logger(__name__)
 
 ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = False
-ssl_context.verify_mode = ssl.CERT_NONE
+ssl_context.check_hostname = True
+ssl_context.verify_mode = ssl.CERT_REQUIRED
 
 
 engine = create_async_engine(
@@ -26,10 +26,12 @@ engine = create_async_engine(
     pool_pre_ping=True,
     connect_args={
         "ssl": ssl_context,
-        "statement_cache_size": 0,
+        "timeout": 10,
+        "command_timeout": 10,
+        "server_settings": {
+            "application_name": "plantsense_backend",
+        },
     },
-    pool_size=1,
-    max_overflow=0,
 )
 
 
