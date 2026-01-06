@@ -13,19 +13,18 @@ from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 from app.core.logging import get_logger
 import ssl
+import certifi
+import logging
 
 logger = get_logger(__name__)
 
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = True
-ssl_context.verify_mode = ssl.CERT_REQUIRED
-
+print("Database url" + settings.DATABASE_URL)
 
 engine = create_async_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
     connect_args={
-        "ssl": ssl_context,
+        "ssl": False,
         "timeout": 30,
         "command_timeout": 30,
         "server_settings": {

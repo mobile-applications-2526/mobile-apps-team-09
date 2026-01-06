@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres.jktuqfwxzguqbzvvfmpl:tkw-vmn4vhg9gqx5FDY@aws-1-eu-west-1.pooler.supabase.com:5432/postgres
+      - DATABASE_URL=postgresql+asyncpg://app_admin.jktuqfwxzguqbzvvfmpl:STRONG_PASSWORD@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG:-True}
       - APP_NAME=${APP_NAME:-PlantSense AI Backend}
