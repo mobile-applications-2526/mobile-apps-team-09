@@ -13,23 +13,27 @@ from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 from app.core.logging import get_logger
 import ssl
-import certifi
-import logging
+import ssl
+from sqlalchemy.ext.asyncio import create_async_engine
 
 logger = get_logger(__name__)
 
 print("Database url" + settings.DATABASE_URL)
 
+
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
 engine = create_async_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
+    pool_size=1,
+    max_overflow=0,
     connect_args={
-        "ssl": False,
+        "ssl": ssl_context,
         "timeout": 30,
         "command_timeout": 30,
-        "server_settings": {
-            "application_name": "plantsense_backend",
-        },
     },
 )
 
