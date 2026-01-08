@@ -30,6 +30,7 @@ export default function Signup() {
     "error"
   );
   const [showStatus, setShowStatus] = React.useState(false);
+  const [signingUp, setSigningUp] = React.useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -112,7 +113,7 @@ export default function Signup() {
       setShowStatus(true);
       return;
     }
-
+    setSigningUp(true)
     setLoading(true);
     try {
       const newUser = await registerUser({
@@ -156,6 +157,7 @@ export default function Signup() {
       setShowStatus(true);
     } finally {
       setLoading(false);
+      setSigningUp(false)
     }
   }
 
@@ -249,7 +251,7 @@ export default function Signup() {
               }}
             />
 
-            <LoginButton title="Register" onPress={handleSignup} />
+            <LoginButton title="Register" onPress={handleSignup} isLoading={signingUp}/>
 
             <SocialDivider />
 
